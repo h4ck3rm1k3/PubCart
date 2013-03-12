@@ -20,6 +20,9 @@ _prelaunch_routes = [
 	RedirectRoute('/login/', web_handlers.PreLaunchSignupHandler, name='login', strict_slash=True),
     RedirectRoute('/logout/', web_handlers.PreLaunchLogoutHandler, name='logout', strict_slash=True),
     RedirectRoute('/register/', web_handlers.PreLaunchSignupHandler, name='register', strict_slash=True),
+    RedirectRoute('/about/', web_handlers.PreLaunchAboutHandler, name='about', strict_slash=True),
+    RedirectRoute('/jobs/', web_handlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
+
 ]
 
 _routes = [

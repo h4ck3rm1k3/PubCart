@@ -41,6 +41,8 @@ from boilerplate.lib.basehandler import BaseHandler
 class PreLaunchSignupHandler(RegisterBaseHandler):
 	def get(self):
 		try:
+			if self.user:
+				return self.redirect_to('preLaunchThankyou')
 			params = {
 					'continue_url': "{}/thankyou".format(self.request.host_url),
 					}
@@ -52,31 +54,16 @@ class PreLaunchThankyouHandler(RegisterBaseHandler):
 	@user_required
 	def get(self):
 		try:
-			params = {
-					'continue_url': "{}/thankyou".format(self.request.host_url),
-					}
+			params = {}
 			self.bournee_template('preRegisterThankyou.html', **params)
 		except:
-			logging.error('Error during PreLaunchSignupHandler')
-
-
-class PreLaunchThankyouHandler(RegisterBaseHandler):
-	@user_required
-	def get(self):
-		try:
-			params = {
-					'continue_url': "{}/thankyou".format(self.request.host_url),
-					}
-			self.bournee_template('preRegisterThankyou.html', **params)
-		except:
-			logging.error('Error during PreLaunchSignupHandler')
+			logging.error('Error during PreLaunchThankyouHandler')
 
 
 class PreLaunchLogoutHandler(BaseHandler):
 	"""
 	Destroy user session and redirect to login
 	"""
-
 	def get(self):
 		try:
 			if self.user:
@@ -92,6 +79,28 @@ class PreLaunchLogoutHandler(BaseHandler):
 			message = _("User is logged out, but there was an error on the redirection.")
 			self.add_message(message, 'error')
 			return self.redirect_to('preLaunchSignup')
+
+class PreLaunchAboutHandler(RegisterBaseHandler):
+	def get(self):
+		try:
+			params = {
+					'continue_url': "{}/thankyou".format(self.request.host_url),
+					}
+			self.bournee_template('preRegisterSignIn.html', **params)
+		except:
+			logging.error('Error during PreLaunchAboutHandler')
+
+
+class PreLaunchJobsHandler(RegisterBaseHandler):
+	def get(self):
+		try:
+			params = {
+					'continue_url': "{}/thankyou".format(self.request.host_url),
+					}
+			self.bournee_template('preRegisterSignIn.html', **params)
+		except:
+			logging.error('Error during PreLaunchAboutHandler')
+
 
 class HomeRequestHandler(RegisterBaseHandler):
 	"""
