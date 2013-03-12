@@ -68,7 +68,7 @@ config = {
 'captcha_private_key' : "PUT_YOUR_RECAPCHA_PRIVATE_KEY_HERE",
 
 # Leave blank "google_analytics_domain" if you only want Analytics code
-'google_analytics_domain' : "YOUR_PRIMARY_DOMAIN (e.g. google.com)",
+'google_analytics_domain' : "pubcart.com",
 'google_analytics_code' : "UA-XXXXX-X",
 
 # add status codes and templates used to catch and display errors

@@ -6,7 +6,7 @@ config = {
 # ----> ADD MORE CONFIGURATION OPTIONS HERE <----
 
 # webapp2 sessions
-'webapp2_extras.sessions' : {'secret_key': '_PUT_KEY_HERE_YOUR_SECRET_KEY_'},
+'webapp2_extras.sessions' : {'secret_key': 'QOV2NLJ7654FcXuneZmIFXuV3WU4z8JEfZp7lIto9'},
 
 # webapp2 authentication
 'webapp2_extras.auth' : {'user_model': 'boilerplate.models.User',
@@ -17,7 +17,7 @@ config = {
                            'environment_args': {'extensions': ['jinja2.ext.i18n']}},
 
 # application name
-'app_name' : "BournEE Exchange (Development Server)",
+'app_name' : "PubCart.",
 
 # the default language code for the application.
 # should match whatever language the site uses when i18n is disabled
@@ -36,39 +36,39 @@ config = {
 'contact_recipient' : "jayelbourne@gmail.com",
 
 # Password AES Encryption Parameters
-'aes_key' : "12_24_32_BYTES_KEY_FOR_PASSWORDS",
-'salt' : "_PUT_SALT_HERE_TO_SHA512_PASSWORDS_",
+'aes_key' : "QOV2NLJ2312FcXuneZmIFXuV6WU6z9JEfZp4lIto2",
+'salt' : "DONOTCRACKMYPASSWORDSORYOUWILLDIE",
 
 # get your own consumer key and consumer secret by registering at https://dev.twitter.com/apps
 # callback url must be: http://[YOUR DOMAIN]/login/twitter/complete
-'twitter_consumer_key' : 'PUT_YOUR_TWITTER_CONSUMER_KEY_HERE',
-'twitter_consumer_secret' : 'PUT_YOUR_TWITTER_CONSUMER_SECRET_HERE',
+'twitter_consumer_key' : 'nmkfdS6WaPwcJBZA2RyNNA',
+'twitter_consumer_secret' : 'QOV2NLJ2188FcXuneZmIFXuV3WU6z2JEfZp7lIto8',
 
 #Facebook Login
 # get your own consumer key and consumer secret by registering at https://developers.facebook.com/apps
 #Very Important: set the site_url= your domain in the application settings in the facebook app settings page
 # callback url must be: http://[YOUR DOMAIN]/login/facebook/complete
-'fb_api_key' : 'PUT_YOUR_FACEBOOK_PUBLIC_KEY_HERE',
-'fb_secret' : 'PUT_YOUR_FACEBOOK_PUBLIC_KEY_HERE',
+'fb_api_key' : '636727389676617',
+'fb_secret' : '49e3b37431a65ca6aaaf00c3f069661b',
 
 #Linkedin Login
 #Get you own api key and secret from https://www.linkedin.com/secure/developer
-'linkedin_api' : 'PUT_YOUR_LINKEDIN_PUBLIC_KEY_HERE',
-'linkedin_secret' : 'PUT_YOUR_LINKEDIN_PUBLIC_KEY_HERE',
+'linkedin_api' : 'sem8ipobxci3',
+'linkedin_secret' : 'MZlMPucOwxi9nmUo',
 
 # Github login
 # Register apps here: https://github.com/settings/applications/new
 'github_server' : 'github.com',
-'github_redirect_uri' : 'http://www.example.com/social_login/github/complete',
-'github_client_id' : 'PUT_YOUR_GITHUB_CLIENT_ID_HERE',
-'github_client_secret' : 'PUT_YOUR_GITHUB_CLIENT_SECRET_HERE',
+'github_redirect_uri' : 'http://www.pubcart.com/social_login/github/complete',
+'github_client_id' : 'd4088d3a1b1dda77922c',
+'github_client_secret' : '39d52c2f0ae6e87f41f5a37049ffa2ca71059af9',
 
 # get your own recaptcha keys by registering at http://www.google.com/recaptcha/
 'captcha_public_key' : "PUT_YOUR_RECAPCHA_PUBLIC_KEY_HERE",
 'captcha_private_key' : "PUT_YOUR_RECAPCHA_PRIVATE_KEY_HERE",
 
 # Leave blank "google_analytics_domain" if you only want Analytics code
-'google_analytics_domain' : "YOUR_PRIMARY_DOMAIN (e.g. google.com)",
+'google_analytics_domain' : "pubcart.com",
 'google_analytics_code' : "UA-XXXXX-X",
 
 # add status codes and templates used to catch and display errors
