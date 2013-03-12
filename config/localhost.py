@@ -6,7 +6,7 @@ config = {
 # ----> ADD MORE CONFIGURATION OPTIONS HERE <----
 
 # webapp2 sessions
-'webapp2_extras.sessions' : {'secret_key': '_PUT_KEY_HERE_YOUR_SECRET_KEY_'},
+'webapp2_extras.sessions' : {'secret_key': 'QOV2NLJ7654FcXuneZmIFXuV3WU4z8JEfZp7lIto9'},
 
 # webapp2 authentication
 'webapp2_extras.auth' : {'user_model': 'boilerplate.models.User',
@@ -36,8 +36,8 @@ config = {
 'contact_recipient' : "jayelbourne@gmail.com",
 
 # Password AES Encryption Parameters
-'aes_key' : "12_24_32_BYTES_KEY_FOR_PASSWORDS",
-'salt' : "_PUT_SALT_HERE_TO_SHA512_PASSWORDS_",
+'aes_key' : "th6hk3e6k3f7k0l4d9gj64k88FcXuneZ",
+'salt' : "DONOTCRACKMYPASSWORDSORYOUWILLDIE",
 
 # get your own consumer key and consumer secret by registering at https://dev.twitter.com/apps
 # callback url must be: http://[YOUR DOMAIN]/login/twitter/complete

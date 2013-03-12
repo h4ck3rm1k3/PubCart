@@ -35,7 +35,7 @@ config = {
 'contact_recipient' : "jayelbourne@gmail.com",
 
 # Password AES Encryption Parameters
-'aes_key' : "QOV2NLJ2312FcXuneZmIFXuV6WU6z9JEfZp4lIto2",
+'aes_key' : "th6hk3e6k3f7k0l4d9gj64k88FcXuneZ",
 'salt' : "DONOTCRACKMYPASSWORDSORYOUWILLDIE",
 
 # get your own consumer key and consumer secret by registering at https://dev.twitter.com/apps
