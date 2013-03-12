@@ -6,7 +6,7 @@ import logging
 from wtforms import fields
 from wtforms import Form
 from wtforms import validators
-from libr import utils
+from lib import utils
 from models import userModels, shoppingModels
 from webapp2_extras.i18n import lazy_gettext as _
 from webapp2_extras.i18n import ngettext, gettext
@@ -161,3 +161,4 @@ class EditSellerForm(BaseForm):
 	cn = fields.TextField(_('Contact Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	pn = fields.IntegerField(_('Phone Number'), [validators.Required()])
 	cat = fields.SelectField(_('Category'), [validators.AnyOf([cat for cat in CATEGORIES], message=u'A category selection is required')], choices=CATEGORIES)
+
