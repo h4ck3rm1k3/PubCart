@@ -1,0 +1,42 @@
+{% macro position_widget(pos, iter) %}
+
+<div id='{{pos.pn}}_widget_wrapper' class='position_widget_wrapper'>
+	<div class='position_name'>
+		<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=pos.pk.urlsafe() ) }}">{{pos.d|truncate(length=30, killwords=True)}}</a>
+	</div>
+	<div class='position_widget_inner'>
+		<div class='position_widget_image'>
+			{% if pos.img %}
+				<img src="{{pos.img}}" class="img-rounded" width='40px' height='40px'/>
+			{% else %}
+				<div class='no_icon_small'>No<br/>Logo</div>
+			{% endif %}
+		</div>
+		<div id='{{pos.pn}}_widget_info_wrapper' class='position_widget_info_wrapper'>
+			<div class='position_pn'>
+				<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=pos.pk.urlsafe() ) }}">{{pos.pn|truncate(length=16, killwords=True)}}</a>
+			</div>
+			<div cllass='position_sup'>
+				
+				<span class="label {% if pos.is_best_sell_price %}label-success{% else %}label-important{% endif %}">$ {{pos.d_sup}}</span> @ QNT: {{pos.rq}}
+				
+			</div>
+		</div>
+		<div id='{{pos.pn}}_widget_button' class='position_widget_button'>
+			<div class="btn-group">
+			    <button id='mmMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+				    <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+				    <li class="divider"></li>
+			        <li><a href="{{ uri_for('product', urlsafeProductKey=pos.pk.urlsafe() ) }}">View Product</a></li>
+				    <li><a href="{{ uri_for('exchangeOrder', pk=pos.pk.urlsafe()) }}">More Details</a></li>
+			    </ul>
+		  	</div>
+		</div>
+	</div>
+</div>
+<div class="clearfix"></div>
+
+{% endmacro %}

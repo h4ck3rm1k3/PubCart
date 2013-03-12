@@ -1,0 +1,96 @@
+{% extends "product.html" %}
+
+{% block order_form_area %}
+	<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
+		<div><span class='unitPriceText'>$ {{up}}<small>Buying unit price</small></span></div>
+		<div><span class='sellingPriceText'>$ {{rep}}<small>Selling unit price</small></span></div>
+		<form class="form-inline"action="{{ uri_for('exchangeOrder', pk=product.key.urlsafe()) }}" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="productNumber" value="{{product.pn}}">
+				<input type="hidden" name="meq" value="{{meq}}">
+				<input type="hidden" name="mep" value="{{mep}}">
+
+				<div class="input-prepend">
+					<span class="add-on marginTop15">@ QNT</span>
+					<select class="span2  marginTop15" name='qnt'>
+						{% if meq < 100 %}
+						  <option {% if qnt == 10 %}selected{% endif %}>10</option>
+						{% endif %}
+						{% if meq < 250 %}
+						  <option {% if qnt == 100 %}selected{% endif %}>100</option>
+						{% endif %}
+						{% if meq < 500 %}
+						  <option {% if qnt == 250 %}selected{% endif %}>250</option>
+						{% endif %}
+						{% if meq < 1000 %}
+						  <option {% if qnt == 500 %}selected{% endif %}>500</option>
+						{% endif %}
+						{% if meq < 2500 %}
+						  <option {% if qnt == 1000 %}selected{% endif %}>1000</option>
+						{% endif %}
+						{% if meq < 5000 %}
+						  <option {% if qnt == 2500 %}selected{% endif %}>2500</option>
+						{% endif %}
+						{% if meq < 10000 %}
+						  <option {% if qnt == 5000 %}selected{% endif %}>5000</option>
+						{% endif %}
+						<option {% if qnt == 10000 %}selected{% endif %}>10000</option>
+					</select>
+				</div>
+				<div class="input-prepend">
+					<span class="add-on marginTop15">@&nbsp;&nbsp;&nbsp;%&nbsp;&nbsp;</span>
+					<select class="span2  marginTop15" name='percentage'>
+						{% if maxPercentage > 1 %}
+							{% for num in range(1, maxPercentage+1) %}
+								<option {% if percentage == num %}selected{% endif %}>{{num}}</option>
+							{% endfor %}
+						{% else %}
+							<option selected>{{1}}</option>
+						{% endif %}
+					</select>
+				</div>
+				<div class="input-prepend">
+					<span class="add-on marginTop15">&nbsp;ROI =&nbsp;</span>
+					<span class="span2 uneditable-input marginTop15">${{pProfit}}</span>
+				</div>
+				<div class="input-prepend">
+					<span class="add-on marginTop15">&nbsp;FEE =&nbsp;</span>
+					<span class="span2 uneditable-input marginTop15">${{fee}}</span>
+				</div>
+				<div>
+					<button type="submit" class="btn marginTop15">update</button>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	<div id='productOrderButton_{{product.pn}}' class='productOrderButton'>
+		<form class="form-inline"action="{{ uri_for('completeExchangeOrder') }}" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="pn" value="{{product.pn}}">
+				<input type="hidden" name="cost" value="{{cost}}">
+				<input type="hidden" name="fee" value="{{fee}}">
+				<input type="hidden" name="bup" value="{{up}}">
+				<input type="hidden" name="sup" value="{{rep}}">
+				<input type="hidden" name="roi" value="{{pProfit}}">
+				<input type="hidden" name="qnt" value="{{qnt}}">
+				<input type="hidden" name="per" value="{{percentage}}">
+				<div class="btn-group">
+				  <button class="btn btn-primary btn-large" type="submit"><i class="icon-shopping-cart icon-white"></i> Order for Exch. ${{cost}}</button>
+				</div>
+			</fieldset>
+		</form>
+		<a href='{{ uri_for("product", urlsafeProductKey=product.key.urlsafe())}}'>Back to Product Page</a>
+	</div>
+{% endblock %}
+
+{% block important %}
+	<div class="alert alert-block">
+		<h4>VERY IMPORTANT!</h4>
+		It is your responsability to read the full Terms and Conditions for owning exchangeable products as a 'Market Maker'. Here is the Link to that document:
+		<a href='#'>Market Maker Terms and Conditions PDF</a>
+	</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "product.html" %}
+
+{% block order_form_area %}
+	<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
+		<h4>Add to Public BeList</h4>
+		<div><span class='unitPriceText'>$ {{best_price}}<small>Best Unit Price</small></span></div>
+		<form class="form-inline" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+				<div class="input-prepend">
+					<span class="add-on marginTop15">@ QUANTITY</span>
+					<input type="text" class="span1 marginTop15" name="q" value='{{requested_quantity}}' placeholder="Quantity">
+				</div>
+				
+				<button type="submit" class="btn marginTop15">update</button>
+			</fieldset>
+		</form>
+	</div>
+	<div id='addToBeListWrapper_{{product.pn}}' class='addToBeListWrapper text-info'>
+		
+		<form class="form-inline" action="{{ uri_for('addToCart') }}" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+				<input type="hidden" name="q" value="{{requested_quantity}}">
+					<h4>Pick a Cart</h4>
+					<select class="span2  marginTop15" name='ck'>
+						<option value='None'>New Private Cart</option>
+						{% if cartList %}
+						{% for cart in cartList %}
+						  <option value='{{cart.key.urlsafe()}}'>{{cart.n}}&nbsp;&nbsp;<small>{% if not cart.public %}(Private){% else %}(Public){% endif %}</small></option>
+						{% endfor %}
+						{% endif %}
+					</select>
+				
+				<div class="btn-group">
+				  <button class="btn btn-primary btn-large marginTop15" type="submit"><i class="icon-folder-open icon-white"></i> ADD to BeList</button>
+				</div>
+			</fieldset>
+		</form>
+		<a href='{{uri_for("product", urlsafeProductKey=product.key.urlsafe() )}}'>Back to Product Page</a>
+	</div>
+{% endblock %}
+
+{% block important %}
+	<div class="alert alert-block">
+		<h4>VERY IMPORTANT!</h4>
+		The BeList you are adding this product to is Public. This means everyone and anyone can view this BeList. If you wish to organize the Products privately we recommend using either the Shopping Cart or a Wish-list.
+	</div>
+{% endblock %}

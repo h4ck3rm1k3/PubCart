@@ -1,0 +1,158 @@
+{% extends "bourneeBase.html" %}
+{% macro cart_widget(cart, public, iter) %}
+<tr>
+    <td class='span1'>
+		{% if cart.img %}<img src='{{cart.img}}' width='60px'/>
+		{% else %}<img data-src="holder.js/44x44/text:PubCart." alt="">
+		{% endif %}
+    </td>
+	<td onclick='linkTo("{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}")' class='pointer' >
+		{% if cart.n %}{{cart.n}}{% else %}Cart has no name{% endif %}{% if cart.default %}&nbsp;&nbsp;&nbsp;<span class="label label-success">Default</span>{% endif %}<br/>
+		{% if cart.d %}{{cart.d|truncate(length=50, killwords=True)}}{% else %}Cart has no name description{% endif %}
+	</td>
+	<td class='span2'>{{cart.num_items}}</td>
+	<td class='span2'>
+		${{cart.d_gt}}
+	</td>
+	<td class='span2'>{{cart.published}}</td>
+	<td class='span1'>
+		<div id='{{cart.n}}_widget_button' class='product_widget_button'>
+			<div class="btn-group">
+			    <button id='cartMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+					{% if not public and not cart.default %}
+						<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('makeCartDefault') }}" method="POST">
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
+								<li><button type='submit'>Make Default</button></li>
+							</fieldset>
+						</form>
+						<li class="divider"></li>
+					{% endif %}
+			        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">View Cart</a></li>
+			        <li><a href="{{ uri_for('editCartDetails', urlsafeCartKey=cart.key.urlsafe()) }}">Edit Cart Details</a></li>
+			        <li><a href="{{ uri_for('forkCart', urlsafeCartKey=cart.key.urlsafe()) }}">Fork Cart</a></li>
+					{% if public %}
+						<li class="divider"></li>
+						<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Embed Cart</a></li>
+			        	<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Share Cart</a></li>
+						<form id='addToWatchlistForm' name='addToWatchlistForm' class="form-inline" action="{{ uri_for('addToWatchlist')}}" method="POST">
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<input type="hidden" name="pk" value="{{cart.key.urlsafe()}}">
+								<input type="hidden" name="wln" value="ALL">
+								<li><button type='submit'><i class='icon-eye-open'></i>&nbsp;Watch</button></li>
+							</fieldset>
+						</form>
+					{% endif %}
+					{% if not cart.default %}
+				    <li class="divider"></li>
+					<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteCart') }}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
+							<li><button type='submit' ><i class="icon-trash"></i>&nbsp;Remove</button></li>
+						</fieldset>
+					</form>
+					{% endif %}
+			    </ul>
+		  	</div>
+		</div>
+	</td>
+</tr>
+{% endmacro %}
+
+{% block title %}
+    My Carts - BournEE Exchange
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main_content %}
+	<table class="table table-striped table-hover table-condensed">
+	    <thead>
+			<tr>
+				<td colspan='6'>
+					<header>
+						<div class='fullpageTitleWrapper'>
+							My Carts.
+						</div>
+					</header>
+				</td>
+			</tr>
+	        <tr>
+	            <th class="span1">&nbsp;</th>
+				<th class="">Cart</th>
+				<th class="span2"># of Order Items</th>
+				<th class="span2">Grand Total</th>
+				<th class="span2">Published #</th>
+				<th class="span1"></th>
+	        </tr>
+			<tr class='info'>
+				<th colspan='6' class='header'>Default Private Cart</th>
+			</tr>
+	    </thead>
+		<tbody>
+		{% set iter = 0 %}
+			{% if publicCarts or privateCarts or defaultCart %}
+				{% if defaultCart %}
+				{% set iter = iter + 1 %}
+				{{cart_widget(defaultCart, False, iter)}}
+				{% endif %}
+			{% else %}
+				<tr>
+					<td colspan='6'>
+						<div class="alert alert-info">
+							<strong>Oh snap!</strong>You don't seem to have any carts setup.
+						</div>
+					</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+	{% if privateCarts %}
+	<table class="table table-striped table-hover table-condensed">
+		<thead>
+			<tr class='info'>
+				<th colspan='6' class='header'>Private Carts</th>
+			</tr>
+		</thead>
+		<tbody>
+			    {% for cart in privateCarts %}
+					{% set iter = iter + 1 %}
+					{{cart_widget(cart, False, iter)}}
+			    {% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	{% if publicCarts %}
+	<table class="table table-striped table-hover table-condensed">
+		<thead>
+			<tr class='success'>
+				<th colspan='6' class='header'>Public Carts</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for cart in publicCarts %}
+				{% set iter = iter + 1 %}
+				{{cart_widget(cart, True, iter)}}
+		    {% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<div id='pageMessageWrapper' class='pageMessageWrapper'>
+	{% block important %}
+	{% endblock %}
+	</div>
+{% endblock %}
+
+
+
+{% block extra_content %}{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "fullCart.html" %}
+
+{% block CartContent %}
+<tfoot>
+	<tr>
+		<td colspan='6'>
+			<div class='well well-small form-horizontal'>
+				<h4>Edit the details</h4>
+				<form class='nomargin_form' method='POST'>
+					<fieldset>
+			            <input type="hidden" name="exception" value="{{ exception }}">
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+						{{ lib.field(cartDetailsForm.description, class="span6", rows="10", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
+						{{ lib.field(cartDetailsForm.category, class="span3", label=_("Cart Category")) }}
+						<button class='btn btn-primary pull-right' type='submit' >Edit cart details</button>
+					</fieldset>
+				</form>
+			</div>
+		</td>
+	</tr>
+</tfoot>
+{% endblock %}

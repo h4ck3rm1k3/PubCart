@@ -1,0 +1,113 @@
+{% extends base_layout %}
+
+{% block title %}
+    PubCart. Home
+{% endblock %}
+
+{% block mediaPanel %}{% endblock %}
+{% block header %}{% endblock %}
+
+{% block content %}
+<section class='home_backdrop'>
+	<div class='container nomargin'>
+		<div class="row">
+			<div class='span9'>
+				<div class='row'>
+					<div class='span3'>
+						<div class="logo_home">{{ app_name }}</div>
+					</div>
+					<div class='intro span6'>
+						<header>
+							<div class='mantra'>A crowdsource shopping hub.</div>
+							<div class='mantra'><small>More Demand = A Bigger Sale!</small></div>
+						</header>
+					</div>
+				</div>
+				<div class='home_search'>
+					<form id='productSearchForm' class="form-inline nomargin_form" action="" method="post">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				            <input type="hidden" name="cat" value="">
+							<div class="input-prepend input-append">
+								<div class="btn-group">
+							    <button class="btn dropdown-toggle span2" data-toggle="dropdown">
+							      <span id='homeSearchPrependValue'>All categories</span>
+							      <span class="caret"></span>
+							    </button>
+							    <ul class="dropdown-menu pull-left">
+									{% for category in categories %}
+										<li><span id=''>{{category[1]}}</span></li>
+									{% endfor %}
+							    </ul>
+							  </div>
+								<input type="text" class="span6" id="productNumber" name="qry" placeholder="Search to discover PubCart...">
+								<button id='partSearchFormButton' type="submit" class="btn btn-warning"><strong>Discover now.</strong></button>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+			<div class='span3'>
+			</div>
+		</div>
+	</div>
+</section>
+<section class='demo_info_section'>
+	<div class='container'>
+		<div class="row">
+			<div class='span9'>
+				<div id="product_demo_wrapper" class="product_demo_wrapper">
+					<header><h4>Trending Products.</h4></header>
+					<div class='inner'>
+
+					</div>
+				</div>
+				<div id="cart_demo_wrapper" class="cart_demo_wrapper">
+					<header><h4>Trending Public Carts.</h4></header>
+					<div class='inner'>
+					</div>
+				</div>
+				<div class='clearfix'></div>
+				<div id="info_wrapper" class="info_wrapper">
+					<header>
+						<h2 class='center'>How You save money.</h2>
+					</header>
+					<div class='row'>
+						<div class='hpw_1 span2'>
+							<h3>1</h3>
+							<div class='blurb'>
+								Buy products from PubCart or our partners.
+							</div>
+						</div>
+						<div class='arrow span1'></div>
+						<div class='hpw_2 span3'>
+							<h3>2</h3>
+							<div class='blurb'>
+								Product demand is calculated at PubCart's hub.
+							</div>
+						</div>
+						<div class='arrow span1'></div>
+						<div class='hpw_3 span2'>
+							<h3>3</h3>
+							<div class='blurb'>
+								The more demand the less you pay.
+							</div>
+						</div>
+					</div>
+				</div>
+			</div> <!-- END of span9 -->
+
+			<div class='span3 homeSidebarMargin'>
+				{% include 'defaultSidebar.html'%}
+			</div>
+		</div>
+	</div>
+</section>
+<div class='info_section_shadow'></div>
+{% endblock %}
+
+{% block extra_content %}{% endblock %}
+
+{% block mediaJS %}{% endblock %}
+

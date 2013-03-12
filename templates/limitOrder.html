@@ -1,0 +1,35 @@
+{% extends "product.html" %}
+
+{% block order_form_area %}
+	<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
+		<h4>Create a Limit Order</h4>
+		<div><span class='unitPriceText'>$ {{best_price}}<small>Currently Best Unit Price</small></span></div>
+		<form class="form-inline" action="{{ uri_for('addToCart')}}" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+				<input type="hidden" name="lo" value="T">
+				<div class="input-prepend">
+					<span class="add-on marginTop15">Set QUANTITY</span>
+					<input type="text" class="span2 marginTop15" name="q" value='{{requested_quantity}}' placeholder="Quantity">
+				</div>
+				<div class="input-prepend">
+					<span class="add-on marginTop15">Set PRICE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$</span>
+					<input type="text" class="span2 marginTop15" name="lop" placeholder="Limit Price (eq. 1.20)">
+				</div>
+				<div class="btn-group">
+				  <button class="btn btn-primary btn-large marginTop15" type="submit"><i class="icon-screenshot icon-white"></i> Confirm Limit Order&nbsp;<span id='loTotalCost'></span></button>
+				</div>
+			</fieldset>
+		</form>
+		<a href='{{ uri_for("product", urlsafeProductKey=product.key.urlsafe() )}}'>Back to Product Page</a>
+	</div>
+{% endblock %}
+
+{% block important %}
+	<div class="alert alert-block">
+		<h4>VERY IMPORTANT!</h4>
+		Limit Orders Require an Authorization to be made with your payment method. In order to fill this Limit Order as soon as the Price is available, a hold is placed on your payment method. Also because of the nature of this type of order, there is a limit order fee charged. For more information on Limit Order please read the <a href='#'>Terms and Conditions PDF</a>
+	</div>
+{% endblock %}

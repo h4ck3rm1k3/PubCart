@@ -1,0 +1,38 @@
+{% extends "product.html" %}
+
+{% block order_form_area %}
+	<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
+		<h4>Create an Alert</h4>
+		<div><span class='unitPriceText'>$ {{best_price}}<small>Currently Best Unit Price</small></span></div>
+		<form id='createAlertForm' name='createAlertForm' class="form-inline" action="{{ uri_for('createAlertPost')}}" method="POST">
+			<fieldset>
+	            <input type="hidden" name="exception" value="{{ exception }}">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+				<div class="input-prepend">
+					<span class="add-on marginTop15">Price Alert: $</span>
+					<input type="text" class="span2 marginTop15" name="ap" placeholder="Optional (eg. 0.20)">
+				</div>
+				<span class="help-block muted">If you enter a Price, you will be emailed upon Price value being reached.</span>
+				
+				<div class="input-prepend">
+					<span class="add-on marginTop15">Qnt. Alert:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+					<input type="text" class="span2 marginTop15" name="aq" placeholder="Optional">
+				</div>
+				<span class="help-block muted">If you enter a Quantity, you will be emailed upon Quantity value being reached.</span>
+				
+				<div class="btn-group">
+				  <button class="btn btn-primary btn-large marginTop15" type="submit"><i class="icon-screenshot icon-white"></i> Create Alert&nbsp;<span id='loTotalCost'></span></button>
+				</div>
+			</fieldset>
+		</form>
+		<a href='{{uri_for("product", urlsafeProductKey=product.key.urlsafe() )}}'>Back to Product Page</a>
+	</div>
+{% endblock %}
+
+{% block important %}
+	<div class="alert alert-block">
+		<h4>VERY IMPORTANT!</h4>
+		Alerts will send out email whenever an alert is triggered. It will use the email you have supplied in your profile. Please make sure this email is up to date. You can delete alerts at any time. For more information on Alerts please read the <a href='#'>Terms and Conditions PDF</a>
+	</div>
+{% endblock %}

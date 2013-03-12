@@ -1,0 +1,148 @@
+{% extends "bourneeBase.html" %}
+
+{% block title %}
+    {{product.d}} - BournEE Exchange
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main_content %}
+	<div id='productNameTitle_{{product.pn}}' class='productNameTitle text-info'>
+		{% if path != "/product" and path != "/product/" %}
+			<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}"><h3>{{product.d}}</h3></a>
+		{% else %}
+			<h3>{{product.d}}</h3>
+		{% endif %}
+	</div>
+
+	<div id='productWrapper' class='row productWrapper'>
+		<div id="productImageWrapper_{{product.pn}}" class="span2 productImageWrapper">
+			<img class="img-rounded" src="{{product.img}}" alt="{{product.pn}} {{product.m}}">
+		</div> <!-- End of Span2  -  productImageWrapper-->
+		<div id='productDescriptionWrapper' class='span4 productDescriptionWrapper'>
+			<div id="productInfoWrapper_{{product.pn}}" class="productInfoWrapper">
+				<div id='productNumberTitle_{{product.pn}}' class='productNumberTitle'>
+					<span class='productDescriptionTitles muted'>Product #:</span>
+					{% if path != "/product" and path != "/product/" %}
+						<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">{{product.pn}}</a>
+					{% else %}
+						<strong class='text-success'>{{product.pn}}</strong>
+					{% endif %}
+				</div>
+				{% if product.m %}
+				<div id='productManufacturerTitle_{{product.pn}}' class='productManufacturerTitle'>
+					<span class='productDescriptionTitles muted'>Manufacturer:&nbsp;&nbsp;&nbsp;</span>{{product.m}}
+				</div>
+				{% endif %}
+				{% if product.pn %}
+				<div id='productManuNumTitle_{{product.pn}}' class='productManuNumTitle'>
+					<span class='productDescriptionTitles muted'>Manu. Product #:&nbsp;&nbsp;&nbsp;</span>{{product.pn}}
+				</div>
+				{% endif %}
+				{% if product.mq %}
+				<div id='productMinQntTitle_{{product.pn}}' class='productMinQntTitle'>
+					<span class='productDescriptionTitles muted'>Min. QNT:&nbsp;&nbsp;&nbsp;</span>{{product.mq}}
+				</div>
+				{% endif %}
+				{% if product.qa %}
+				<div id='productQuantityAvailableTitle_{{product.pn}}' class='productQuantityAvailableTitle'>
+					<span class='productDescriptionTitles muted'>Available:&nbsp;&nbsp;&nbsp;</span>{{product.qa}}
+				</div>
+				{% endif %}
+				<div class=''>
+					--------------------
+				</div>
+				{% if product.mt %}
+				<div id='productMountingTypeTitle_{{product.pn}}' class='productMountingTypeTitle'>
+					<span class='productDescriptionTitles muted'>Mounting Type:&nbsp;&nbsp;&nbsp;</span>{{product.mt}}
+				</div>
+				{% endif %}
+				{% if product.pc %}
+				<div id='productMountingTypeTitle_{{product.pn}}' class='productMountingTypeTitle'>
+					<span class='productDescriptionTitles muted'>Package / Case:&nbsp;&nbsp;&nbsp;</span>{{product.pc}}
+				</div>
+				{% endif %}
+				{% if product.sdp %}
+				<div id='productSupplierDevicePackageTitle_{{product.pn}}' class='productSupplierDevicePackageTitle'>
+					<span class='productDescriptionTitles muted'>Supplier Device Package:&nbsp;&nbsp;&nbsp;</span>{{product.sdp}}
+				</div>
+				{% endif %}
+				<div class=''>
+					--------------------
+				</div>
+				<div id='productQuantityAvailableTitle_{{product.pn}}' class='productQuantityAvailableTitle'>
+					{% if product.isl %}
+					<a class='btn btn-mini' href="{{product.isl}}" target="_blank" rel="nofollow"><i class="icon-file"></i>  Datasheet PDF</a>
+					{% endif %}
+					{% if product.spl %}
+					<a class='btn btn-mini' href="{{product.spl}}" target="_blank" rel="nofollow">DigiKey Page</a>
+					{% endif %}
+				</div>
+			</div>
+		</div> <!-- End of Span4 -  productDescriptionWrapper -->
+		<div id='productPriceWrapper_{{product.pn}}' class='span3 productPriceWrapper'>
+			{% block order_form_area %}
+				<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
+					<span class='unitPriceText'>$ {{best_price}}<small>{% if requested_quantity > 1 %}Potential Unit Price{% else %}Best Unit Price{% endif %}</small></span>
+					<span>
+						<form class="form-inline" method="GET">
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<input type="hidden" name="pn" value="{{product.pn}}">
+								<div class="input-prepend">
+									<span class="add-on marginTop15">@ QUANTITY</span>
+									<input type="text" class="span1 marginTop15" id="quantity" name="q" value='{{requested_quantity}}' placeholder="Quantity">
+								</div>
+								<button type="submit" class="btn marginTop15">update</button>
+							</fieldset>
+						</form>
+					</span>
+				</div>
+				<div id='productOrderButton_{{product.pn}}' class='productOrderButton'>
+					<form id='addToCartForm' name='addToCartForm' action="{{ uri_for('addToCart')}}" method="POST">
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+							<input type="hidden" name="ck" value="{% if dafaultCart %}{{dafaultCart.key.urlsafe()}}{% endif %}">
+							<input type="hidden" name="cn" value="DEFAULT">
+							<input type="hidden" name="q" value="{{requested_quantity}}">
+					</form>
+					<div class="btn-group">
+						<button id='submitAddToCartForm' class="btn btn-primary btn-large" type="submit" form="addToCartForm" >ADD to Cart - ${{total_cost}}</button>
+						<button id='moreOptionsButton' rel="tooltip" title="More Options" class="btn btn-primary btn-large dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+
+						<ul class="dropdown-menu">
+					    
+							<form id='addToWatchlistForm' name='addToWatchlistForm' class="form-inline" action="{{ uri_for('addToWatchlist')}}" method="POST">
+								<fieldset>
+									<input type="hidden" name="exception" value="{{ exception }}">
+									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+									<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+									<input type="hidden" name="wln" value="ALL">
+									<li><button type='submit' ><i class="icon-eye-open"></i> ADD to Watchlist</button></li>
+								</fieldset>
+							</form>
+							<li><a href="{{ uri_for('selectCartForm', urlsafeProductKey=product.key.urlsafe(), q=requested_quantity) }}"><i class="icon-folder-open"></i> Choose a Cart</a></li>
+							<li><a href="{{ uri_for('createAlert', pk=product.key.urlsafe()) }}"><i class="icon-bell"></i> Create Alert</a></li>
+							<li class="divider"></li>
+							<li><a href="{{ uri_for('createLimitOrder', pk=product.key.urlsafe(), q=requested_quantity) }}"><i class="icon-screenshot"></i> Limit Order</a></li>
+							<li><a href="{{ uri_for('exchangeOrder', pk=product.key.urlsafe()) }}"><i class="icon-retweet"></i> Order for Exchange</a></li>
+						</ul>
+					</div>
+				</div>
+			{% endblock %}
+		</div> <!-- End of Span3  -  productOrderButton -->
+	</div>
+	<div id='pageMessageWrapper_{{product.pn}}' class='pageMessageWrapper'>
+	{% block important %}
+	{% endblock %}
+	</div>
+{% endblock %}
+
+
+
+{% block extra_content %}{% endblock %}
+
+{% block mediaJS %}{% endblock %}
+

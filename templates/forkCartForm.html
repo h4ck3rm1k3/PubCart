@@ -1,0 +1,30 @@
+{% extends "fullCart.html" %}
+
+{% block CartContent %}
+<tfoot>
+	<tr>
+		<td colspan='6'>
+			<div class='well well-small form-horizontal'>
+				{% if "/makeCartPublic" in path %}<h4>Public Cart Details.</h4>
+				{% else %}<h4>Fork the cart.</h4>
+				{% endif %}
+				<form class='nomargin_form' method='POST'>
+					<fieldset>
+			            <input type="hidden" name="exception" value="{{ exception }}">
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+						{{ lib.field(forkCartForm.name, class="span6", maxlength="50", placeholder='Max 50 characters', label=_("New Cart Name")) }}
+						{{ lib.field(forkCartForm.description, class="span6", rows="10", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
+						{{ lib.field(forkCartForm.category, class="span3", label=_("Cart Category")) }}
+						<button class='btn btn-primary pull-right' type='submit' >
+							{% if "/makeCartPublic" in path %}Make cart public.
+							{% else %}Fork cart
+							{% endif %}
+						</button>
+					</fieldset>
+				</form>
+			</div>
+		</td>
+	</tr>
+</tfoot>
+{% endblock %}

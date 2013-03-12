@@ -1,0 +1,104 @@
+{% import "macros.html" as macros %}
+
+{% from 'widget/_product_small_widget.html' import alert_widget, plain_product_widget %}
+
+{% if not user_id %}
+	<div class="auth-at-home">
+	    <form id="form_login_user" action="{{ uri_for('login') }}" method="post">
+	        <fieldset class="well">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	            <div class="control-group">
+	                <label class="controls">
+	                    <input class="focused required" name="username" id="l_username" type="text" placeholder="{% trans %}Username or Email{% endtrans %}">
+	                </label>
+	            </div>
+	            <div class="control-group">
+	                <div class="controls row-fluid">
+	                    <label class="span8">
+	                        <input class="focused required" name="password" id="l_password" type="password" placeholder="{% trans %}Password{% endtrans %}">
+	                    </label>
+	                    <label class="span4">
+	                        <button type="submit" class="btn btn-primary btn-login">{% trans %}Login{% endtrans %}</button>
+	                    </label>
+	                </div>
+	            </div>
+	            <div>
+	                <label class="checkbox">
+	                    <input type="checkbox" name="remember_me" id="remember_me" value="on">
+	                    {% trans %}Remember me?{% endtrans %} <span class="separator"></span>
+	                    <a href="{{ uri_for('password-reset') }}">{% trans %}Forgot your password?{% endtrans %}</a>
+	                </label>
+	            </div>
+	            {{ macros.federated_login(provider_info, provider_uris, enable_federated_login) }}
+	        </fieldset>
+	    </form>
+
+	    <h3>{% trans %}Sign Up{% endtrans %}</h3>
+	    <form id="form_register" action="{{ uri_for('register') }}" method="post">
+	        <fieldset class="well">
+	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	            <div class="control-group">
+	                <label class="controls">
+	                    <input class="focused required" name="username" id="username" type="text" placeholder="{% trans %}Username{% endtrans %}">
+	                </label>
+	            </div>
+	            <div class="control-group">
+	                <label class="controls">
+	                    <input class="focused required email" name="email" id="email" type="email" placeholder="{% trans %}Email{% endtrans %}">
+	                    <input type="hidden" name="country" value="">
+	                </label>
+	            </div>
+	            <div class="control-group">
+	                <label class="controls">
+	                    <input class="focused required" name="password" id="password" type="password" placeholder="{% trans %}Password{% endtrans %}">
+	                </label>
+	            </div>
+	            <div class="control-group">
+	                <label class="controls">
+	                    <input class="focused required" name="c_password" id="c_password" type="password" placeholder="{% trans %}Confirm Password{% endtrans %}">
+	                </label>
+	            </div>
+	            <div class="control-group">
+	                <button type="submit" class="btn btn-primary">{% trans %}Sign Up{% endtrans %}</button>
+	            </div>
+	        </fieldset>
+	    </form>
+	</div>
+{% endif %}
+<!-- Beginning of lastProductsViewed Table -->
+{% if lastProductsViewed %}
+	<div id='lastProductsViewedSidebar' class='lastProductsViewedSidebar'>
+		<table class="table table-striped table-bordered table-hover table-condensed">
+			<thead>
+		        <tr>
+					<th colspan='2'><i class="icon-list"></i>&nbsp;&nbsp;Last Products Viewed.
+		        </tr>
+		    </thead>
+			<tbody>
+				{% for product in lastProductsViewed %}
+					{% if product %}
+					<tr class='pointer' onClick='linkTo("{{uri_for('product', urlsafeProductKey=product.key.urlsafe() )}}")'>
+						<td colspan='2'>
+							{{plain_product_widget(product)}}
+						</td>
+					</tr>
+					{% endif %}
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td  colspan='2'>
+						<div  class='textRight'>
+							<form class='nomargin_form' action="{{ uri_for('clearLastProductsViewed')}}" method='POST'>
+								<input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<button class='btn btn-link' type='submit'>clear list.</button>
+							</form>
+						</div>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+{% endif %}
+<!-- END of lastProductsViewed Table -->

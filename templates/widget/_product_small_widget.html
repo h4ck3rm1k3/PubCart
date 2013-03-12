@@ -1,0 +1,272 @@
+{% macro plain_product_widget(product) %}
+	<div id='{{product.pn}}_widget_wrapper' class='product_widget_wrapper'>
+		<div class='product_name'>
+			{{product.d|truncate(length=30, killwords=True)}}
+		</div>
+		<div class='product_widget_inner'>
+			<div class='product_widget_image'>
+				{% if product.img %}
+					<img src="{{product.img}}" class="img-rounded" width='40px' height='40px'/>
+				{% else %}
+					<div class='no_icon_small'>No<br/>Logo</div>
+				{% endif %}
+			</div>
+			<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+				<div class='product_pn '>
+					{{product.pn|truncate(length=16, killwords=True)}}
+				</div>
+				<div cllass='product_sup'>
+					<span class="label {% if product.pch >= 0 %}label-success{% else %}label-important{% endif %}">$ {{product.d_bup}}</span><span class='muted'>&nbsp;@&nbsp;1&nbsp;&nbsp;savings: TODO</span>
+				</div>
+			</div>
+		</div>
+	</div>
+<div class="clearfix"></div>
+{% endmacro %}
+
+
+
+{% macro wl_product_widget(object, urlsafeWatchlistKey, iter) %}
+
+{% if 'Product' in object.key.kind() %}
+<div id='{{object.pn}}_widget_wrapper' class='product_widget_wrapper'>
+	<div class='product_name'>
+		<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=object.key.urlsafe() ) }}"><i class="icon-tags"></i>&nbsp;&nbsp; {{object.d|truncate(length=25, killwords=True)}}</a>
+	</div>
+	<div class='product_widget_inner'>
+		<div class='product_widget_image'>
+			{% if object.fetch_img %}
+				<img src="{{object.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+			{% else %}
+				<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+			{% endif %}
+		</div>
+		<div id='{{object.pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+			<div class='product_pn '>
+				<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=object.key.urlsafe() ) }}">{{object.pn|truncate(length=16, killwords=True)}}</a>
+			</div>
+			<div cllass='product_sup'>
+				<span class="label {% if object.pch >= 0 %}label-success{% else %}label-important{% endif %}">$ {{object.d_bup}}</span><span class='muted'>&nbsp;@&nbsp;1&nbsp;&nbsp;savings: TODO:on_server</span>
+			</div>
+		</div>
+		<div id='{{object.pn}}_widget_button' class='product_widget_button'>
+			<div class="btn-group">
+			    <button id='wlMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+					<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteFromWatchlist')}}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="pk" value="{{object.key.urlsafe()}}">
+							<input type="hidden" name="wlk" value="{{urlsafeWatchlistKey}}">
+							<li><button type='submit' ><i class="icon-trash"></i> Remove</a></li>
+						</fieldset>
+					</form>
+				    <li class="divider"></li>
+			        <li><a href="{{ uri_for('product', urlsafeProductKey=object.key.urlsafe() ) }}">View Product</a></li>
+				    <li><a href="{{ uri_for('fullPageWatchlist', urlsafeWatchlistKey=urlsafeWatchlistKey) }}">More Details</a></li>
+			    </ul>
+		  	</div>
+		</div>
+	</div>
+</div>
+
+{% elif 'Cart' in object.key.kind()  %}
+<div id='{{object.n}}_widget_wrapper' class='product_widget_wrapper'>
+	<div class='product_name'>
+		<a class='no_decoration' href="{{ uri_for('fullPageCart', urlsafeCartKey=object.key.urlsafe()) }}"><i class="icon-shopping-cart"></i>&nbsp;&nbsp;{{object.n|truncate(length=25, killwords=True)}}</a>
+	</div>
+	<div class='product_widget_inner'>
+		<div class='product_widget_image'>
+			{% if object.fetch_img %}
+				<img src="{{object.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+			{% else %}
+				<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+			{% endif %}
+		</div>
+		<div id='{{object.n}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+			<div cllass='product_sup'>
+				<span class="label">$ {{object.d_gt}}</span><span class='muted'>&nbsp;&nbsp;&nbsp;savings: TODO:on_server_side%</span>
+			</div>
+		</div>
+		<div id='{{object.n}}_widget_button' class='product_widget_button'>
+			<div class="btn-group">
+			    <button id='wlMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+					<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteFromWatchlist')}}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="pk" value="{{object.key.urlsafe()}}">
+							<input type="hidden" name="wlk" value="{{urlsafeWatchlistKey}}">
+							<li><button type='submit' ><i class="icon-trash"></i> Remove</a></li>
+						</fieldset>
+					</form>
+				    <li class="divider"></li>
+			        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=object.key.urlsafe()) }}">View Cart</a></li>
+				    <li><a href="{{ uri_for('fullPageWatchlist', urlsafeWatchlistKey=urlsafeWatchlistKey) }}">More Details</a></li>
+			    </ul>
+		  	</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+<div class="clearfix"></div>
+
+{% endmacro %}
+
+
+{% macro alert_widget(alert, iter) %}
+
+
+<div id='{{alert.pn}}_widget_wrapper' class='product_widget_wrapper'>
+	<div class='product_name'>
+		{% if alert.d %}
+			<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=alert.pk.urlsafe() ) }}">{{alert.d|truncate(length=30, killwords=True)}}</a>
+		{% endif %}
+	</div>
+	<div class='product_widget_inner'>
+		<div class='product_widget_image'>
+			{% if alert.fetch_img %}
+				<img src="{{alert.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+			{% else %}
+				<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+			{% endif %}
+		</div>
+		<div id='{{alert.pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+			<div class='product_pn '>
+				{% if alert.d %}
+					<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=alert.pk.urlsafe() ) }}">{{alert.pn|truncate(length=16, killwords=True)}}</a>
+				{% endif %}
+			</div>
+			<div class='btn-toolbar'>
+				{% if alert.ap %}
+					<div class="btn-group">
+					    <button class="btn btn-info btn-small dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+					      PRICE&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+					    </button>
+					    <ul class="dropdown-menu pull-right">
+							{% for price in alert.ap %}
+						        <li><div class="alert alert-success">&nbsp;$&nbsp;{{(price*1.0)/100}}&nbsp;Last Price Paid</div></li>
+							{% endfor %}
+					    </ul>
+				  	</div>
+				{% endif %}
+				{% if alert.aq %}
+					<div class="btn-group">
+					    <button class="btn btn-info btn-small dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+					      QNT&nbsp;&nbsp;&nbsp;<span class="caret"></span>
+					      
+					    </button>
+					    <ul class="dropdown-menu pull-right">
+							{% for qnt in alert.aq %}
+						        <li><div class="alert alert-success">&nbsp;{{qnt}}&nbsp;Units Sold</div></li>
+							{% endfor %}
+					    </ul>
+				  	</div>
+				{% endif %}
+			</div>
+		</div>
+		<div id='{{alert.pn}}_widget_button' class='product_widget_button'>
+			<div class="btn-group">
+			    <button id='aMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+					<form name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteFromWatchlist')}}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="pk" value="{{alert.pk.urlsafe()}}">
+							<li><button type='submit' ><i class="icon-trash"></i> Remove</a></li>
+						</fieldset>
+					</form>
+				    <li class="divider"></li>
+			        <li><a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()  ) }}">View Product</a></li>
+				    <li><a href="{{ uri_for('exchangeOrder', pk=alert.pk.urlsafe()) }}">More Details</a></li>
+			    </ul>
+		  	</div>
+		</div>
+	</div>
+</div>
+<div class="clearfix"></div>
+
+{% endmacro %}
+
+
+{% macro sc_product_widget(product, urlsafeCartKey, iter) %}
+
+
+<div id='{{product.clean_pn }}_widget_wrapper' class='product_widget_wrapper'>
+	<div class='product_name'>
+		{% if product.d %}
+			<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}">{{product.d|truncate(length=30, killwords=True)}}</a>
+		{% endif %}
+	</div>
+	<div class='product_widget_inner'>
+		<div class='product_widget_image'>
+			{% if product.fetch_img %}
+				<img src="{{product.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+			{% else %}
+				<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+			{% endif %}
+		</div>
+		<div id='{{product.clean_pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+			<div class='product_pn'>
+				{% if product.pn %}
+					<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">{{product.pn|truncate(length=16, killwords=True)}}</a>
+				{% endif %}
+			</div>
+			<div cllass='product_sup'>
+				{{product.q}} @ ${{product.d_op}} = ${{product.d_st}}
+			</div>
+		</div>
+		<div id='{{product.clean_pn}}_widget_button' class='product_widget_button'>
+			<div class="btn-group">
+			    <button id='cartMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+			      <span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu pull-right">
+					<form id='deleteFromCartForm_{{product.clean_pn }}' name='deleteFromCartForm' class="form-inline" action="{{uri_for('removeFromCart')}}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="ok" value="{{product.key.urlsafe()}}">
+							<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
+							<input type="hidden" name="ost" value="{{product.st}}">
+							<input type="hidden" name="lo" value="{{product.is_lo}}">
+							<li><button type='submit' ><i class="icon-trash"></i> Remove</button></li>
+						</fieldset>
+					</form>
+					<li><button id='toggleChangeQntButton' class='toggleChangeQntButton'name='{{product.clean_pn }}'><i class="icon-wrench"></i> Change QNT</button></li>
+				    <li class="divider"></li>
+			        <li><a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}">View Product</a></li>
+				    <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=urlsafeCartKey) }}">More Details</a></li>
+			    </ul>
+		  	</div>
+		</div>
+	</div>
+</div>
+<div class="clearfix"></div>
+
+<div id='{{product.clean_pn }}_chgQntFormSmallWidgetWrapper' class='chgQntFormSmallWidgetWrapper' style='display:None'>
+	<button id='toggleChangeQntButtonX' name='{{product.clean_pn }}' style='margin:4px 0 0 10px' class="close toggleChangeQntButtonX">&times;</button>
+	
+	<form id='chgQntFromCartForm_{{product.clean_pn }}' name='chgQntFromCartForm' class="form-inline sidebarForm" action="{{uri_for('changeQntOfOrder')}}" method="POST">
+		<fieldset>
+            <input type="hidden" name="exception" value="{{ exception }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="hidden" name="ok" value="{{product.key.urlsafe()}}">
+			<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
+			<input type="hidden" name="ost" value="{{product.st}}">
+			<input type="text" name="q" class="span1" value="{{product.q}}">
+			<button type='submit' class='btn'>update</button>
+		</fieldset>
+	</form>
+</div>
+
+{% endmacro %}

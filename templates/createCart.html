@@ -1,0 +1,26 @@
+{% extends "bourneeBase.html" %}
+
+{% block title %}
+    Create Cart - {{app_name}}
+{% endblock %}
+
+{% block main_content %}
+	<header>
+		<div class='fullpageTitleWrapper'>
+			Create a cart.
+		</div>
+	</header>
+	<article>
+		<div>
+			This will explain what a cart is good for.
+		</div>
+	</article>
+	{% block createCartForm %}{% endblock %}
+{% endblock %}
+
+{% block top_right_aside %}
+	<button class="btn btn-warning btn-large btn-block marginBottom15"><strong>Log in & create a cart.</strong></button>
+{% endblock %}
+
+
+{% block extra_content %}{% endblock %}
