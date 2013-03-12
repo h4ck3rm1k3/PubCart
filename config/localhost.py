@@ -41,27 +41,27 @@ config = {
 
 # get your own consumer key and consumer secret by registering at https://dev.twitter.com/apps
 # callback url must be: http://[YOUR DOMAIN]/login/twitter/complete
-'twitter_consumer_key' : 'PUT_YOUR_TWITTER_CONSUMER_KEY_HERE',
-'twitter_consumer_secret' : 'PUT_YOUR_TWITTER_CONSUMER_SECRET_HERE',
+'twitter_consumer_key' : 'nmkfdS6WaPwcJBZA2RyNNA',
+'twitter_consumer_secret' : 'QOV2NLJ2188FcXuneZmIFXuV3WU6z2JEfZp7lIto8',
 
 #Facebook Login
 # get your own consumer key and consumer secret by registering at https://developers.facebook.com/apps
 #Very Important: set the site_url= your domain in the application settings in the facebook app settings page
 # callback url must be: http://[YOUR DOMAIN]/login/facebook/complete
-'fb_api_key' : 'PUT_YOUR_FACEBOOK_PUBLIC_KEY_HERE',
-'fb_secret' : 'PUT_YOUR_FACEBOOK_PUBLIC_KEY_HERE',
+'fb_api_key' : '636727389676617',
+'fb_secret' : '49e3b37431a65ca6aaaf00c3f069661b',
 
 #Linkedin Login
 #Get you own api key and secret from https://www.linkedin.com/secure/developer
-'linkedin_api' : 'PUT_YOUR_LINKEDIN_PUBLIC_KEY_HERE',
-'linkedin_secret' : 'PUT_YOUR_LINKEDIN_PUBLIC_KEY_HERE',
+'linkedin_api' : 'sem8ipobxci3',
+'linkedin_secret' : 'MZlMPucOwxi9nmUo',
 
 # Github login
 # Register apps here: https://github.com/settings/applications/new
 'github_server' : 'github.com',
-'github_redirect_uri' : 'http://www.example.com/social_login/github/complete',
-'github_client_id' : 'PUT_YOUR_GITHUB_CLIENT_ID_HERE',
-'github_client_secret' : 'PUT_YOUR_GITHUB_CLIENT_SECRET_HERE',
+'github_redirect_uri' : 'http://www.pubcart.com/social_login/github/complete',
+'github_client_id' : 'd4088d3a1b1dda77922c',
+'github_client_secret' : '39d52c2f0ae6e87f41f5a37049ffa2ca71059af9',
 
 # get your own recaptcha keys by registering at http://www.google.com/recaptcha/
 'captcha_public_key' : "PUT_YOUR_RECAPCHA_PUBLIC_KEY_HERE",
