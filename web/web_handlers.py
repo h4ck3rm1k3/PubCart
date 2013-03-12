@@ -86,7 +86,7 @@ class PreLaunchAboutHandler(RegisterBaseHandler):
 			params = {
 					'continue_url': "{}/thankyou".format(self.request.host_url),
 					}
-			self.bournee_template('preRegisterSignIn.html', **params)
+			self.bournee_template('preRegisterAbout.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
@@ -97,7 +97,7 @@ class PreLaunchJobsHandler(RegisterBaseHandler):
 			params = {
 					'continue_url': "{}/thankyou".format(self.request.host_url),
 					}
-			self.bournee_template('preRegisterSignIn.html', **params)
+			self.bournee_template('preRegisterJobs.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
