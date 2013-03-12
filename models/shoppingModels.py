@@ -268,6 +268,19 @@ class ProductTierPrice(ndb.Model):
 			logging.Error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
 			return None
 	
+	@classmethod
+	def update_from_parse_data(cls, parseData):
+		try:
+			cls.populate(**parseData)
+			productTierKey = cls.put()
+			if productTierKey:
+				return cls
+			else:
+				raise Exception('No productTierKey returned from productTierModel.put()')
+		except Exception as e:
+			logging.Error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
+			return None
+	
 	@staticmethod
 	def get_price_for_qnt(urlsafeProductKey, qnt, return_PTModel=True):
 		" Use this function if you only have a product number and need the price amount @ a Tier."
@@ -275,10 +288,12 @@ class ProductTierPrice(ndb.Model):
 		qL = [1,10,100,250,500,1000,2500,5000,10000]
 		dic = {'1':'o','10':'t','100':'oH','250':'tf','500':'fH', '1000':'oT', '2500':'tHT', '5000':'fT', '10000':'tT'}
 		##:  Need to set the qnt to the closest tier quantity in 'dic{}' utherwise we return a None for best_price
+		previous = '1'
 		for i in qL:
 			logging.info('Qnt = %s,  i = %s' % (str(qnt),str(i)))
 			if int(qnt) >= int(i):
-				qnt_to_search = str(i)
+				qnt_to_search = str(previous) ##: This creates our margin always using the price of the tier right before the searched amount
+				previous = str(i) ##: We set the current tier number to the <previous> variable
 				continue
 			else:
 				break
