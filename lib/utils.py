@@ -6,6 +6,7 @@ import Cookie
 import config
 import logging
 import random
+import webapp2
 from datetime import datetime
 from datetime import timedelta
 from google.appengine.api import mail
@@ -87,6 +88,35 @@ def send_email(to, subject, body, sender=''):
 			sender = "%s <no-reply@%s.appspotmail.com>" % (app_id, app_id)
 	mail.send_mail(sender, to, subject, body)
 
+def random_string(size=6, chars=string.ascii_letters + string.digits):
+	""" Generate random string """
+	return ''.join(random.choice(chars) for _ in range(size))
+
+def hashing(plaintext, salt=""):
+	""" Returns the hashed and encrypted hexdigest of a plaintext and salt"""
+	app = webapp2.get_app()
+
+	# Hashing (sha512)
+	plaintext = "%s@%s" % (plaintext, salt)
+	phrase_digest = hashlib.sha512(plaintext.encode('UTF-8')).hexdigest()
+
+	# Encryption (PyCrypto)
+	# wow... it's so secure :)
+	try:
+		from Crypto.Cipher import AES
+		mode = AES.MODE_CBC
+
+		# We can not generate random initialization vector because is difficult to retrieve them later without knowing
+		# a priori the hash to match. We take 16 bytes from the hexdigest to make the vectors different for each hashed
+		# plaintext.
+		iv = phrase_digest[:16]
+		encryptor = AES.new(app.config.get('aes_key'), mode,iv)
+		ciphertext = [encryptor.encrypt(chunk) for chunk in chunks(phrase_digest, 16)]
+		return ''.join(ciphertext)
+	except (ImportError, NameError), e:
+		import logging
+		logging.error("CRYPTO is not running")
+		return phrase_digest
 
 def random_alnum( count ):
 	chars = string.letters + string.digits
@@ -268,14 +298,14 @@ def clean_product_number(partnumber):
 
 
 PRODUCT_INDEX_NAME = 'productsearch1'  # The document index name.
-    # An index name must be a visible printable
-    # ASCII string not starting with '!'. Whitespace characters are
-    # excluded.
+	# An index name must be a visible printable
+	# ASCII string not starting with '!'. Whitespace characters are
+	# excluded.
 
 SELLER_INDEX_NAME = 'sellersearch1'
 
 # set BATCH_RATINGS_UPDATE to False to update documents with changed ratings
-# info right away.  If True, updates will only occur when triggered by
+# info right away.	If True, updates will only occur when triggered by
 # an admin request or a cron job.  See cron.yaml for an example.
 BATCH_RATINGS_UPDATE = False
 # BATCH_RATINGS_UPDATE = True

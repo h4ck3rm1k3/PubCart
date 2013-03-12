@@ -6,13 +6,6 @@
 {% endblock %}
 {% block navbar %}
 <div class='container innerContent'>
-	<div class="row">
-		<div class='span11'>
-		</div>
-		<div class='span1'>
-			{% if user_id %}<a href="{{ logout_url }}" class='btn'>{% trans %}Logout.{% endtrans %}</a>{% endif %}
-		</div>
-	</div>
 	<div class='row'>
 		<div class='span5'>
 			<a href="/" class="PubCart page-active"><div class="logo_preReg">{{ app_name }}</div></a>
@@ -60,18 +53,27 @@
 		</div>
 		<div class='span4'>
 			{% if not user_id %}
-				{% if enable_federated_login %}
-		            <div id="third_party_login" class="preReg">
-		                <h4>{% trans %}Pre-Register using:{% endtrans %}</h4>
-						<div class='preReg_social_icons'>
-			                <ul class="social-login-icons">
-			                    {% for p in provider_info if provider_uris[p] %}
-			                        <li><a href="{{ provider_uris[p] }}?continue_url={{continue_url}}" class="social-btn social-btn-{{ p }}" title="{{ p }}">{{ p }}</a></li>
-			                    {% endfor %}
-			                </ul>
-						</div>
-		            </div>
-				{% endif %}
+			<div class="preReg">
+                <h4>{% trans %}Pre-Register here{% endtrans %}</h4>
+			    <form id="form_pre_register" method="post">
+			        <fieldset>
+				        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				        <div class="control-group">
+			                <label class="controls">
+			                    <input class="focused required" name="username" id="username" type="text" placeholder="{% trans %}Username{% endtrans %}">
+			                </label>
+			            </div>
+			            <div class="control-group">
+			                <label class="controls">
+			                    <input class="focused required email" name="email" id="email" type="email" placeholder="{% trans %}Email{% endtrans %}">
+			                </label>
+			            </div>
+			            <div class="control-group">
+			                <button type="submit" class="btn btn-primary">{% trans %}Pre-Register{% endtrans %}</button>
+			            </div>
+			        </fieldset>
+			    </form>
+			</div>
 			{% endif %}
 			<div class='preReg_social_links'>
 				<h4>"You should follow PubCart on twitter <a href='https://twitter.com/PubCartApp'>here</a>"</h4>

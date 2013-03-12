@@ -44,13 +44,63 @@ class PreLaunchSignupHandler(RegisterBaseHandler):
 			if self.user:
 				return self.redirect_to('preLaunchThankyou')
 			params = {
-					'continue_url': "{}/thankyou".format(self.request.host_url),
+					'form': self.form,
 					}
 			self.bournee_template('preRegisterSignIn.html', **params)
 		except:
 			logging.error('Error during PreLaunchSignupHandler')
 
-class PreLaunchThankyouHandler(RegisterBaseHandler):
+	def post(self):
+		""" Get fields from POST dict """
+
+		if not self.form.validate():
+			return self.get()
+		username = self.form.username.data.strip()
+		email = self.form.email.data.lower()
+		
+		tempPassword = utils.random_string(size=10)
+		# Password to SHA512
+		password = utils.hashing(tempPassword, self.app.config.get('salt'))
+
+		# Passing password_raw=password so password will be hashed
+		# Returns a tuple, where first value is BOOL.
+		# If True ok, If False no new user is created
+		unique_properties = ['username', 'email']
+		auth_id = "own:%s" % username
+		user = self.auth.store.user_model.create_user(
+			auth_id, unique_properties, password_raw=password,
+			username=username, name='Pre-Registered', last_name='Pre-Registered', email=email,
+			ip=self.request.remote_addr, country='Pre-Registered'
+		)
+
+		if not user[0]: #user is a tuple
+			if "username" in str(user[1]):
+				message = _('Sorry, The username %s is already registered.' % '<strong>{0:>s}</strong>'.format(username) )
+			elif "email" in str(user[1]):
+				message = _('Sorry, The email %s is already registered.' % '<strong>{0:>s}</strong>'.format(email) )
+			else:
+				message = _('Sorry, The user is already registered.')
+			self.add_message(message, 'error')
+		else:
+			# User registered successfully
+			db_user = self.auth.get_user_by_password(user[1].auth_ids[0], password)
+			
+			try:
+				message = _('Welcome %s, you are now Pre-Registered.' % '<strong>{0:>s}</strong>'.format(username) )
+				self.add_message(message, 'success')
+			except (AttributeError, KeyError), e:
+				logging.error('Unexpected error creating the user %s: %s' % (username, e ))
+				message = _('Unexpected error during pre-registration of %s' % username )
+				self.add_message(message, 'error')
+		
+		return self.redirect_to('home')
+		
+		
+	@webapp2.cached_property
+	def form(self):
+		return forms.PreRegisterForm(self)
+
+class PreLaunchThankyouHandler(BournEEHandler):
 	@user_required
 	def get(self):
 		try:
@@ -60,7 +110,7 @@ class PreLaunchThankyouHandler(RegisterBaseHandler):
 			logging.error('Error during PreLaunchThankyouHandler')
 
 
-class PreLaunchLogoutHandler(BaseHandler):
+class PreLaunchLogoutHandler(BournEEHandler):
 	"""
 	Destroy user session and redirect to login
 	"""
@@ -84,22 +134,29 @@ class PreLaunchAboutHandler(RegisterBaseHandler):
 	def get(self):
 		try:
 			params = {
-					'continue_url': "{}/thankyou".format(self.request.host_url),
+					'form': self.form,
 					}
 			self.bournee_template('preRegisterAbout.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
+	@webapp2.cached_property
+	def form(self):
+		return forms.RegisterForm(self)
 
 class PreLaunchJobsHandler(RegisterBaseHandler):
 	def get(self):
 		try:
 			params = {
-					'continue_url': "{}/thankyou".format(self.request.host_url),
+				'form': self.form,
 					}
 			self.bournee_template('preRegisterJobs.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
+
+	@webapp2.cached_property
+	def form(self):
+		return forms.RegisterForm(self)
 
 
 class HomeRequestHandler(RegisterBaseHandler):
