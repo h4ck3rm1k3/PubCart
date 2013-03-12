@@ -13,17 +13,17 @@ from api import rest_api
 
 secure_scheme = 'https'
 
-_prelaunch_routes = [
-	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='home', strict_slash=True),
-	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='preLaunchSignup', strict_slash=True),
-	RedirectRoute('/thankyou', web_handlers.PreLaunchThankyouHandler, name='preLaunchThankyou', strict_slash=True),
-	RedirectRoute('/login/', web_handlers.PreLaunchSignupHandler, name='login', strict_slash=True),
-    RedirectRoute('/logout/', web_handlers.PreLaunchLogoutHandler, name='logout', strict_slash=True),
-    RedirectRoute('/register/', web_handlers.PreLaunchSignupHandler, name='register', strict_slash=True),
-    RedirectRoute('/about/', web_handlers.PreLaunchAboutHandler, name='about', strict_slash=True),
-    RedirectRoute('/jobs/', web_handlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
-    RedirectRoute('/settings/profile', web_handlers.PreLaunchThankyouHandler, name='edit-profile', strict_slash=True),
-]
+# _prelaunch_routes = [
+# 	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='home', strict_slash=True),
+# 	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='preLaunchSignup', strict_slash=True),
+# 	RedirectRoute('/thankyou', web_handlers.PreLaunchThankyouHandler, name='preLaunchThankyou', strict_slash=True),
+# 	RedirectRoute('/login/', web_handlers.PreLaunchSignupHandler, name='login', strict_slash=True),
+#     RedirectRoute('/logout/', web_handlers.PreLaunchLogoutHandler, name='logout', strict_slash=True),
+#     RedirectRoute('/register/', web_handlers.PreLaunchSignupHandler, name='register', strict_slash=True),
+#     RedirectRoute('/about/', web_handlers.PreLaunchAboutHandler, name='about', strict_slash=True),
+#     RedirectRoute('/jobs/', web_handlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
+#     RedirectRoute('/settings/profile', web_handlers.PreLaunchThankyouHandler, name='edit-profile', strict_slash=True),
+# ]
 
 _routes = [
 	RedirectRoute('/', web_handlers.HomeRequestHandler, name='home', strict_slash=True),
@@ -84,6 +84,5 @@ def get_routes():
 def add_routes(app):
 	if app.debug:
 		secure_scheme = 'http'
-	#for r in _routes:
-	for r in _prelaunch_routes:
+	for r in _routes:
 		app.router.add(r)
