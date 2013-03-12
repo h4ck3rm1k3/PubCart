@@ -26,18 +26,72 @@ from google.appengine.datastore.datastore_query import Cursor
 ##:	 BournEE Imports
 import forms as forms
 from models import shoppingModels, userModels
-from libr import bestPrice
-from libr import utils
-from libr.utils import dollar_float
-from libr.bourneehandler import RegisterBaseHandler, BournEEHandler
-from libr.exceptions import FunctionException
-from libr import paypal_settings as settings
+from lib import bestPrice
+from lib import utils
+from lib.utils import dollar_float
+from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
+from lib.exceptions import FunctionException
+from lib import paypal_settings as settings
 
 ##:	 Boilerplate Imports
 from boilerplate import models
 from boilerplate.lib.basehandler import user_required
 from boilerplate.lib.basehandler import BaseHandler
 
+class PreLaunchSignupHandler(RegisterBaseHandler):
+	def get(self):
+		try:
+			params = {
+					'continue_url': "{}/thankyou".format(self.request.host_url),
+					}
+			self.bournee_template('preRegisterSignIn.html', **params)
+		except:
+			logging.error('Error during PreLaunchSignupHandler')
+
+class PreLaunchThankyouHandler(RegisterBaseHandler):
+	@user_required
+	def get(self):
+		try:
+			params = {
+					'continue_url': "{}/thankyou".format(self.request.host_url),
+					}
+			self.bournee_template('preRegisterThankyou.html', **params)
+		except:
+			logging.error('Error during PreLaunchSignupHandler')
+
+
+class PreLaunchThankyouHandler(RegisterBaseHandler):
+	@user_required
+	def get(self):
+		try:
+			params = {
+					'continue_url': "{}/thankyou".format(self.request.host_url),
+					}
+			self.bournee_template('preRegisterThankyou.html', **params)
+		except:
+			logging.error('Error during PreLaunchSignupHandler')
+
+
+class PreLaunchLogoutHandler(BaseHandler):
+	"""
+	Destroy user session and redirect to login
+	"""
+
+	def get(self):
+		try:
+			if self.user:
+				message = _("You've signed out successfully. Warning: Please clear all cookies and logout "
+							"of OpenId providers too if you logged in on a public computer.")
+				self.add_message(message, 'info')
+
+			self.auth.unset_session()
+			# User is logged out, let's try redirecting to login page
+			return self.redirect_to('preLaunchSignup')
+		except (AttributeError, KeyError), e:
+			logging.error("Error logging out: %s" % e)
+			message = _("User is logged out, but there was an error on the redirection.")
+			self.add_message(message, 'error')
+			return self.redirect_to('preLaunchSignup')
 
 class HomeRequestHandler(RegisterBaseHandler):
 	"""

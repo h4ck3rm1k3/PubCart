@@ -6,7 +6,7 @@ Created on June 10, 2012
 from wtforms import fields
 from wtforms import Form
 from wtforms import validators
-from libr import utils
+from lib import utils
 from webapp2_extras.i18n import lazy_gettext as _
 from webapp2_extras.i18n import ngettext, gettext
 
@@ -27,6 +27,9 @@ class BaseForm(Form):
         super(BaseForm, self).__init__(request_handler.request.POST)
     def _get_translations(self):
         return FormTranslations()
+
+class PreRegister(BaseForm):
+	email = fields.TextField(_('Email'), [validators.Required(), validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.'))])
 
 
 class CurrentPasswordMixin(BaseForm):

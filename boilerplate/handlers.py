@@ -29,10 +29,10 @@ from linkedin import linkedin
 # local application/library specific imports
 import models
 import forms as forms
-from libr import utils, captcha, twitter
-from libr.basehandler import BaseHandler
-from libr.basehandler import user_required
-from libr import facebook
+from lib import utils, captcha, twitter
+from lib.basehandler import BaseHandler
+from lib.basehandler import user_required
+from lib import facebook
 
 class AbTestHandler(BaseHandler):
     """
@@ -314,7 +314,7 @@ class CallbackSocialLoginHandler(BaseHandler):
             message = _('Federated login is disabled.')
             self.add_message(message, 'warning')
             return self.redirect_to('login')
-        continue_url = self.request.get('continue_url')
+        continue_url = str(self.request.get('continue_url'))
         if provider_name == "twitter":
             oauth_token = self.request.get('oauth_token')
             oauth_verifier = self.request.get('oauth_verifier')

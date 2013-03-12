@@ -13,7 +13,7 @@ import json
 import logging
 from google.appengine.ext import ndb, webapp
 from google.appengine.ext.webapp import util, template
-from libr.bourneehandler import BournEEHandler
+from lib.bourneehandler import BournEEHandler
 
 
 import urllib
