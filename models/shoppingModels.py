@@ -14,9 +14,9 @@ import re
 import config
 import logging
 
-from lib import utils
-from lib import searchCategories
-from lib import searchDocument
+from libr import utils
+from libr import searchCategories
+from libr import searchDocument
 from models.userModels import User, Seller
 
 

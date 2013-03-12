@@ -6,7 +6,7 @@ import logging
 from wtforms import fields
 from wtforms import Form
 from wtforms import validators
-from lib import utils
+from libr import utils
 from models import userModels, shoppingModels
 from webapp2_extras.i18n import lazy_gettext as _
 from webapp2_extras.i18n import ngettext, gettext

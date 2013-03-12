@@ -1,7 +1,7 @@
 import re
 
 from google.appengine.ext import ndb
-from lib.dateutil import parser,tz
+from libr.dateutil import parser,tz
 from google.appengine.ext.ndb.google_imports import datastore_errors
 
 #===============================================================================

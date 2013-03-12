@@ -26,12 +26,12 @@ from google.appengine.datastore.datastore_query import Cursor
 ##:	 BournEE Imports
 import forms as forms
 from models import shoppingModels, userModels
-from lib import bestPrice
-from lib import utils
-from lib.utils import dollar_float
-from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
-from lib.exceptions import FunctionException
-from lib import paypal_settings as settings
+from libr import bestPrice
+from libr import utils
+from libr.utils import dollar_float
+from libr.bourneehandler import RegisterBaseHandler, BournEEHandler
+from libr.exceptions import FunctionException
+from libr import paypal_settings as settings
 
 ##:	 Boilerplate Imports
 from boilerplate import models

@@ -17,7 +17,7 @@ from google.appengine.ext import ndb
 
 import parser
 from models import records_models as model
-from lib.decorators import oauth_required
+from libr.decorators import oauth_required
 
 
 METADATA_URI_NAME = 'resources'

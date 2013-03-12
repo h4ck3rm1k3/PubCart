@@ -25,9 +25,9 @@ import boilerplate
 from boilerplate import routes as boilerplate_routes
 from boilerplate import models as boilerplate_models
 
-from lib import test_helpers
-from lib import webtest
-from lib import utils
+from libr import test_helpers
+from libr import webtest
+from libr import utils
 from models import shoppingModels
 
 # setting HTTP_HOST in extra_environ parameter for TestApp is not enough for taskqueue stub

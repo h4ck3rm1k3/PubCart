@@ -29,10 +29,10 @@ from linkedin import linkedin
 # local application/library specific imports
 import models
 import forms as forms
-from lib import utils, captcha, twitter
-from lib.basehandler import BaseHandler
-from lib.basehandler import user_required
-from lib import facebook
+from libr import utils, captcha, twitter
+from libr.basehandler import BaseHandler
+from libr.basehandler import user_required
+from libr import facebook
 
 class AbTestHandler(BaseHandler):
     """

@@ -11,7 +11,7 @@ import config
 import re
 
 from google.appengine.ext import ndb
-from lib import utils
+from libr import utils
 
 
 class Corporation(ndb.Model):
