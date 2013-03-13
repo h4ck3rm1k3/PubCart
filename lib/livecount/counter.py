@@ -99,7 +99,7 @@ class LivecountCounter(ndb.Model):
 			logging.info('objectModels: {}'.format(objectModels))
 			if objectModels:
 				if len(objectModels) == 1:
-					model = ndb.Key(urlsafe=str(model.name)).get()
+					model = ndb.Key(urlsafe=str(objectModels[0].name)).get()
 					logging.info('model: {}'.format(model))
 					return [model]
 				elif len(objectModels) > 1:

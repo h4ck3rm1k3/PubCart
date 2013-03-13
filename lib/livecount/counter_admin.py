@@ -18,7 +18,6 @@
 from datetime import datetime
 import logging
 import os
-import simplejson
 import webapp2
 
 from google.appengine.ext.webapp import template
