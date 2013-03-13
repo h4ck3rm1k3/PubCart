@@ -87,11 +87,32 @@ class LivecountCounter(ndb.Model):
 		scoped_period = PeriodType.find_scope(period_type, period)
 		return period_type + ":" + scoped_period + ":" + name
 	
-	def get_top_objects(namespace="default", period='all', qunatity=5):
-		return LivecountCounter.query(ndb.AND(
-				LivecountCounter.namespace==namespace,
-				LivecountCounter.period==period,
-				)).order('-count').fetch(qunatity)
+	@staticmethod
+	def get_top_objects(namespace="default", period='all', quantity=5):
+		try:
+			lc_query = LivecountCounter.query(ndb.AND(
+								LivecountCounter.namespace==namespace,
+								LivecountCounter.period==period
+								))
+			lc_query.order(-LivecountCounter.count)
+			objectModels = lc_query.fetch(quantity)
+			logging.info('objectModels: {}'.format(objectModels))
+			if objectModels:
+				if len(objectModels) == 1:
+					model = ndb.Key(urlsafe=str(model.name)).get()
+					logging.info('model: {}'.format(model))
+					return [model]
+				elif len(objectModels) > 1:
+					entitiesToGet = []
+					for model in objectModels:
+						entitiesToGet.append(ndb.Key(urlsafe=str(model.name)))
+					models = ndb.get_multi(entitiesToGet)
+					logging.info('models: {}'.format(models))
+					return models
+			return None	
+		except Exception as e:
+			logging.error('Error running query on LivecountCounter in method get_top_objects: -- {}'.format(e))
+			return None
 
 
 def load_and_get_count(name, namespace='default', period_type='all', period=datetime.now()):

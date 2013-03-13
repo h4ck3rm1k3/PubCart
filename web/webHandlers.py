@@ -51,7 +51,7 @@ class HomeRequestHandler(RegisterBaseHandler):
 		try:
 			##: We will look at the entire year...once more trafic hits go to a week or day
 			counterPeriod = str(datetime.now())[0:4] # 2013
-			trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, qunatity=5)
+			trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, quantity=5)
 			params = {'trendingProducts':trendingProducts}
 		except:
 			params = {'trendingProducts':None}

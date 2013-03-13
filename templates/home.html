@@ -1,4 +1,5 @@
 {% extends base_layout %}
+{% from 'widget/_product_small_widget.html' import alert_widget, plain_product_widget %}
 
 {% block title %}
     PubCart. Home
@@ -60,7 +61,21 @@
 				<div id="product_demo_wrapper" class="product_demo_wrapper">
 					<header><h4>Trending Products.</h4></header>
 					<div class='inner'>
-
+						{% if trendingProducts %}
+							<table class="table table-striped table-hover table-condensed">
+								<tbody>
+										{% for product in trendingProducts %}
+											{% if product %}
+											<tr class='pointer' onClick='linkTo("{{uri_for('product', urlsafeProductKey=product.key.urlsafe() )}}")'>
+												<td colspan='2'>
+													{{plain_product_widget(product)}}
+												</td>
+											</tr>
+											{% endif %}
+										{% endfor %}
+								</tbody>
+							</table>
+						{% endif %}
 					</div>
 				</div>
 				<div id="cart_demo_wrapper" class="cart_demo_wrapper">

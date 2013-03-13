@@ -150,7 +150,8 @@ class ProductRequestHandler(RegisterBaseHandler):
 
 			##: This is the analytics counter for an idividual product
 			try:
-			    counter.load_and_increment_counter(name=productModel.key.urlsafe(), period=datetime.now(), namespace="products")
+				counterPeriod = str(datetime.now())[0:4] # 2013
+				counter.load_and_increment_counter(name=productModel.key.urlsafe(), period_types=[counter.PeriodType.ALL,counter.PeriodType.YEAR], namespace="products")
 			except Exception as e:
 				logging.error('Error setting LiveCount for product in class ProductRequestHandler : %s' % e)
 
