@@ -126,22 +126,24 @@ class CreateCartForm(BaseForm):
 	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 
 class ForkCartForm(BaseForm):
-	CATEGORIES = shoppingModels.Category.getCategoryInfo()
-	if not CATEGORIES: CATEGORIES = [('electronics', 'electronics')]
-	logging.info('Categories: {}'.format(CATEGORIES))
+	CATEGORIES = [("", "Choose Category...")]
+	cats = shoppingModels.Category.getCategoryInfo()
+	if not cats: CATEGORIES = [("", "Choose Category..."),('ELECTRONICS', 'ELECTRONICS')]
+	else: CATEGORIES.extend(cats)
 	ck = fields.TextField(_('Cart Number'), [validators.Required()])
 	name = fields.TextField(_('Cart Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), \
 				validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Address Reference Name invalid. Use only letters and numbers.'))])
 	description = fields.TextAreaField(_('Description'), [validators.Required()])
-	category = fields.SelectField(_('Category'), [validators.AnyOf([cat for cat in CATEGORIES], message=u'A category selection is required')], choices=CATEGORIES)
+	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 
 class CartDetailsForm(BaseForm):
-	CATEGORIES = shoppingModels.Category.getCategoryInfo()
-	if not CATEGORIES: CATEGORIES = [('electronics', 'electronics')]
-	logging.info('Categories: {}'.format(CATEGORIES))
+	CATEGORIES = [("", "Choose Category...")]
+	cats = shoppingModels.Category.getCategoryInfo()
+	if not cats: CATEGORIES = [("", "Choose Category..."),('ELECTRONICS', 'ELECTRONICS')]
+	else: CATEGORIES.extend(cats)
 	ck = fields.TextField(_('Cart Number'), [validators.Required()])
 	description = fields.TextAreaField(_('Description'), [validators.Required()])
-	category = fields.SelectField(_('Category'), [validators.AnyOf([cat for cat in CATEGORIES], message=u'A category selection is required')], choices=CATEGORIES)
+	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 
 class MakeCartDefaultForm(BaseForm):
 	ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])

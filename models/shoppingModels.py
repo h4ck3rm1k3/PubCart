@@ -509,13 +509,10 @@ class Cart(ndb.Model):
 			if urlsafeCartKey:
 				return ndb.Key(urlsafe=urlsafeCartKey).get()
 			else:
-				if str(cartName).upper() not in utils.RESERVEDCARTNAMES:
-					cartName = str(cartName).upper()
-				else:
-					first, last = Cart.allocate_ids(1, parent=userKey)
-					cartID = first
-					cartName = "{}_({})".format(str(cartName).upper(),cartID)
-				cartKey = ndb.Key(Cart, cartName, parent=userKey)
+				first, last = Cart.allocate_ids(1, parent=userKey)
+				cartID = first
+				cartKeyName = "{}_(D{})".format(str(cartName).upper(),cartID)
+				cartKey = ndb.Key(Cart, cartKeyName, parent=userKey)
 				cart = cartKey.get()
 				if cart: return cart
 				else: return Cart.create_cart(cartKey, userKey, str(cartName).upper(), cartDescritpion, cartCategory)

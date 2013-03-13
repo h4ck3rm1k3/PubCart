@@ -702,9 +702,10 @@ class MakeCartPublicHandler(BournEEHandler):
 													public = True, \
 													default = False, \
 													)
-					forkedCart.key = ndb.Key(shoppingModels.Cart, str(cartName).strip().upper(), parent=self.user_key)
+					keyName = str(cartName).strip().upper()
+					forkedCart.key = ndb.Key(shoppingModels.Cart, str(keyName), parent=self.user_key)
 
-					entitiesToPut = [forkedCart]
+					logging.info("entitiesToPut: {}".format(entitiesToPut))
 
 					orderItems = shoppingModels.Order.get_for_cart(cart.key)
 					if orderItems:
@@ -717,15 +718,24 @@ class MakeCartPublicHandler(BournEEHandler):
 							forkedOrder.key = ndb.Key(shoppingModels.Order, keyname, parent=forkedCart.key)
 							entitiesToPut.append(forkedOrder)
 
+					shoppingModels.Cart.update_subtotal_values(cart, 0, cart.st, put_model=False)
+					entitiesToPut.append(cart)
+					entitiesToPut.append(forkedCart)
+
+					logging.info("entitiesToPut: {}".format(entitiesToPut))
 					if len(entitiesToPut) > 1:
 						ndb.put_multi(entitiesToPut)
 					elif len(entitiesToPut) == 1:
 						entitiesToPut[0].put()
 					
+					logging.info("entitiesToDelete: {}".format(entitiesToDelete))
 					if len(entitiesToDelete) > 1:
 						ndb.delete_multi(entitiesToDelete)
 					elif len(entitiesToDelete) == 1:
 						entitiesToDelete[0].delete()
+
+					##: Deffered run checking on the forkedCart subtotals
+					deferred.defer(shoppingModels.verify_cart_subtotals, forkedCart.key.urlsafe()) ##: cartKey is URLSAFE
 
 					logging.error("Cart has been updated to Public status")
 					message = _('Cart has been updated to Public status')
@@ -968,7 +978,13 @@ class ForkCartHandler(BournEEHandler):
 			if urlsafeCartKey == formUrlsafeCartKey:
 				cart = ndb.Key(urlsafe=urlsafeCartKey).get()
 				if cart:
-
+					
+					forkedCartKey = ndb.Key(shoppingModels.Cart, str(cartName).strip().upper(), parent=self.user_key)
+					if cart.key == forkedCartKey:
+						message = _("You Already have a cart with this name: {}".format(str(cartName).strip().upper()))
+						self.add_message(message, 'error')
+						return self.get(urlsafeCartKey)
+						
 					forkedCart = utils.clone_entity(cart, 
 													n = cartName, \
 													d = cartDescription, \
@@ -976,7 +992,7 @@ class ForkCartHandler(BournEEHandler):
 													public = False, \
 													default = False, \
 													)
-					forkedCart.key = ndb.Key(shoppingModels.Cart, str(cartName).strip().upper(), parent=self.user_key)
+					forkedCart.key = forkedCartKey
 
 					entitiesToPut = [forkedCart]
 					
