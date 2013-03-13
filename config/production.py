@@ -63,8 +63,8 @@ config = {
 'github_client_secret' : '39d52c2f0ae6e87f41f5a37049ffa2ca71059af9',
 
 # get your own recaptcha keys by registering at http://www.google.com/recaptcha/
-'captcha_public_key' : "PUT_YOUR_RECAPCHA_PUBLIC_KEY_HERE",
-'captcha_private_key' : "PUT_YOUR_RECAPCHA_PRIVATE_KEY_HERE",
+'captcha_public_key' : "6LfMOd4SAAAAAIrVi5Cx6qWu3jAVEJeHgXsCvJzU",
+'captcha_private_key' : "6LfMOd4SAAAAAMWbTUKD--pXpR5uQ6gX_va5ek51",
 
 # Leave blank "google_analytics_domain" if you only want Analytics code
 'google_analytics_domain' : "pubcart.com",

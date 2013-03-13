@@ -41,12 +41,12 @@
 								    </thead>
 									<tbody>
 										{% set iter = 0 %}
-										{% for product in defaultCartItems %}
+										{% for productOrder in defaultCartItems %}
 											{% if product %}
 											<tr>
 												<td colspan='2'>
 												{% set iter = iter + 1 %}
-												{{sc_product_widget(product, defaultCart.key.urlsafe(), iter)}}
+												{{sc_product_widget(productOrder, defaultCart.key.urlsafe(), iter)}}
 												</td>
 											</tr>
 											{% endif %}

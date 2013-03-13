@@ -52,8 +52,8 @@ class ProductSearchForm(BaseForm):
 
 
 class AddProductForm(BaseForm):
-	SELLERS = [(None, 'Select a seller...')]
-	sellerModels = userModels.Seller.get_all_for_category('electronics')
+	SELLERS = [('', 'Select a seller...')]
+	sellerModels = userModels.Seller.get_all_for_category('ELECTRONICS')
 	for seller in sellerModels:
 		SELLERS.append((str(seller.key.urlsafe()),str(seller.n)))
 	productNumber = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
@@ -115,13 +115,15 @@ class ChangeQntOfOrderForm(BaseForm):
 	q = fields.IntegerField(_('QNT'), [validators.Required()])
 
 class CreateCartForm(BaseForm):
-	CATEGORIES = shoppingModels.Category.getCategoryInfo()
-	if not CATEGORIES: CATEGORIES = [('electronics', 'electronics')]
+	CATEGORIES = [("", "Choose Category...")]
+	cats = shoppingModels.Category.getCategoryInfo()
+	if not cats: CATEGORIES = [("", "Choose Category..."),('ELECTRONICS', 'ELECTRONICS')]
+	else: CATEGORIES.extend(cats)
 	logging.info('Categories: {}'.format(CATEGORIES))
 	name = fields.TextField(_('Cart Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), \
 				validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Address Reference Name invalid. Use only letters and numbers.'))])
 	description = fields.TextAreaField(_('Description'), [validators.Required()])
-	category = fields.SelectField(_('Category'), [validators.AnyOf([cat for cat in CATEGORIES], message=u'A category selection is required')], choices=CATEGORIES)
+	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 
 class ForkCartForm(BaseForm):
 	CATEGORIES = shoppingModels.Category.getCategoryInfo()
@@ -158,12 +160,13 @@ class PaypalPaymentForm(BaseForm):
 	ogt = fields.IntegerField(_('Order Grand Total'), [validators.Required()])
 
 class EditSellerForm(BaseForm):
-	CATEGORIES = shoppingModels.Category.getCategoryInfo()
-	if not CATEGORIES: CATEGORIES = [('electronics', 'electronics')]
-	logging.info('Categories: {}'.format(CATEGORIES))
+	CATEGORIES = [("", "Choose Category...")]
+	cats = shoppingModels.Category.getCategoryInfo()
+	if not cats: CATEGORIES = [("", "Choose Category..."),('ELECTRONICS', 'ELECTRONICS')]
+	else: CATEGORIES.extend(cats)
 	n = fields.TextField(_('Seller Company Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	dom = fields.TextField(_('Domain'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	cn = fields.TextField(_('Contact Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	pn = fields.IntegerField(_('Phone Number'), [validators.Required()])
-	cat = fields.SelectField(_('Category'), [validators.AnyOf([cat for cat in CATEGORIES], message=u'A category selection is required')], choices=CATEGORIES)
+	cat = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 

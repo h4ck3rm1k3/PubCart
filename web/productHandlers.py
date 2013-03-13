@@ -10,6 +10,7 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 ##:	 Python Imports
 import logging
 import httpagentparser
+from datetime import datetime
 
 ##:	 Webapp2 Imports
 import webapp2
@@ -27,6 +28,7 @@ from models import shoppingModels, userModels
 from lib import bestPrice
 from lib import utils
 from lib import parsers
+from lib.livecount import counter
 from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
 from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
@@ -135,8 +137,8 @@ class ProductRequestHandler(RegisterBaseHandler):
 				except:
 					self.redirect_to('home')
 
+			##: Add this product to the last products viewed memcache
 			try:
-				##: Add this product to the last products viewed memcache
 				lpv = memcache.get('%s:lastProductsViewed' % str(self.request.remote_addr))
 				if lpv == None: lpv = []
 				if productModel in lpv: lpv.remove(productModel)
@@ -145,6 +147,12 @@ class ProductRequestHandler(RegisterBaseHandler):
 				memcache.set('%s:lastProductsViewed' % str(self.request.remote_addr),lpv)
 			except Exception as e:
 				logging.error('Error setting Memcache for lastProductsViewed in class ProductRequestHandler : %s' % e)
+
+			##: This is the analytics counter for an idividual product
+			try:
+			    counter.load_and_increment_counter(name=productModel.key.urlsafe(), period=datetime.now(), namespace="products")
+			except Exception as e:
+				logging.error('Error setting LiveCount for product in class ProductRequestHandler : %s' % e)
 
 			params = {
 					'product': productModel,
@@ -278,24 +286,36 @@ class GetProductFormHandler(BaseHandler):
 
 				##: Check to see if user already created this Order within this Cart
 				currentOrder = shoppingModels.Order.get_for_product_and_cart(cartModel.key, str(productModel.pn))
-
+				newOrder = None
 				##: Create or Update the Order Model
 				if currentOrder:
+					logging.info('here')
 					old_order_subtotal = currentOrder.st ##: must record the old subTotal before updating the QNT
-					order = currentOrder.update_order_add_qnt(currentOrder, int(quantity), put_model=False)
+					newOrder = currentOrder.update_order_add_qnt(currentOrder, int(quantity), put_model=False)
 				else:
+					logging.info('here')
 					old_order_subtotal = 0
-					order = shoppingModels.Order.create_order(cartModel.key, productModel.key, int(quantity), put_model=False)
+					newOrder = shoppingModels.Order.create_order(cartModel.key, productModel.key, int(quantity), put_model=False)
 
 				##: Update the Cart for the Totals Costs
-				if order:
+				if newOrder:
+					logging.info('newOrder.q: {}'.format(newOrder.q))
+					logging.info('newOrder.fetch_bup: {}'.format(newOrder.fetch_bup))
+					logging.info('newOrder.st: {}'.format(newOrder.st))
+					logging.info('old_order_subtotal: {}'.format(old_order_subtotal))
+					
 					##: Updatte the Cart's subtotals
-					orderSubTotal = (int(order.st)-int(old_order_subtotal))
+					orderSubTotal = (int(newOrder.st)-int(old_order_subtotal))
 					oldCartSubTotal = cartModel.st
+					
+					logging.info('orderSubTotal: {}'.format(orderSubTotal))
+					logging.info('oldCartSubTotal: {}'.format(oldCartSubTotal))
+					
 					newCartSubTotal = int(oldCartSubTotal) + int(orderSubTotal)
 					shoppingModels.Cart.update_subtotal_values(cartModel, newCartSubTotal, oldCartSubTotal, put_model=False)
+					logging.info('here')
 
-				ndb.put_multi( [cartModel, order] )
+				ndb.put_multi( [cartModel, newOrder] )
 				logging.info('here')
 
 				##: Run a check in the background to verify Cart Sub-Total

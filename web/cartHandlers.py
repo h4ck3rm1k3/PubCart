@@ -114,7 +114,9 @@ class CreateCartInfoHandler(RegisterBaseHandler):
 	def post(self):
 		try:
 			if not self.createCart_form.validate():
-				raise Exception('createCart_form did not Validate, in function POST of AddToCartHandler')
+				logging.error('createCart_form did not Validate, in function POST of AddToCartHandler')
+				return self.loggedin_get()
+				
 			logging.info("createCart_form Form Was valid")
 
 			##: Try to fetch the data from the Form response

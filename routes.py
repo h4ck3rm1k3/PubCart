@@ -5,30 +5,33 @@ RedirectRoute: http://webapp-improved.appspot.com/api/webapp2_extras/routes.html
 """
 from webapp2 import Route
 from webapp2_extras.routes import RedirectRoute
-from web import web_handlers
+from web import webHandlers
 from web import cartHandlers
 from web import oauth_handlers
 from web import productHandlers
+from web import preRegisterHendlers
+from web import paypalHandlers
 from api import rest_api
+from lib.livecount import counter as countHandlers
 
 secure_scheme = 'https'
 
 # _prelaunch_routes = [
-# 	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='home', strict_slash=True),
-# 	RedirectRoute('/', web_handlers.PreLaunchSignupHandler, name='preLaunchSignup', strict_slash=True),
-# 	RedirectRoute('/thankyou', web_handlers.PreLaunchThankyouHandler, name='preLaunchThankyou', strict_slash=True),
-# 	RedirectRoute('/login/', web_handlers.PreLaunchSignupHandler, name='login', strict_slash=True),
-#     RedirectRoute('/logout/', web_handlers.PreLaunchLogoutHandler, name='logout', strict_slash=True),
-#     RedirectRoute('/register/', web_handlers.PreLaunchSignupHandler, name='register', strict_slash=True),
-#     RedirectRoute('/about/', web_handlers.PreLaunchAboutHandler, name='about', strict_slash=True),
-#     RedirectRoute('/jobs/', web_handlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
-#     RedirectRoute('/settings/profile', web_handlers.PreLaunchThankyouHandler, name='edit-profile', strict_slash=True),
+# 	RedirectRoute('/', preRegisterHendlers.PreLaunchSignupHandler, name='home', strict_slash=True),
+# 	RedirectRoute('/', preRegisterHendlers.PreLaunchSignupHandler, name='preLaunchSignup', strict_slash=True),
+# 	RedirectRoute('/thankyou', preRegisterHendlers.PreLaunchThankyouHandler, name='preLaunchThankyou', strict_slash=True),
+# 	RedirectRoute('/login/', preRegisterHendlers.PreLaunchSignupHandler, name='login', strict_slash=True),
+#     RedirectRoute('/logout/', preRegisterHendlers.PreLaunchLogoutHandler, name='logout', strict_slash=True),
+#     RedirectRoute('/register/', preRegisterHendlers.PreLaunchSignupHandler, name='register', strict_slash=True),
+#     RedirectRoute('/about/', preRegisterHendlers.PreLaunchAboutHandler, name='about', strict_slash=True),
+#     RedirectRoute('/jobs/', preRegisterHendlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
+#     RedirectRoute('/settings/profile', preRegisterHendlers.PreLaunchThankyouHandler, name='edit-profile', strict_slash=True),
 # ]
 
 _routes = [
-	RedirectRoute('/', web_handlers.HomeRequestHandler, name='home', strict_slash=True),
+	RedirectRoute('/', webHandlers.HomeRequestHandler, name='home', strict_slash=True),
 
-	RedirectRoute('/addaddress', web_handlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
+	RedirectRoute('/addaddress', webHandlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
 
 	RedirectRoute(r'/discoverProducts', productHandlers.DiscoverProductsHandler, name='discoverProducts', methods=['GET'], strict_slash=True),
 	RedirectRoute(r'/product/<urlsafeProductKey>', productHandlers.ProductRequestHandler, name='product', methods=['GET'], strict_slash=True),
@@ -36,16 +39,16 @@ _routes = [
 	RedirectRoute(r'/getProduct', productHandlers.GetProductFormHandler, name='getProduct', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/clearLastProductsViewed', productHandlers.ClearLastProductsViewedHandler, name='clearLastProductsViewed', methods=['POST'], strict_slash=True),
 
-	RedirectRoute(r'/exchangeOrder/<pk>', web_handlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
-	RedirectRoute(r'/createLimitOrder/<pk>', web_handlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
-	RedirectRoute(r'/createAlertForm/<pk>', web_handlers.CreateAlertFormHandler, name='createAlert', strict_slash=True),
-	RedirectRoute(r'/watchlist/<urlsafeWatchlistKey>', web_handlers.FullPageWatchlistHandler, name='fullPageWatchlist', methods=['GET'], strict_slash=True),
-	RedirectRoute(r'/positions', web_handlers.FullPagePositionsHandler, name='fullPagePositions', methods=['GET'], strict_slash=True),
+	RedirectRoute(r'/exchangeOrder/<pk>', webHandlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
+	RedirectRoute(r'/createLimitOrder/<pk>', webHandlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
+	RedirectRoute(r'/createAlertForm/<pk>', webHandlers.CreateAlertFormHandler, name='createAlert', strict_slash=True),
+	RedirectRoute(r'/watchlist/<urlsafeWatchlistKey>', webHandlers.FullPageWatchlistHandler, name='fullPageWatchlist', methods=['GET'], strict_slash=True),
+	RedirectRoute(r'/positions', webHandlers.FullPagePositionsHandler, name='fullPagePositions', methods=['GET'], strict_slash=True),
 
-	RedirectRoute(r'/completeExchangeOrder', web_handlers.CompleteExchangeOrderHandler, name='completeExchangeOrder', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/addToWatchlist', web_handlers.AddToWatchlistHandler, name='addToWatchlist', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/deleteFromWatchlist', web_handlers.DeleteFromWatchlistHandler, name='deleteFromWatchlist', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/createAlert', web_handlers.CreateAlertHandler, name='createAlertPost', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/completeExchangeOrder', webHandlers.CompleteExchangeOrderHandler, name='completeExchangeOrder', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/addToWatchlist', webHandlers.AddToWatchlistHandler, name='addToWatchlist', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/deleteFromWatchlist', webHandlers.DeleteFromWatchlistHandler, name='deleteFromWatchlist', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/createAlert', webHandlers.CreateAlertHandler, name='createAlertPost', methods=['POST'], strict_slash=True),
 
 	RedirectRoute(r'/discoverCarts', cartHandlers.DiscoverCartsHandler, name='discoverCarts', methods=['GET'], strict_slash=True),
 	RedirectRoute(r'/myCarts', cartHandlers.MyCartsHandler, name='mycarts', methods=['GET'], strict_slash=True),
@@ -64,16 +67,15 @@ _routes = [
 	RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/deleteCart', cartHandlers.DeleteCartHandler, name='deleteCart', methods=['POST'], strict_slash=True),
 
-	RedirectRoute(r'/paypal/<urlsafeCartKey>', web_handlers.PayPalPaymentHandler, name='paypalPayment', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/paypal/<urlsafeCartKey>/return/<urlsafePurchaseKey>/<secret>', web_handlers.PaypalReturnHandler, name='paypalReturn', strict_slash=True),
-	RedirectRoute(r'/paypal/<urlsafeCartKey>/cancel/<urlsafePurchaseKey>', web_handlers.PaypalCancelHandler, name='patpalCancel', strict_slash=True),
-	RedirectRoute(r'/ipn/<urlsafePurchaseKey>/<secret>', web_handlers.PaypalIPNHandler, name='paypalIPN', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeCartKey>', paypalHandlers.PayPalPaymentHandler, name='paypalPayment', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeCartKey>/return/<urlsafePurchaseKey>/<secret>', paypalHandlers.PaypalReturnHandler, name='paypalReturn', strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeCartKey>/cancel/<urlsafePurchaseKey>', paypalHandlers.PaypalCancelHandler, name='patpalCancel', strict_slash=True),
+	RedirectRoute(r'/ipn/<urlsafePurchaseKey>/<secret>', paypalHandlers.PaypalIPNHandler, name='paypalIPN', methods=['POST'], strict_slash=True),
 
-
-	RedirectRoute(r'/oauth/register/portal', web_handlers.RegisterOAuthClientHandler, name='reg_oauth_client', strict_slash=True),
+	RedirectRoute(r'/oauth/register/portal', webHandlers.RegisterOAuthClientHandler, name='reg_oauth_client', strict_slash=True),
 	RedirectRoute(r'/oauth/authorize', oauth_handlers.AuthorizationHandler, name='oauth_authorize', strict_slash=True),
 	RedirectRoute(r'/oauth/token', oauth_handlers.AccessTokenHandler, name='oauth_token', strict_slash=True),
-	
+
 	## Simple Cathcall API Route
 	('/api/v1.*', rest_api.Rest),
 ]

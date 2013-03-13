@@ -31,7 +31,11 @@ handlers:
 - url: /admin/.*
   script: main.app
   login: admin
-
+    
+- url: /livecount/.*
+  script: livecounter.app
+  login: admin
+    
 - url: /favicon\.ico
   mime_type: image/vnd.microsoft.icon
   static_files: static/favicon.ico

@@ -40,6 +40,9 @@ def getBestPrice(urlsafeProductKey, quantity=1):
 		return None
 
 	try:
+		linkKey = ndb.Key(urlsafe='ag9kZXZ-cHViY2FydC1odWJyLgsSBFVzZXIYMQwLEgRDYXJ0IghFTEVQSEFOVAwLEgVPcmRlciIHVEw0OTRDRAw')
+		logging.info('productModel Key: {}'.format(productModel.key))
+		logging.info('link Key: {}'.format(linkKey))
 		current_BestPrice = float(productModel.bup)/100 ##: Best Unit price in Cents then converted to Floating Point Number (1 Unit)
 		current_PaidOrders = shoppingModels.OrderPurchaseRecord.get_purchased_qnt_for_product_number(urlsafeProductKey)
 

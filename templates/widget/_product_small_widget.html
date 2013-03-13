@@ -198,53 +198,48 @@
 {% endmacro %}
 
 
-{% macro sc_product_widget(product, urlsafeCartKey, iter) %}
+{% macro sc_product_widget(productOrder, urlsafeCartKey, iter) %}
 
 
-<div id='{{product.clean_pn }}_widget_wrapper' class='product_widget_wrapper'>
-	<div class='product_name'>
-		{% if product.d %}
-			<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}">{{product.d|truncate(length=30, killwords=True)}}</a>
-		{% endif %}
-	</div>
+<div id='{{productOrder.clean_pn }}_widget_wrapper' class='product_widget_wrapper'>
 	<div class='product_widget_inner'>
 		<div class='product_widget_image'>
-			{% if product.fetch_img %}
-				<img src="{{product.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+			{% if productOrder.fetch_img %}
+				<img src="{{productOrder.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
 			{% else %}
 				<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
 			{% endif %}
 		</div>
-		<div id='{{product.clean_pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
+		<div id='{{productOrder.clean_pn}}_widget_info_wrapper' class='product_widget_info_wrapper'>
 			<div class='product_pn'>
-				{% if product.pn %}
-					<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">{{product.pn|truncate(length=16, killwords=True)}}</a>
+				{% if productOrder.pn %}
+					<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe()) }}">{{productOrder.pn|truncate(length=16, killwords=True)}}</a>
 				{% endif %}
 			</div>
 			<div cllass='product_sup'>
-				{{product.q}} @ ${{product.d_op}} = ${{product.d_st}}
+				{{productOrder.q}} @ ${{productOrder.d_op}} = ${{productOrder.d_st}}
 			</div>
 		</div>
-		<div id='{{product.clean_pn}}_widget_button' class='product_widget_button'>
+		<div id='{{productOrder.clean_pn}}_widget_button' class='product_widget_button'>
 			<div class="btn-group">
 			    <button id='cartMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
 			      <span class="caret"></span>
 			    </button>
 			    <ul class="dropdown-menu pull-right">
-					<form id='deleteFromCartForm_{{product.clean_pn }}' name='deleteFromCartForm' class="form-inline" action="{{uri_for('removeFromCart')}}" method="POST">
+					<form id='deleteFromCartForm_{{productOrder.clean_pn }}' name='deleteFromCartForm' class="form-inline" action="{{uri_for('removeFromCart')}}" method="POST">
 						<fieldset>
 				            <input type="hidden" name="exception" value="{{ exception }}">
 				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-							<input type="hidden" name="ok" value="{{product.key.urlsafe()}}">
+							<input type="hidden" name="ok" value="{{productOrder.key.urlsafe()}}">
 							<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
-							<input type="hidden" name="ost" value="{{product.st}}">
-							<input type="hidden" name="lo" value="{{product.is_lo}}">
+							<input type="hidden" name="ost" value="{{productOrder.st}}">
+							<input type="hidden" name="lo" value="{{productOrder.is_lo}}">
 							<li><button type='submit' ><i class="icon-trash"></i> Remove</button></li>
 						</fieldset>
 					</form>
-					<li><button id='toggleChangeQntButton' class='toggleChangeQntButton'name='{{product.clean_pn }}'><i class="icon-wrench"></i> Change QNT</button></li>
+					<li><button id='toggleChangeQntButton' class='toggleChangeQntButton'name='{{productOrder.clean_pn }}'><i class="icon-wrench"></i> Change QNT</button></li>
 				    <li class="divider"></li>
-			        <li><a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}">View Product</a></li>
+			        <li><a href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe() ) }}">View Product</a></li>
 				    <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=urlsafeCartKey) }}">More Details</a></li>
 			    </ul>
 		  	</div>
@@ -253,17 +248,17 @@
 </div>
 <div class="clearfix"></div>
 
-<div id='{{product.clean_pn }}_chgQntFormSmallWidgetWrapper' class='chgQntFormSmallWidgetWrapper' style='display:None'>
-	<button id='toggleChangeQntButtonX' name='{{product.clean_pn }}' style='margin:4px 0 0 10px' class="close toggleChangeQntButtonX">&times;</button>
+<div id='{{productOrder.clean_pn }}_chgQntFormSmallWidgetWrapper' class='chgQntFormSmallWidgetWrapper' style='display:None'>
+	<button id='toggleChangeQntButtonX' name='{{productOrder.clean_pn }}' style='margin:4px 0 0 10px' class="close toggleChangeQntButtonX">&times;</button>
 	
-	<form id='chgQntFromCartForm_{{product.clean_pn }}' name='chgQntFromCartForm' class="form-inline sidebarForm" action="{{uri_for('changeQntOfOrder')}}" method="POST">
+	<form id='chgQntFromCartForm_{{productOrder.clean_pn }}' name='chgQntFromCartForm' class="form-inline sidebarForm" action="{{uri_for('changeQntOfOrder')}}" method="POST">
 		<fieldset>
             <input type="hidden" name="exception" value="{{ exception }}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-			<input type="hidden" name="ok" value="{{product.key.urlsafe()}}">
+			<input type="hidden" name="ok" value="{{productOrder.key.urlsafe()}}">
 			<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
-			<input type="hidden" name="ost" value="{{product.st}}">
-			<input type="text" name="q" class="span1" value="{{product.q}}">
+			<input type="hidden" name="ost" value="{{productOrder.st}}">
+			<input type="text" name="q" class="span1" value="{{productOrder.q}}">
 			<button type='submit' class='btn'>update</button>
 		</fieldset>
 	</form>

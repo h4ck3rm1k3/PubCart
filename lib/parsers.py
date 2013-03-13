@@ -146,18 +146,18 @@ class Parser(SGMLParser):
 
 def createProductPriceTier(productModel, productNumber, parsedData):
 	
-	productTierPrice = None
+	newProductTierPricing = None
+	productTierPricing = None
 	logging.info('Here')
 	
 	try:
 		priceTiers = parsedData['priceTiers']
 		
-		logging.info('Here')
 		params = {}
-		params['pk'] = productModel.key, # Product Model Key
-		params['pn'] = productModel.pn, # Product Number
+		params['pk'] = productModel.key # Product Model Key
+		params['pn'] = productModel.pn # Product Number
 		for k, v in priceTiers.items():
-			if priceTiers.get('mep', ""):
+			if not priceTiers.get('mep', ""):
 				params['meq'] = int(k) ##: Minimum Exchange Quantity
 				params['mep'] = int(v) ##: Maximum Exchange Buying Price (Price gets higher the lower the quantity)
 				params['hq']  = int(k) ##: Highest Quantity before price stabalized
@@ -182,34 +182,34 @@ def createProductPriceTier(productModel, productNumber, parsedData):
 			previous_price = v
 			previous_qnt = k
 
-		productTierPrice = shoppingModels.ProductTierPrice.get_for_product(productModel.pn, productModel.key)
-		if productTierPrice:
-			productTierPricing = productTierPrice.update_from_parse_data(**params)
+		productTierPricing = shoppingModels.ProductTierPrice.get_for_product(productModel.pn, productModel.key)
+		if productTierPricing:
+			newProductTierPricing = productTierPrice.update_from_parse_data(**params)
 		else:
 			##:  Create the Product Price Model info for this loop rotation.
-			productTierPricing = shoppingModels.ProductTierPrice.create_from_parse_data(**params)
-	except BaseException as e:
+			newProductTierPricing = shoppingModels.ProductTierPrice.create_from_parse_data(**params)
+	except Exception as e:
 		logging.error('Error creating ProductTierPrice model in function (createProductPriceTier) :  --  %s' % str(e))
 
 	##: Now that we have an up to Date productTierPrice, we update the productModel
 	try:
 		logging.info('Here')
 		##: Now we set the initial price tier value in the productModel.
-		if productTierPricing:
+		if newProductTierPricing:
 			logging.info('Attempting to update productModel')
-			if not productModel.bup or productModel.bup != int(productTierPrice.o):
+			if not productModel.bup or productModel.bup != int(newProductTierPricing.o):
 				logging.info('Start to update productModel')
-				productModel.bup = int(productTierPrice.o) ##: Best Unit Price
-				productModel.hup = int(productTierPrice.o) ##: Highest Unit Price
-				productModel.cp = int(productTierPrice.o) ##: Closing Unit Price
+				productModel.bup = int(newProductTierPricing.o) ##: Best Unit Price
+				productModel.hup = int(newProductTierPricing.o) ##: Highest Unit Price
+				productModel.cp = int(newProductTierPricing.o) ##: Closing Unit Price
 				productModel.cq = 1 ##: Closing Quantity Sold
 				productModel.pch = 0 ##: Price Change (-/+)
 				productModel.cpt = 1 ##: Current Product Tier
 				productModel.put()
-	except BaseException as e:
+	except Exception as e:
 		logging.error('Error updating price Tier Values in the ProductModel, in function (createProductPriceTier) :  --  %s' % str(e))
 	
-	return productTierPrice
+	return newProductTierPricing
 	
 
 def parseDigiKey(urlsafeProductKey, productNumber=None, quantity=None, region='US'):

@@ -212,7 +212,7 @@ class Product(ndb.Expando):
 			else:
 				raise Exception('No productKey returned from productModel.put()')
 		except Exception as e:
-			logging.Error('Exception thrown in function create_from_parse_data of model class Product: -- {}'.format(e))
+			logging.error('Exception thrown in function create_from_parse_data of model class Product: -- {}'.format(e))
 			return None
 
 
@@ -235,10 +235,6 @@ class ProductTierPrice(ndb.Model):
 	
 	meq = ndb.IntegerProperty() # Minimum Exchange Quantity
 	mep = ndb.IntegerProperty() # Maximum Exchange Buy Price
-	rep = ndb.IntegerProperty() # Recommended Exchange Price
-	pp = ndb.IntegerProperty() # Potential Profit
-	ppp = ndb.IntegerProperty() # Potential Profit Percentage
-	
 	hq = ndb.IntegerProperty() # High Quantity (this is the quantity where the price stops dropping)
 	lp = ndb.IntegerProperty() # Lowest Price
 
@@ -255,7 +251,7 @@ class ProductTierPrice(ndb.Model):
 		cls.key = key
 
 	@staticmethod
-	def create_from_parse_data(parseData):
+	def create_from_parse_data(**parseData):
 		try:
 			productTierModel = ProductTierPrice()
 			productTierModel.populate(**parseData)
@@ -265,11 +261,11 @@ class ProductTierPrice(ndb.Model):
 			else:
 				raise Exception('No productTierKey returned from productTierModel.put()')
 		except Exception as e:
-			logging.Error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
+			logging.error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
 			return None
 	
 	@classmethod
-	def update_from_parse_data(cls, parseData):
+	def update_from_parse_data(cls, **parseData):
 		try:
 			cls.populate(**parseData)
 			productTierKey = cls.put()
@@ -278,7 +274,7 @@ class ProductTierPrice(ndb.Model):
 			else:
 				raise Exception('No productTierKey returned from productTierModel.put()')
 		except Exception as e:
-			logging.Error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
+			logging.error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
 			return None
 	
 	@staticmethod
@@ -303,15 +299,18 @@ class ProductTierPrice(ndb.Model):
 		if pp:
 			if dic.has_key(str(qnt_to_search)):
 				prop = dic[str(qnt_to_search)]
+				logging.info('prop: {}'.format(prop))
 				price = getattr(pp, prop)
-				p = price
+				logging.info('Price: {}'.format(price))
 				if return_PTModel:
-					return pp, p  ##: productTierPrice, Price
+					return pp, price  ##: productTierPrice, Price
 				else:
-					return p
+					logging.info('Price: {}'.format(price))
+					return price
 
 		logging.error("ProductTierPrice not found in function get_price_for_qnt of model ProductTierPrice")
-		return None, None
+		if return_PTModel: return None, None
+		else: return None
 
 	@classmethod
 	def get_for_product(cls, productPN, productKey):
@@ -665,7 +664,12 @@ class Order(ndb.Model):
 	def fetch_bup(cls):
 		if cls.pk:
 			urlsafeProductKey = cls.pk.urlsafe()
-			return ProductTierPrice.get_price_for_qnt(urlsafeProductKey, cls.q, return_PTModel=False)
+			ptp = ProductTierPrice.get_price_for_qnt(urlsafeProductKey, cls.q, return_PTModel=False)
+			if ptp: return ptp
+			else:
+				product = ndb.Key(urlsafe=urlsafeProductKey).get()
+				if product:
+					return product.bup
 		return 0
 			
 	@property

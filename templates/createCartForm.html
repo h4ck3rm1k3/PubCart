@@ -8,7 +8,6 @@
 			<fieldset>
 	            <input type="hidden" name="exception" value="{{ exception }}">
 	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
 				{{ lib.field(createCartForm.name, class="span6", maxlength="50", placeholder='Max 50 characters', label=_("New Cart Name")) }}
 				{{ lib.field(createCartForm.description, class="span6", rows="10", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
 				{{ lib.field(createCartForm.category, class="span3", label=_("Cart Category")) }}
