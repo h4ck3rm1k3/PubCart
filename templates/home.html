@@ -1,5 +1,5 @@
 {% extends base_layout %}
-{% from 'widget/_product_small_widget.html' import alert_widget, plain_product_widget %}
+{% from 'widget/_product_small_widget.html' import homepage_product_widget %}
 
 {% block title %}
     PubCart. Home
@@ -68,7 +68,7 @@
 											{% if product %}
 											<tr class='pointer' onClick='linkTo("{{uri_for('product', urlsafeProductKey=product.key.urlsafe() )}}")'>
 												<td colspan='2'>
-													{{plain_product_widget(product)}}
+													{{macros.homepage_product_widget(product)}}
 												</td>
 											</tr>
 											{% endif %}

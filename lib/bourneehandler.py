@@ -37,11 +37,12 @@ class BournEEHandler(BaseHandler):
 						elif cart.public == True: publicCarts.append(cart)
 						elif cart.public == False: privateCarts.append(cart)
 					if defaultCart: defaultCartItems = shoppingModels.Order.get_for_cart(defaultCart.key)
+					logging.info('defaultCart: {}'.format(defaultCart))
 				return allCarts, publicCarts, privateCarts, defaultCart, defaultCartItems
 			logging.info('Did not find any Carts')
 			return None, None, None, None, None
-		except:
-			logging.error("Error calling : - shoppingModels.Cart.get_for_UserKey(self.user_key, name='SHOPPING', public=False)")
+		except Exception as e:
+			logging.error("Error in function <cartInfo> : -- {}".format(e))
 			return None, None, None, None, None
 
 	@webapp2.cached_property
@@ -63,7 +64,7 @@ class BournEEHandler(BaseHandler):
 					return watchlist, watchedItems
 			return None, None
 		except Exception as e:
-			logging.error("Error calling : - shoppingModels.WatchList.get_for_UserKey(self.user_key, name='ALL') -- %s" % str(e))
+			logging.error("Error in function <watchlistProducts> : -- %s" % str(e))
 			return None, None
 
 	@webapp2.cached_property

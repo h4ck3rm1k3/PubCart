@@ -51,3 +51,171 @@
             </div>
 {% endif %}
 {%- endmacro %}
+
+
+{% macro last_products_widget(product) %}
+						<div id='{{product.pn}}_widget_wrapper' class='product_widget_wrapper_minilastproducts'>
+							<div class='product_name_minilastproducts'>
+								{{product.d|truncate(length=30, killwords=True)}}
+							</div>
+							<div class='product_widget_inner_minilastproducts'>
+								<div class='product_widget_image_minilastproducts'>
+									{% if product.img %}
+										<img src="{{product.img}}" class="img-rounded" width='40px' height='40px'/>
+									{% else %}
+										<img data-src="holder.js/40x40/text:PubCart." alt="">
+									{% endif %}
+								</div>
+								<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper_minilastproducts'>
+									<div class='product_pn_minilastproducts'>
+										{{product.pn|truncate(length=12, killwords=True)}}
+									</div>
+									<div class='product_savings_minilastproducts'>
+										<span>save: TODO</span>
+									</div>
+								</div>
+								<div class='product_sup_minilastproducts'>
+									<div>
+										$ {{product.d_bup}}
+									</div>
+								</div>
+							</div>
+						</div>
+					<div class="clearfix"></div>
+{% endmacro %}
+
+
+{% macro homepage_product_widget(product) %}
+						<div id='{{product.pn}}_widget_wrapper' class='product_widget_wrapper_homepage'>
+
+							<div class='product_widget_inner_homepage'>
+								<div class='product_widget_image_homepage'>
+									{% if product.img %}
+										<img src="{{product.img}}" class="img-rounded" width='50px' height='50px'/>
+									{% else %}
+										<img data-src="holder.js/50x50/text:PubCart." alt="">
+									{% endif %}
+								</div>
+								<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper_homepage'>
+									<div class='product_name_homepage'>
+										{{product.d|truncate(length=20, killwords=True)}}
+									</div>
+									<div class='product_pn_wrapper_homepage'>
+										<div class='product_pn_homepage'>
+											{{product.pn|truncate(length=16, killwords=True)}}
+										</div>
+										<div class='product_savings_homepage'>
+											<span>savings: TODO</span>
+										</div>
+										<div class="clearfix"></div>
+									</div>
+								</div>
+								<div class='product_sup_homepage'>
+									<div>
+										${{product.d_bup}}
+									</div>
+								</div>
+							</div>
+						</div>
+					<div class="clearfix"></div>
+{% endmacro %}
+
+
+{% macro sc_product_widget(productOrder, urlsafeCartKey, iter) %}
+					<div id='{{productOrder.clean_pn }}_widget_wrapper' class='product_widget_wrapper_minicart'>
+						<div class='product_widget_inner_minicart'>
+							<div class='product_widget_image_minicart'>
+								{% if productOrder.fetch_img %}
+									<img src="{{productOrder.fetch_img}}" class="img-rounded" width='40px' height='40px'/>
+								{% else %}
+									<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+								{% endif %}
+							</div>
+							<div id='{{productOrder.clean_pn}}_widget_info_wrapper' class='product_widget_info_wrapper_minicart'>
+								<div class='product_pn_minicart'>
+									{% if productOrder.pn %}
+										<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe()) }}">{{productOrder.pn|truncate(length=20, killwords=True)}}</a>
+									{% endif %}
+								</div>
+								<div cllass='product_sup_minicart'>
+									{{productOrder.q}} @ ${{productOrder.d_bup}} = ${{productOrder.d_st}}
+								</div>
+							</div>
+							<div id='{{productOrder.clean_pn}}_widget_button' class='product_widget_button_minicart'>
+								<div class="btn-group">
+								    <button id='cartMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+								      <span class="caret"></span>
+								    </button>
+								    <ul class="dropdown-menu pull-right">
+										<form id='deleteFromCartForm_{{productOrder.clean_pn }}' name='deleteFromCartForm' class="form-inline" action="{{uri_for('removeFromCart')}}" method="POST">
+											<fieldset>
+									            <input type="hidden" name="exception" value="{{ exception }}">
+									            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+												<input type="hidden" name="ok" value="{{productOrder.key.urlsafe()}}">
+												<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
+												<input type="hidden" name="ost" value="{{productOrder.st}}">
+												<input type="hidden" name="lo" value="{{productOrder.is_lo}}">
+												<li><button type='submit' ><i class="icon-trash"></i> Remove</button></li>
+											</fieldset>
+										</form>
+										<li><button id='toggleChangeQntButton' class='toggleChangeQntButton'name='{{productOrder.clean_pn }}'><i class="icon-wrench"></i> Change QNT</button></li>
+									    <li class="divider"></li>
+								        <li><a href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe() ) }}">View Product</a></li>
+									    <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=urlsafeCartKey) }}">More Details</a></li>
+								    </ul>
+							  	</div>
+							</div>
+						</div>
+					</div>
+					<div class="clearfix"></div>
+
+					<div id='{{productOrder.clean_pn }}_chgQntFormSmallWidgetWrapper' class='chgQntFormSmallWidgetWrapper' style='display:None'>
+						<button id='toggleChangeQntButtonX' name='{{productOrder.clean_pn }}' style='margin:4px 0 0 10px' class="close toggleChangeQntButtonX">&times;</button>
+	
+						<form id='chgQntFromCartForm_{{productOrder.clean_pn }}' name='chgQntFromCartForm' class="form-inline sidebarForm" action="{{uri_for('changeQntOfOrder')}}" method="POST">
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<input type="hidden" name="ok" value="{{productOrder.key.urlsafe()}}">
+								<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
+								<input type="hidden" name="ost" value="{{productOrder.st}}">
+								<input type="text" name="q" class="span1" value="{{productOrder.q}}">
+								<button type='submit' class='btn'>update</button>
+							</fieldset>
+						</form>
+					</div>
+{% endmacro %}
+
+
+
+{% macro publicCart_widget(cart, iter) %}
+						<div id='{{cart.n}}_widget_wrapper' class='product_widget_wrapper_minipublic'>
+							<div class='product_widget_inner_minipublic'>
+								<div class='product_widget_image_minipublic'>
+									{% if cart.img %}
+										<img src="{{cart.img}}" class="img-rounded" width='40px' height='40px'/>
+									{% else %}
+										<img data-src="holder.js/40x40/text:PubCart." class="img-rounded">
+									{% endif %}
+								</div>
+								<div id='{{cart.n}}_widget_info_wrapper' class='product_widget_info_wrapper_minipublic'>
+									<div class='product_name_minipublic'>
+										<a class='no_decoration' href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}"><i class="icon-shopping-cart"></i>&nbsp;&nbsp;{{cart.n|truncate(length=25, killwords=True)}}</a>
+									</div>
+									<div cllass='product_sup_minipublic'>
+										<span class="label">$ {{cart.d_gt}}</span><span class='muted'>&nbsp;&nbsp;&nbsp;savings: TODO</span>
+									</div>
+								</div>
+								<div id='{{cart.n}}_widget_button' class='product_widget_button_minipublic'>
+									<div class="btn-group">
+									    <button id='wlMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+									      <span class="caret"></span>
+									    </button>
+									    <ul class="dropdown-menu pull-right">
+									        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">View Cart</a></li>
+									    </ul>
+								  	</div>
+								</div>
+							</div>
+						</div>
+{% endmacro %}

@@ -104,8 +104,8 @@
 				            <input type="hidden" name="exception" value="{{ exception }}">
 				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 							<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
-							<input type="hidden" name="ck" value="{% if dafaultCart %}{{dafaultCart.key.urlsafe()}}{% endif %}">
-							<input type="hidden" name="cn" value="DEFAULT">
+							<input type="hidden" name="ck" value="{% if defaultCart %}{{defaultCart.key.urlsafe()}}{% endif %}">
+							<input type="hidden" name="cn" value="SHOPPING">
 							<input type="hidden" name="q" value="{{requested_quantity}}">
 					</form>
 					<div class="btn-group">

@@ -317,7 +317,7 @@ class AddToCartHandler(BaseHandler):
 			logging.info("{}, {}".format(cartName, type(cartName)))
 			
 			##: Try to find the part in the Datastore and get Best Price. 
-			productModel, orderPrice = bestPrice.getBestPrice(urlsafeProductKey, None, int(qnt))
+			productModel, orderPrice = bestPrice.getBestPrice(urlsafeProductKey, int(qnt), returnProductModel=True)
 
 			if productModel:
 				logging.info("Found a productModel")
@@ -608,10 +608,11 @@ class AddToSelectedCartFormHandler(BournEEHandler):
 	def do_work(self, urlsafeProductKey, qnt):
 		try:
 			##: Get the Product Model and Best Price
-			productModel, best_price = bestPrice.getBestPrice( urlsafeProductKey , None, int(qnt))
+			productModel, best_price = bestPrice.getBestPrice( urlsafeProductKey, int(qnt), returnProductModel=True)
 			if best_price == None:
 				logging.error('Error, Best Price not determined. ')
 				raise Exception('Best Price not determined.')
+			ndb.Key(urlsafe=urlsafeProductKey).get()
 			if productModel == None:
 				logging.error('Error, No Product Model Found ')
 				raise Exception('No Product Model Found using urlsafe key')

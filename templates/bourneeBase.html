@@ -1,14 +1,5 @@
 {% extends base_layout %}
 
-{% from 'widget/_product_small_widget.html' import wl_product_widget %}
-{% from 'widget/_product_small_widget.html' import sc_product_widget %}
-{% from 'widget/_product_small_widget.html' import alert_widget %}
-
-
-{% from 'widget/_mm_position_small_widget.html' import position_widget %}
-{% from 'widget/_publicCart_small_widget.html' import publicCart_widget %}
-
-
 {% block title %}{{ app_name }}{% endblock %}
 
 {% block mediaScripts %}{% endblock %}
@@ -46,7 +37,7 @@
 											<tr>
 												<td colspan='2'>
 												{% set iter = iter + 1 %}
-												{{sc_product_widget(productOrder, defaultCart.key.urlsafe(), iter)}}
+												{{macros.sc_product_widget(productOrder, defaultCart.key.urlsafe(), iter)}}
 												</td>
 											</tr>
 											{% endif %}
@@ -105,7 +96,7 @@
 									<tr>
 										<td colspan='2'>
 										{% set iter = iter + 1 %}
-										{{publicCart_widget(pCart, iter)}}
+										{{macros.publicCart_widget(pCart, iter)}}
 										</td>
 									</tr>
 									{% endif %}
@@ -114,7 +105,7 @@
 								<tfoot>
 									<tr>
 										<td  colspan='2'>
-											<div  class='textRight paddingRight5'>
+											<div  class='textRight'>
 												<a href="{{ uri_for('mycarts') }}">view all public cart.</a>
 											</div>
 										</td>

@@ -79,7 +79,7 @@ class ProductRequestHandler(RegisterBaseHandler):
 	def sellers_product(self, sellerID, productNumber):
 		try:
 			
-			product = ndb.Key(urlsafe=urlsafeProductKey).get()
+			product = shoppingModels.Product.get_by_seller_and_pn(sellerID, productNumber)
 			if not product:
 				raise Exception('Could not find product with urlsafeProductKey given in URI')
 

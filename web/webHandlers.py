@@ -51,7 +51,7 @@ class HomeRequestHandler(RegisterBaseHandler):
 		try:
 			##: We will look at the entire year...once more trafic hits go to a week or day
 			counterPeriod = str(datetime.now())[0:4] # 2013
-			trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, quantity=5)
+			trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, quantity=4)
 			params = {'trendingProducts':trendingProducts}
 		except:
 			params = {'trendingProducts':None}
@@ -225,7 +225,7 @@ class CreateLimitOrderFormHandler(RegisterBaseHandler):
 			logging.info('Quantity suplied in CreateLimitOrderFormHandler = %s' % str(qnt))
 			##: Get the Product Model and Best Price
 			##: partKey is a urlSafe key from the request URL
-			productModel, best_price = bestPrice.getBestPrice( partKey , None, int(qnt))
+			productModel, best_price = bestPrice.getBestPrice( partKey, int(qnt))
 			if best_price == None:
 				logging.error('Error, Best Price not determined. ')
 				raise Exception('Best Price not determined.')
@@ -274,7 +274,7 @@ class CreateAlertFormHandler(RegisterBaseHandler):
 
 			##: Get the Product Model and Best Price
 			##: partKey is a urlSafe key from the request URL
-			productModel, best_Price = bestPrice.getBestPrice( partKey , None, int(1))
+			best_Price = bestPrice.getBestPrice( partKey, int(1))
 			if best_Price == None:
 				logging.error('Error, Best Price not determined. ')
 				raise Exception('Best Price not determined.')

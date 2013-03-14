@@ -194,6 +194,14 @@ class Product(ndb.Expando):
 		n = utils.clean_product_number(pn)
 		qry = Product.query(Product.pn == n)
 		return qry.fetch(quantity)
+
+	@staticmethod
+	def get_by_seller_and_pn(sellerID, productNumber):
+		pn = utils.clean_product_number(productNumber)
+		sellerKey = ndb.Key(userModels.Seller, str(sellerID)).get(keys_only=True)
+		if sellerKey: return ndb.Key(Product, str(pn), parent=sellerKey).get()
+		return None
+			
 	
 	@staticmethod
 	def create_from_parse_data(parseData):

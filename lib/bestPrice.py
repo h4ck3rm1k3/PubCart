@@ -15,7 +15,7 @@ from models import shoppingModels
 from lib import parsers
 from google.appengine.ext import deferred
 
-def getBestPrice(urlsafeProductKey, quantity=1):
+def getBestPrice(urlsafeProductKey, quantity=1, returnProductModel=False):
 	
 	productModel = None
 	productTierPrice = None
@@ -84,11 +84,12 @@ def getBestPrice(urlsafeProductKey, quantity=1):
 					new_best_price = float(tier_cents_price)/100
 					if float(new_best_price) > float(current_BestPrice):
 						new_best_price = float(current_BestPrice)
-
-			return new_best_price  ##: New Best Price is a Floating Point Number as we get from the ProductTierPrice function get_price_for_qnt
+			if returnProductModel: return productModel, new_best_price
+			else: return new_best_price  ##: New Best Price is a Floating Point Number as we get from the ProductTierPrice function get_price_for_qnt
 		else:
 			raise Exception('Could not determine a current_BestPrice for productModel')
 	except Exception as e:
 		logging.error('Error in attempt to get Product and Best Price with function .getBestPrice() : --  %s' % str(e))
-		return None
+		if returnProductModel: return None, None
+		else: return None
 
