@@ -137,7 +137,10 @@ class ProductRequestHandler(RegisterBaseHandler):
 				except:
 					self.redirect_to('home')
 
+			########################################################################
 			##: Add this product to the last products viewed memcache
+			########################################################################
+
 			try:
 				lpv = memcache.get('%s:lastProductsViewed' % str(self.request.remote_addr))
 				if lpv == None: lpv = []
@@ -147,10 +150,12 @@ class ProductRequestHandler(RegisterBaseHandler):
 				memcache.set('%s:lastProductsViewed' % str(self.request.remote_addr),lpv)
 			except Exception as e:
 				logging.error('Error setting Memcache for lastProductsViewed in class ProductRequestHandler : %s' % e)
-
+			
+			########################################################################
 			##: This is the analytics counter for an idividual product
+			########################################################################
+
 			try:
-				counterPeriod = str(datetime.now())[0:4] # 2013
 				counter.load_and_increment_counter(name=productModel.key.urlsafe(), period_types=[counter.PeriodType.ALL,counter.PeriodType.YEAR], namespace="products")
 			except Exception as e:
 				logging.error('Error setting LiveCount for product in class ProductRequestHandler : %s' % e)

@@ -25,6 +25,7 @@ from google.appengine.datastore.datastore_query import Cursor
 import forms as forms
 from models import shoppingModels, userModels
 from lib import bestPrice, utils
+from lib.livecount import counter
 from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
 from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
@@ -237,6 +238,19 @@ class FullPageCartHandler(RegisterBaseHandler):
 			if cart.cat:
 				self.cartDetails_form.category.data = cart.cat
 				self.forkCart_form.category.data = cart.cat
+
+			########################################################################
+			##: This is the analytics counter for an idividual carts
+			########################################################################
+
+			try:
+				counter.load_and_increment_counter(name=cart.key.urlsafe(), \
+								namespace="allCarts")
+				if cart.public: counter.load_and_increment_counter(name=cart.key.urlsafe(), \
+								period_types=[counter.PeriodType.ALL,counter.PeriodType.YEAR], \
+								namespace="publicCarts")
+			except Exception as e:
+				logging.error('Error setting LiveCount for product in class ProductRequestHandler : %s' % e)
 
 			params = {
 				"productOrders" 	: productOrders, \

@@ -56,7 +56,7 @@
 {% macro last_products_widget(product) %}
 						<div id='{{product.pn}}_widget_wrapper' class='product_widget_wrapper_minilastproducts'>
 							<div class='product_name_minilastproducts'>
-								{{product.d|truncate(length=30, killwords=True)}}
+								{{product.d|truncate(length=29, killwords=True)}}
 							</div>
 							<div class='product_widget_inner_minilastproducts'>
 								<div class='product_widget_image_minilastproducts'>
@@ -68,7 +68,7 @@
 								</div>
 								<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper_minilastproducts'>
 									<div class='product_pn_minilastproducts'>
-										{{product.pn|truncate(length=12, killwords=True)}}
+										{{product.pn|truncate(length=10, killwords=True)}}
 									</div>
 									<div class='product_savings_minilastproducts'>
 										<span>save: TODO</span>
@@ -97,22 +97,19 @@
 									{% endif %}
 								</div>
 								<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper_homepage'>
-									<div class='product_name_homepage'>
-										{{product.d|truncate(length=20, killwords=True)}}
+									<div class='product_pn_homepage'>
+										{{product.pn|truncate(length=9, killwords=True)}}
 									</div>
-									<div class='product_pn_wrapper_homepage'>
-										<div class='product_pn_homepage'>
-											{{product.pn|truncate(length=16, killwords=True)}}
-										</div>
-										<div class='product_savings_homepage'>
-											<span>savings: TODO</span>
-										</div>
-										<div class="clearfix"></div>
+									<div class='product_name_homepage'>
+										{{product.d|truncate(length=21, killwords=True)}}
 									</div>
 								</div>
-								<div class='product_sup_homepage'>
-									<div>
+								<div class='product_sup_wrapper_homepage'>
+									<div class='product_sup_homepage'>
 										${{product.d_bup}}
+									</div>
+									<div class='product_savings_homepage'>
+										<span>savings: TODO</span>
 									</div>
 								</div>
 							</div>
@@ -120,6 +117,37 @@
 					<div class="clearfix"></div>
 {% endmacro %}
 
+{% macro homepage_cart_widget(cart) %}
+						<div id='{{cart.n}}_widget_wrapper' class='cart_widget_wrapper_homepage'>
+
+							<div class='cart_widget_inner_homepage'>
+								<div class='cart_widget_image_homepage'>
+									{% if cart.img %}
+										<img src="{{cart.img}}" class="img-rounded" width='50px' height='50px'/>
+									{% else %}
+										<img data-src="holder.js/50x50/text:PubCart." alt="">
+									{% endif %}
+								</div>
+								<div id='{{cart.n}}_widget_info_wrapper' class='cart_widget_info_wrapper_homepage'>
+									<div class='cart_name_homepage'>
+										{{cart.n|truncate(length=9, killwords=True)}}
+									</div>
+									<div class='cart_items_wrapper_homepage'>
+										# of Items: {{cart.num_items}}
+									</div>
+								</div>
+								<div class='cart_sup_wrapper_homepage'>
+									<div class='cart_sup_homepage'>
+										${{cart.d_st}}
+									</div>
+									<div class='cart_savings_homepage'>
+										<span>savings: TODO</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					<div class="clearfix"></div>
+{% endmacro %}
 
 {% macro sc_product_widget(productOrder, urlsafeCartKey, iter) %}
 					<div id='{{productOrder.clean_pn }}_widget_wrapper' class='product_widget_wrapper_minicart'>
@@ -134,7 +162,7 @@
 							<div id='{{productOrder.clean_pn}}_widget_info_wrapper' class='product_widget_info_wrapper_minicart'>
 								<div class='product_pn_minicart'>
 									{% if productOrder.pn %}
-										<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe()) }}">{{productOrder.pn|truncate(length=20, killwords=True)}}</a>
+										<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=productOrder.pk.urlsafe()) }}">{{productOrder.pn|truncate(length=17, killwords=True)}}</a>
 									{% endif %}
 								</div>
 								<div cllass='product_sup_minicart'>

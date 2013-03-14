@@ -52,9 +52,13 @@ class HomeRequestHandler(RegisterBaseHandler):
 			##: We will look at the entire year...once more trafic hits go to a week or day
 			counterPeriod = str(datetime.now())[0:4] # 2013
 			trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, quantity=4)
-			params = {'trendingProducts':trendingProducts}
+			trendingCarts = LivecountCounter.get_top_objects(namespace="publicCarts", period=counterPeriod, quantity=4)
+			params = {
+					'trendingProducts':trendingProducts,
+					'trendingCarts':trendingCarts,
+					}
 		except:
-			params = {'trendingProducts':None}
+			params = {'trendingProducts':None,'trendingCarts':None}
 			logging.error('Error getting trendingProducts from LiveCounter during HomeRequestHandler')
 		finally:
 			self.bournee_template('home.html', **params)

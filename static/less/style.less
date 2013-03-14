@@ -503,40 +503,99 @@ span.label-block {
 			width:200px;
 			float:left;
 			overflow:hidden;
-			.product_name_homepage {
+			.product_pn_homepage {
 				width:200px;
+				font-size: 18px;
+				line-height:30px;
 				font-weight:bold;
 				color: #3A87AD;
-				padding-bottom:3px;
 			}
-			.product_pn_wrapper_homepage {
-				.product_pn_homepage {
-					padding:0px;
-					width:90px;
-					float:left;
-					overflow:hidden;
-				}
-				.product_savings_homepage {
-					width:110px;
-					padding:0px;
-					float:left;
-					color: #f89406;
-					font-weight:bold;
-					overflow:hidden;
-				}
+			.product_name_homepage {
+				padding:0px;
+				width:200px;
+				float:left;
+				overflow:hidden;
 			}
 		}
-		.product_sup_homepage {
-			padding:0px;
-			width:100px;
-			height:50px;
-			float:right;
-			font-size: 28px;
-			line-height:45px;
-			text-align: right;
-			font-weight:bold;
-			color: #468847;
-			overflow: hidden;
+		.product_sup_wrapper_homepage {
+			.product_sup_homepage {
+				padding:0px;
+				width:100px;
+				height:30px;
+				float:right;
+				font-size: 18px;
+				line-height:30px;
+				text-align: right;
+				font-weight:bold;
+				color: #468847;
+				overflow: hidden;
+			}
+			.product_savings_homepage {
+				padding: 0px;
+				width: 100px;
+				height: 20px;
+				float: right;
+				text-align: right;
+				color: #f89406;
+				font-weight: bold;
+				overflow: hidden;
+			}
+		}
+	}
+}
+
+/*/////////////////////////////////////////////////*/
+/*//////////  HOMEPAGE CART MACRO //////////////*/
+/*/////////////////////////////////////////////////*/
+.cart_widget_wrapper_homepage{
+	margin: 2px;
+	display: block;
+	.cart_widget_inner_homepage {
+		.cart_widget_image_homepage {
+			margin-right:5px;
+			float:left;
+		}
+		.cart_widget_info_wrapper_homepage {
+			width:200px;
+			float:left;
+			overflow:hidden;
+			.cart_name_homepage {
+				width:200px;
+				font-size: 18px;
+				line-height:30px;
+				font-weight:bold;
+				color: #3A87AD;
+			}
+			.cart_items_wrapper_homepage {
+				padding:0px;
+				width:200px;
+				float:left;
+				overflow:hidden;
+			}
+		}
+		.cart_sup_wrapper_homepage {
+			.cart_sup_homepage {
+				padding:0px;
+				width:100px;
+				height:30px;
+				float:right;
+				font-size: 18px;
+				line-height:30px;
+				text-align: right;
+				font-weight:bold;
+				color: #468847;
+				overflow: hidden;
+			}
+			.cart_savings_homepage {
+				padding: 0px;
+				width: 100px;
+				height: 20px;
+				float: right;
+				text-align: right;
+				color: #f89406;
+				font-weight: bold;
+				overflow: hidden;
+			}
 		}
 	}
 }

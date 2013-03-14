@@ -1,5 +1,5 @@
 {% extends "bourneeBase.html" %}
-{% macro cart_widget(cart, public, iter) %}
+{% macro cart_widget(cart, public, iter, pre) %}
 <tr>
     <td class='span1'>
 		{% if cart.img %}<img src='{{cart.img}}' width='60px'/>
@@ -7,7 +7,7 @@
 		{% endif %}
     </td>
 	<td onclick='linkTo("{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}")' class='pointer' >
-		{% if cart.n %}{{cart.n}}{% else %}Cart has no name{% endif %}{% if cart.default %}&nbsp;&nbsp;&nbsp;<span class="label label-success">Default</span>{% endif %}<br/>
+		<span class="muted">{{pre}}</span>{% if cart.n %}{{cart.n}}{% else %}Cart has no name{% endif %}{% if cart.default %}&nbsp;&nbsp;&nbsp;<span class="label label-success">Default</span>{% endif %}<br/>
 		{% if cart.d %}{{cart.d|truncate(length=50, killwords=True)}}{% else %}Cart has no name description{% endif %}
 	</td>
 	<td class='span2'>{{cart.num_items}}</td>
@@ -103,7 +103,8 @@
 			{% if publicCarts or privateCarts or defaultCart %}
 				{% if defaultCart %}
 				{% set iter = iter + 1 %}
-				{{cart_widget(defaultCart, False, iter)}}
+				{% set pre = '(Private)' %}
+				{{cart_widget(defaultCart, False, iter, pre)}}
 				{% endif %}
 			{% else %}
 				<tr>
@@ -126,7 +127,8 @@
 		<tbody>
 			    {% for cart in privateCarts %}
 					{% set iter = iter + 1 %}
-					{{cart_widget(cart, False, iter)}}
+					{% set pre = '(Private)' %}
+					{{cart_widget(cart, False, iter, pre)}}
 			    {% endfor %}
 		</tbody>
 	</table>
@@ -141,7 +143,8 @@
 		<tbody>
 			{% for cart in publicCarts %}
 				{% set iter = iter + 1 %}
-				{{cart_widget(cart, True, iter)}}
+				{% set pre = '' %}
+				{{cart_widget(cart, True, iter, pre)}}
 		    {% endfor %}
 		</tbody>
 	</table>
