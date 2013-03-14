@@ -98,7 +98,7 @@
 								</div>
 								<div id='{{product.pn}}_widget_info_wrapper' class='product_widget_info_wrapper_homepage'>
 									<div class='product_pn_homepage'>
-										{{product.pn|truncate(length=9, killwords=True)}}
+										{{product.pn|truncate(length=16, killwords=True)}}
 									</div>
 									<div class='product_name_homepage'>
 										{{product.d|truncate(length=21, killwords=True)}}
@@ -130,7 +130,7 @@
 								</div>
 								<div id='{{cart.n}}_widget_info_wrapper' class='cart_widget_info_wrapper_homepage'>
 									<div class='cart_name_homepage'>
-										{{cart.n|truncate(length=9, killwords=True)}}
+										{{cart.n|truncate(length=16, killwords=True)}}
 									</div>
 									<div class='cart_items_wrapper_homepage'>
 										# of Items: {{cart.num_items}}

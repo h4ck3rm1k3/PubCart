@@ -1,0 +1,44 @@
+{% extends "bourneeBase.html" %}
+
+{% block title %}
+    Discover Carts - PubCart.
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main_content %}
+<header>
+	<div class='fullpageTitleWrapper'>
+		Discover Products.
+	</div>
+</header>
+<div class='clearfix'></div>
+	{% if products %}
+	<ul class="thumbnails">
+		{% for product in products %}
+		<li class="span2">
+			<div class="thumbnail">
+				{% if product.img %}
+					<img class="img-rounded" src="{{product.img}}" alt="{{product.pn}} {{product.m}}">
+				{% else %}
+					<img data-src="holder.js/255x155/text:PubCart." alt="">
+				{% endif %}
+				<div class='productNumber'>{{product.pn}}</div>
+				<div class='productDescription'>{{product.d|truncate(length=75, killwords=True)}}</div>
+				<a class='btn btn-small discoverProductButton' href="{{uri_for('product', urlsafeProductKey=product.key.urlsafe())}}">View product.</a>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+		<div class="alert alert-info">
+			<strong>Oh snap!</strong>&nbsp;&nbsp;We couldn't find any products at this time.
+		</div>
+	{% endif %}
+	<div id='pageMessageWrapper' class='pageMessageWrapper'>
+	{% block important %}
+	{% endblock %}
+	</div>
+{% endblock %}
+
+{% block extra_content %}{% endblock %}

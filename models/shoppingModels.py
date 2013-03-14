@@ -184,9 +184,9 @@ class Product(ndb.Expando):
 		if not cls.cp:  cls.cp  = cls.bup
 		if not cls.hup: cls.hup = cls.bup
 
-	@classmethod
-	def get_all(cls):
-		return cls.query().fetch()
+	@staticmethod
+	def get_all(quantity=999):
+		return Product.query().fetch()
 
 	@staticmethod
 	def get_by_pn(pn, quantity=999):

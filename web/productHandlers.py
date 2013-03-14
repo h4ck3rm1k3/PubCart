@@ -42,10 +42,19 @@ from boilerplate.lib.basehandler import BaseHandler
 class DiscoverProductsHandler(RegisterBaseHandler):
 	def get(self):
 		try:
-			pass
+			products = []
+			allproducts = shoppingModels.Product.get_all()
+			if allproducts:
+				for product in allproducts:
+					if product.img: # TODO remove the None
+						products.append(product)
+			params = {'products':products}
+			self.bournee_template('discoverProducts.html', **params)
+
 		except Exception as e:
-			logging.error('Error finding list of Product function GET of DiscoverProductsHandler : %s' % e)
-			message = _('Sorry, there was an error getting the page of products. Please try again later.')
+			params = {}
+			logging.error('Error getting allproducts in handler DiscoverProductsHandler: -- {}'.format(e))
+			message = _('An error occurred while fetching products. Please try again later.')
 			self.add_message(message, 'error')
 			try:
 				self.redirect(self.request.referer)
