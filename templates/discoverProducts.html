@@ -19,12 +19,12 @@
 		<li class="span2">
 			<div class="thumbnail">
 				{% if product.img %}
-					<img class="img-rounded" src="{{product.img}}" alt="{{product.pn}} {{product.m}}">
+					<img class="img-rounded" src="{{product.img}}" width='160px' height='160px' alt="{{product.pn}} {{product.m}}">
 				{% else %}
-					<img data-src="holder.js/255x155/text:PubCart." alt="">
+					<img data-src="holder.js/160x160/text:PubCart." alt="">
 				{% endif %}
-				<div class='productNumber'>{{product.pn}}</div>
-				<div class='productDescription'>{{product.d|truncate(length=75, killwords=True)}}</div>
+				<div class='productNumber'>{{product.pn|truncate(length=12, killwords=True)}}</div>
+				<div class='productDescription'>{{product.d|truncate(length=36, killwords=True)}}</div>
 				<a class='btn btn-small discoverProductButton' href="{{uri_for('product', urlsafeProductKey=product.key.urlsafe())}}">View product.</a>
 			</div>
 		</li>
