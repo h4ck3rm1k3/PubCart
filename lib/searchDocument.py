@@ -298,7 +298,7 @@ class Product(BaseDocumentManager):
 
 	def getPrice(self):
 		"""Get the value of the 'price' field of a Product doc."""
-		return self.getFieldVal(self.PRICE)
+		return self.getFieldVal(self.BEST_PRICE)
 
 	@classmethod
 	def generateRatingsBuckets(cls, query_string):
