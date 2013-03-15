@@ -159,15 +159,25 @@
 		    <div class='row'>
 			<div class='span9'>
 				{% block small_logo %}
-						<form id='productSearchForm' class="form-inline nomargin_form">
+						<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
 							<fieldset>
 								<div>
 									<a href="/" class='marginRight25'><div class="logo_small">{{ app_name }}</div></a>
 									<input type="hidden" name="exception" value="{{ exception }}">
 									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 									<input type="hidden" id="quantity" name="q" value='1'>
+									<select id="category" name="category" class='span2 marginTop10'>
+										<option value="">Any Category</option>
+										{% for cat in cat_info %}
+											{% if cat.0 == pcategory %}
+												<option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
+											{% else %}
+												<option value="{{cat.0}}">{{cat.1}}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
 									<div class='input-append'>
-										<input type="text" class="span4 marginTop10" id="" name="pn" placeholder="Search">
+										<input type="text" id="query" name="query" class="span4 marginTop10"  value="{{base_pquery}}" placeholder="Search"/>
 										<button id='productSearchFormButton' type="submit" class="btn marginTop10">&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;</button>
 									</div>
 								</div>

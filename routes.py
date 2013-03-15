@@ -11,6 +11,7 @@ from web import oauth_handlers
 from web import productHandlers
 from web import preRegisterHendlers
 from web import paypalHandlers
+from web import searchHandlers
 from api import rest_api
 from lib.livecount import counter as countHandlers
 
@@ -32,6 +33,8 @@ _routes = [
 	RedirectRoute('/', webHandlers.HomeRequestHandler, name='home', strict_slash=True),
 
 	RedirectRoute('/addaddress', webHandlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
+
+	RedirectRoute('/search', searchHandlers.ProductSearchHandler, name='mainSearch', strict_slash=True),
 
 	RedirectRoute(r'/discoverProducts', productHandlers.DiscoverProductsHandler, name='discoverProducts', methods=['GET'], strict_slash=True),
 	RedirectRoute(r'/product/<urlsafeProductKey>', productHandlers.ProductRequestHandler, name='product', methods=['GET'], strict_slash=True),

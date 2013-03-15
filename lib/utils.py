@@ -315,7 +315,7 @@ RATING_MIN = 1
 RATING_MAX = 5
 
 # the number of search results to display per page
-DOC_LIMIT = 3
+DOC_LIMIT = 10
 
 RESERVEDCARTNAMES = ['DEFAULT', 'SHOPPING', 'LIMIT', 'MARKETMAKER', 'PUBCART']
 

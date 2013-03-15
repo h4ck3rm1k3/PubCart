@@ -340,7 +340,7 @@ class Product(BaseDocumentManager):
 		if not ratings_buckets:
 			return None
 		rlist = []
-		for k in range(config.RATING_MIN, config.RATING_MAX+1):
+		for k in range(utils.RATING_MIN, utils.RATING_MAX+1):
 			try:
 				v = ratings_buckets[k]
 			except KeyError:

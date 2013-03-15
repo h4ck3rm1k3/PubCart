@@ -10,59 +10,6 @@
 
     <h4>Product Search</h4>
 
-
-    <form name="searchform" action="/psearch" method="post">
-      <input type="hidden" name="qtype" value="product"/>
-
-      <table>
-
-      <tr>
-
-      <td>
-         <select id="category" name="category">
-          <option value="">Any Category</option>
-          {% for cat in cat_info %}
-           {% if cat.0 == pcategory %}
-             <option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
-           {% else %}
-            <option value="{{cat.0}}">{{cat.1}}</option>
-           {% endif %}
-          {% endfor %}
-         </select>
-
-      </td>
-      <td>
-
-       <input type="text" id="query" name="query" size="80" value="{{base_pquery}}" />
-
-      </td>
-
-      <td>
-
-         Sort by: <select id="sort" name="sort">
-          {% for sort in sort_info %}
-           {% if sort.0 == sort_order %}
-             <option value="{{sort.0}}" selected="selected">{{sort.1}}</option>
-           {% else %}
-            <option value="{{sort.0}}">{{sort.1}}</option>
-           {% endif %}
-          {% endfor %}
-         </select>
-
-      </td></tr>
-
-      <tr>
-      <td>
-       <input type="submit" class="btn primary"  name="psearchsub" value="Product Search"/>
-       <input type="reset" class="btn primary"  name="psearchreset" value="Clear"/>
-      </td><td></td><td></td></tr>
-
-      </table>
-
-    </form>
-
-
-
     {% if search_response %}
     <div>
      <h2>Product Search Results</h2>
@@ -87,11 +34,23 @@
        {{first_res}} - {{last_res}} of {{number_found}} {{qtype}}s shown for query: <i>{{print_query}}</i>.
       </p>
       {% endif %}
-
+	{% if modelResults %}
+		{% for product in modelResults %}
+			<p>
+				{% if product %}
+				<tr class='pointer' onClick='linkTo("{{uri_for('product', urlsafeProductKey=product.key.urlsafe() )}}")'>
+					<td colspan='2'>
+						{{macros.homepage_product_widget(product)}}
+					</td>
+				</tr>
+				{% endif %}
+			</p>
+		{% endfor %}
+	{% endif %}
       {% for result in search_response %}
         <p>
+        <span style="color: #014C9D;"><i>Product Number</i></span>: {{result.1|safe}}<br/>
         <span style="color: #014C9D;"><i>Product Description</i></span>: {{result.3|safe}}<br/>
-        <span style="color: #014C9D;"><i>Product name</i></span>: {{result.5}}<br/>
         <span style="color: #014C9D;"><i>Category</i></span>: {{result.6}}<br/>
         <span style="color: #014C9D;"><i>Price</i></span>: {{result.4}}<br/>
         <span style="color: #014C9D;"><i>Average Rating</i></span>:
@@ -102,8 +61,8 @@
          {% endif %}
         <br/>
 
-          <a href="/product?pid={{result.1}}">View product details</a>
-          &nbsp;<a href="/reviews?pid={{result.1}}&pname={{result.5}}">Reviews</a>
+          <a href="/product/{{result.8}}">View product details</a>
+          &nbsp;<a href="">Reviews</a>
         </p>
       {% endfor %}
 
