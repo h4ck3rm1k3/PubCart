@@ -9,6 +9,7 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 
 ##:	 Python Imports
 import re
+import time
 import logging
 import httpagentparser
 
@@ -369,9 +370,6 @@ class AddToCartHandler(BaseHandler):
 
 				ndb.put_multi( [cart, order] )
 
-				##: Run a check in the background to verify Cart Sub-Total
-				deferred.defer(shoppingModels.verify_cart_subtotals, cart.key.urlsafe())
-
 				logging.info("We have a order_key and a cart_key so Success and Redirect")
 				message = _('Submission request successful for Product number -	 %s' % str(productModel.pn))
 				self.add_message(message, 'success')
@@ -428,9 +426,6 @@ class DeleteOrderFromCartHandler(BaseHandler):
 						shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal)
 						
 						orderKey.delete()
-						
-						##: Run a check in the background to verify Cart Sub-Total
-						deferred.defer(shoppingModels.verify_cart_subtotals, urlsafeCartKey) ##: cartKey is URLSAFE
 
 						logging.info("We have removed the Order Item form the Cart and we Redirect to referrer")
 						message = _('We have removed the Order Item form the Cart')
@@ -521,10 +516,6 @@ class ChangeQuantityOfOrderHandler(BaseHandler):
 								##: Now we save both the Cart and the Order using put_multi()
 								ndb.put_multi( [cart, order] )
 
-								logging.info('We have keys returned for the put_multi on both the Cart and the Order')
-								##: Run a check in the background to verify Cart Sub-Total
-								deferred.defer(shoppingModels.verify_cart_subtotals, cart.key.urlsafe()) ##: cartKey is URLSAFE
-								
 								##: All Done
 								logging.info("We have updated the Order Quantity and we Redirect to referrer thru <finally:> block")
 								message = _('We have updated the %s Order Quantity to: %s' % (str(order.pn), str(order.q)))
@@ -748,9 +739,6 @@ class MakeCartPublicHandler(BournEEHandler):
 						ndb.delete_multi(entitiesToDelete)
 					elif len(entitiesToDelete) == 1:
 						entitiesToDelete[0].delete()
-
-					##: Deffered run checking on the forkedCart subtotals
-					deferred.defer(shoppingModels.verify_cart_subtotals, forkedCart.key.urlsafe()) ##: cartKey is URLSAFE
 
 					logging.error("Cart has been updated to Public status")
 					message = _('Cart has been updated to Public status')
@@ -1120,9 +1108,6 @@ class CopyOrderBetweenCartsHandler(BaseHandler):
 							shoppingModels.Cart.update_subtotal_values(originalCart, newSubTotal, oldSubTotal, put_model=False)
 							entitiesToPut.append(originalCart)
 
-							##: Run a check in the background to verify Cart Sub-Total
-							deferred.defer(shoppingModels.verify_cart_subtotals, originalUrlsafeCartKey) ##: cartKey is URLSAFE
-
 						##:	 Now lets update the New Carts SubTotal
 						oldSubTotal = newCart.st
 						newSubTotal = (oldSubTotal + copiedOrderItemsSubTotal)
@@ -1130,9 +1115,6 @@ class CopyOrderBetweenCartsHandler(BaseHandler):
 
 						entitiesToPut.append(newCart)
 						ndb.put_multi(entitiesToPut)
-						
-						##: Run a check in the background to verify Cart Sub-Total
-						deferred.defer(shoppingModels.verify_cart_subtotals, newUrlsafeCartKey) ##: cartKey is URLSAFE
 
 						logging.error("The Order items have been copied.")
 						message = _('The Order items have been copied to the Cart named {}'.format(newCart.n))

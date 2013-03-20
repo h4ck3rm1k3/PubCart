@@ -17,7 +17,6 @@ from webapp2_extras.i18n import gettext as _
 
 ##:	 Google Imports
 from google.appengine.ext import ndb
-from google.appengine.ext import deferred
 from google.appengine.api import memcache
 from google.appengine.datastore.datastore_query import Cursor
 

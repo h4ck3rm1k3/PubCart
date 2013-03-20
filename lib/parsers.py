@@ -184,7 +184,7 @@ def createProductPriceTier(productModel, productNumber, parsedData):
 
 		productTierPricing = shoppingModels.ProductTierPrice.get_for_product(productModel.pn, productModel.key)
 		if productTierPricing:
-			newProductTierPricing = productTierPrice.update_from_parse_data(**params)
+			newProductTierPricing = shoppingModels.ProductTierPrice.update_from_parse_data(productTierPricing, **params)
 		else:
 			##:  Create the Product Price Model info for this loop rotation.
 			newProductTierPricing = shoppingModels.ProductTierPrice.create_from_parse_data(**params)
@@ -226,30 +226,30 @@ def parseDigiKey(urlsafeProductKey, productNumber=None, quantity=None, region='U
 		priceTiers = {}
 		previousPrice = 0
 		update_meq = True
-		logging.info('supplied quantity: {}'.format(quantity))
 
 		if not urlsafeProductKey and not productNumber:
 			raise Exception('Neither a partKey or a productNumber was supplied to the function parseDigiKey')
 		if urlsafeProductKey:
 			productModel = ndb.Key(urlsafe=urlsafeProductKey).get()
 			if productModel:
-				logging.info('Here')
 				productNumber = str(productModel.pn)
 			else:
 				raise Exception('Could not find a ProductModel using the productKey arg in the function parseDigiKey')
-		#
+
 		if not quantity or quantity < 1:
-			logging.info('Here')
 			if productModel:
 				productPriceTiers = shoppingModels.ProductTierPrice.get_for_product(productModel.pn, productModel.key)
-				if not productPriceTiers:
+				if productPriceTiers:
+					##: We don't have supplied quantity and we already have the price Tiers setup so we dont do anything...just return None
+					logging.info('ProductTierPrice already setup')
+					return None
+				else:
+					##: We don't have supplied quantity and we don't have the price Tiers setup so proceed to set the tiers up
 					quantityTiers = [1,10,100,250,500,1000,2500,5000,10000]
 			else:
 				raise Exception('Neither a productModel was found or a quantity was supplied to the function parseDigiKey')
 		else:
 			quantityTiers = [quantity]
-
-		logging.info('quantityTiers: {}'.format(quantityTiers))
 
 		##: Setup a dictionary which we will fill with the data we parse and then return this object
 		parsedData = {	'm':None,'pn':None,'d':None, \
@@ -277,7 +277,6 @@ def parseDigiKey(urlsafeProductKey, productNumber=None, quantity=None, region='U
 
 			try:
 				if parser:
-					logging.info('Here')
 					if len(parser.rows) > 0:
 						part = parser.rows[0]
 						for k, v in part.items():
@@ -334,10 +333,8 @@ def parseDigiKey(urlsafeProductKey, productNumber=None, quantity=None, region='U
 				
 				##: At this stage things have works and we have the data from the Parser Object
 				##: We will run a few more calculations before returning the data
-				logging.info('Tier: %s' % str(tier))
 				
 				if parsedData['bup']:
-					logging.info('There is an up')
 					priceTiers[str(tier)] = parsedData['bup']
 					previousPrice = parsedData['bup']
 				else:
@@ -354,16 +351,12 @@ def parseDigiKey(urlsafeProductKey, productNumber=None, quantity=None, region='U
 
 		##: All Done the Loop of priceTiers
 		if not quantity:
-			logging.info('Here')
 			parsedData['priceTiers'] = priceTiers
 			if productModel:
 				##: After we have completed the loop and gathered the Data call the createProductPriceTier Function
-				logging.info('Calling createProductPriceTier')
 				productTierPrice = createProductPriceTier(productModel, productNumber, parsedData)
-				logging.info('Calling createProductPriceTier')
 
 		else:
-			logging.info('Here')
 			##: We run a string substitution on the Image link to get the full size image rather than the thumb image
 			parsedData['img'] = re.sub(u'tmb.jpg', u'sml.jpg', parser.images[0], flags=re.IGNORECASE)
 			parsedData['isl'] = parser.datasheets[0]
@@ -394,11 +387,17 @@ def DK_Search(sellerModel, productNumber, quantity=1, region='US'):
 	try:
 		parseData = parseDigiKey(None, str(productNumber), int(quantity), str(region))
 		
-		logging.info('Manufacturer Part Number from DigiKey: %s' % str(parseData['pn']))
+		if parseData['cat']:
+			try:
+				rootCatKey = ndb.Key(shoppingModels, 'root')
+				parent_key = ndb.Key(shoppingModels, sellerModel.cat, parent=rootCatKey)
+				categoryModels.Category.buildCategory(parseData['cat'], parent_key)
+			except Exception as e:
+				logging.error('Error creating the sub category for parsed data: -- {}'.format(e))
+		
 		
 		productKey = None
 		if parseData:
-			logging.info('Received Parse Data')
 			##: Now create the Model
 			if sellerModel:
 				parseData['sk'] = sellerModel.key
@@ -409,11 +408,9 @@ def DK_Search(sellerModel, productNumber, quantity=1, region='US'):
 			productModel = shoppingModels.Product.create_from_parse_data(parseData)
 
 		if productModel:
-			logging.info('We have a product')
 			# We reached the end now return the info
 			return productModel, parseData['bup'] ##: up = Unit Price (Cents)
 		else:
-			logging.info('No productKey')
 			return None, None
 		
 	except BaseException as e:

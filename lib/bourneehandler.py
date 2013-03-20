@@ -9,7 +9,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
 from boilerplate.lib.basehandler import BaseHandler
-from models import shoppingModels, userModels
+from models import shoppingModels, userModels, categoryModels
 from lib import paypal_settings as settings
 from lib import paypal
 from lib import utils
@@ -135,6 +135,14 @@ class BournEEHandler(BaseHandler):
 	@webapp2.cached_property
 	def productSearch_form(self):
 		return forms.ProductSearchForm(self)
+	
+	@webapp2.cached_property
+	def get_parent_search_categories(self):
+		CATEGORIES = []
+		cats = categoryModels.Category.getCategoryInfo()
+		if not cats: CATEGORIES = [('ELECTRONICS', 'electronics')]
+		else: CATEGORIES.extend(cats)
+		return CATEGORIES
 
 	def paypal_purchase(self, cart):
 		dt = datetime.datetime.now().isoformat()
@@ -195,6 +203,7 @@ class BournEEHandler(BaseHandler):
 			'lastProductsViewed': self.lastProductsViewed,
 			'categories': utils.SEARCH_CATEGORIES,
 			'productSearchForm': self.productSearch_form,
+			'cat_info': self.get_parent_search_categories,
 			})
 		if settings.USE_EMBEDDED and self.user:
 			params['endpoint'] = settings.EMBEDDED_ENDPOINT

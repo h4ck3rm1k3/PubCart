@@ -25,24 +25,22 @@
 					</div>
 				</div>
 				<div class='home_search'>
-					<form id='productSearchForm' class="form-inline nomargin_form">
+					<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
 						<fieldset>
-				            <input type="hidden" name="exception" value="{{ exception }}">
-				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-				            <input type="hidden" name="cat" value="">
+							<input type="hidden" name="exception" value="{{ exception }}">
+							<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 							<div class="input-prepend input-append">
-								<div class="btn-group">
-							    <button class="btn dropdown-toggle span2" data-toggle="dropdown">
-							      <span id='homeSearchPrependValue'>All categories</span>
-							      <span class="caret"></span>
-							    </button>
-							    <ul class="dropdown-menu pull-left">
-									{% for category in categories %}
-										<li><span id=''>{{category[1]}}</span></li>
+								<select id="category" name="category" class='span2' style='margin'>
+									<option value="">Any Category</option>
+									{% for cat in cat_info %}
+										{% if cat.0 == pcategory %}
+											<option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
+										{% else %}
+											<option value="{{cat.0}}">{{cat.1}}</option>
+										{% endif %}
 									{% endfor %}
-							    </ul>
-							  </div>
-								<input type="text" class="span6" id="productNumber" name="qry" placeholder="Search to discover PubCart...">
+								</select>
+								<input type="text" class="span6" id="query" name="query" placeholder="Search to discover PubCart...">
 								<button id='partSearchFormButton' type="submit" class="btn btn-warning"><strong>Discover now.</strong></button>
 							</div>
 						</fieldset>

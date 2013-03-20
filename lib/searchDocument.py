@@ -146,13 +146,14 @@ class Product(BaseDocumentManager):
 	PRODUCT_NUMBER = 'product_number'
 	DESCRIPTION = 'description'
 	CATEGORY = 'category'
+	PARENT_CATEGORY = 'parent_category'
 	PRODUCT_NAME = 'name'
 	MANUFACTURER = 'manufacturer'
 	BEST_PRICE = 'best_price'
 	LAST_PRICE = 'last_price'
 	LAST_QUANTITY = 'last_quantity'
-	MINIMUM_QUANTITY = 'minimum_quantity'
-	QUANTITY_AVAILABLE = 'quantity_available'
+	# MINIMUM_QUANTITY = 'minimum_quantity'
+	# QUANTITY_AVAILABLE = 'quantity_available'
 	AVG_RATING = 'ar' #average rating
 	UPDATED = 'modified'
 
@@ -176,17 +177,20 @@ class Product(BaseDocumentManager):
 		[LAST_QUANTITY, 'lastquantity', search.SortExpression(
 			expression=LAST_QUANTITY,
 			direction=search.SortExpression.ASCENDING, default_value=1)],
-		[MINIMUM_QUANTITY, 'minimum quantity', search.SortExpression(
-			expression=MINIMUM_QUANTITY,
-			direction=search.SortExpression.ASCENDING, default_value=1)],
-		[QUANTITY_AVAILABLE, 'quantity available', search.SortExpression(
-			expression=QUANTITY_AVAILABLE,
-			direction=search.SortExpression.ASCENDING, default_value=1)],
+		# [MINIMUM_QUANTITY, 'minimum quantity', search.SortExpression(
+		# 	expression=MINIMUM_QUANTITY,
+		# 	direction=search.SortExpression.ASCENDING, default_value=1)],
+		# [QUANTITY_AVAILABLE, 'quantity available', search.SortExpression(
+		# 	expression=QUANTITY_AVAILABLE,
+		# 	direction=search.SortExpression.ASCENDING, default_value=1)],
 		[UPDATED, 'modified', search.SortExpression(
 			expression=UPDATED,
 			direction=search.SortExpression.DESCENDING, default_value=1)],
 		[CATEGORY, 'category', search.SortExpression(
 			expression=CATEGORY,
+			direction=search.SortExpression.ASCENDING, default_value='')],
+		[PARENT_CATEGORY, 'patent_category', search.SortExpression(
+			expression=PARENT_CATEGORY,
 			direction=search.SortExpression.ASCENDING, default_value='')],
 		[PRODUCT_NAME, 'product name', search.SortExpression(
 			expression=PRODUCT_NAME,
@@ -288,6 +292,14 @@ class Product(BaseDocumentManager):
 		"""Set the value of the 'cat' (category) field of a Product doc."""
 		return self.setFirstField(search.NumberField(name=self.CATEGORY, value=cat))
 
+	def getParentCategory(self):
+		"""Get the value of the 'pCat' field of a Product doc."""
+		return self.getFieldVal(self.PARENT_CATEGORY)
+
+	def setParentCategory(self, pCat):
+		"""Set the value of the 'pCat' (parent_category) field of a Product doc."""
+		return self.setFirstField(search.NumberField(name=self.PARENT_CATEGORY, value=pCat))
+
 	def getAvgRating(self):
 		"""Get the value of the 'ar' (average rating) field of a Product doc."""
 		return self.getFieldVal(self.AVG_RATING)
@@ -357,14 +369,15 @@ class Product(BaseDocumentManager):
 
 	@classmethod
 	def _buildCoreProductFields( \
-			cls, product_number, product_name, product_description, manufacturer, category, category_name, \
-			best_price,last_price,last_qnt, min_qnt, qnt_available):
+			cls, product_number, product_name, product_description, manufacturer, category, parent_category, category_name, \
+			best_price,last_price,last_qnt):
 		"""Construct a 'core' document field list for the fields common to all
 		Products. The various categories (as defined in the file 'categories.py'),
 		may add additional specialized fields; these will be appended to this
 		core list. (see _buildProductFields)."""
 		fields = [	search.AtomField(name=cls.PRODUCT_NUMBER, value=product_number),
 					search.AtomField(name=cls.CATEGORY, value=category),
+					search.AtomField(name=cls.PARENT_CATEGORY, value=parent_category),
 					# The 'updated' field is always set to the current date.
 					search.DateField(name=cls.UPDATED,
 					value=datetime.datetime.now().date()),
@@ -387,14 +400,13 @@ class Product(BaseDocumentManager):
 					search.NumberField(name=cls.BEST_PRICE, value=best_price),
 					search.NumberField(name=cls.LAST_PRICE, value=last_price),
 					search.NumberField(name=cls.LAST_QUANTITY, value=last_qnt),
-					search.NumberField(name=cls.MINIMUM_QUANTITY, value=min_qnt),
-					search.NumberField(name=cls.QUANTITY_AVAILABLE, value=qnt_available),
 					]
 		return fields
 
 	@classmethod
-	def _buildProductFields(cls, urlsafeProductKey=None, product_number=None, category=None, product_name=None, product_description=None,
-				manufacturer=None, category_name=None, best_price=None, last_price=None,last_qnt=None, min_qnt=None, qnt_available=None, **params):
+	def _buildProductFields(cls, urlsafeProductKey=None, product_number=None, category=None, parent_category=None, \
+				product_name=None, product_description=None, manufacturer=None, category_name=None, best_price=None, \
+				last_price=None,last_qnt=None, **params):
 			"""Build all the additional non-core fields for a document of the given
 			product type (category), using the given params dict, and the
 			already-constructed list of 'core' fields.	All such additional
@@ -403,11 +415,9 @@ class Product(BaseDocumentManager):
 
 			fields = cls._buildCoreProductFields(
 				product_number, product_name, product_description, manufacturer, category, \
-				category_name, best_price, last_price, last_qnt, min_qnt, qnt_available )
+				parent_category, category_name, best_price, last_price, last_qnt)
 			# get the specification of additional (non-'core') fields for this category
-			logging.info('Cat Name: {}'.format(category_name))
 			pdict = searchCategories.product_dict.get(category_name)
-			logging.info('pdict Found: {}'.format(pdict))
 			if pdict:
 				# for all fields
 				for k, field_type in pdict.iteritems():
@@ -445,8 +455,8 @@ class Product(BaseDocumentManager):
 
 	@classmethod
 	def _createDocument(
-			cls, urlsafeProductKey=None, product_number=None, category=None, product_name=None, product_description=None,
-			category_name=None, best_price=None, last_price=None,last_qnt=None, min_qnt=None, qnt_available=None,  **params):
+			cls, urlsafeProductKey=None, product_number=None, category=None, parent_category=None, product_name=None, product_description=None,
+			category_name=None, best_price=None, last_price=None,last_qnt=None, **params):
 		"""Create a Document object from given params."""
 		# check for the fields that are always required.
 		if urlsafeProductKey and category_name and product_number:
@@ -457,10 +467,9 @@ class Product(BaseDocumentManager):
 				raise errors.OperationFailedError("Illegal urlsafeProductKey %s" % urlsafeProductKey)
 			# construct the document fields from the params
 			resfields = cls._buildProductFields(
-				product_number=product_number, category=category, product_name=product_name,
-				product_description=product_description,
-				category_name=category_name, best_price=best_price, last_price=last_price,last_qnt=last_qnt, 
-				min_qnt=min_qnt, qnt_available=qnt_available, **params)
+				product_number=product_number, category=category, parent_category=parent_category, \
+				product_name=product_name, product_description=product_description, category_name=category_name, \
+				best_price=best_price, last_price=last_price,last_qnt=last_qnt, **params)
 			# build and index the document.	 Use the pid (product id) as the doc id.
 			# (If we did not do this, and left the doc_id unspecified, an id would be
 			# auto-generated.)
@@ -474,20 +483,21 @@ class Product(BaseDocumentManager):
 		"""Normalize the submitted params for building a product."""
 		params = copy.deepcopy(params)
 		try:
-			params['urlsafeProductKey'] = str(params['urlsafeProductKey']).strip()
+			params['urlsafeProductKey'] = str(params['upk']).strip()
 			params['product_number'] = str(params['pn']).strip()
 			params['product_name'] = str(params['d']).strip()
 			params['product_description'] = str(params['d']).strip()
 			params['manufacturer'] = str(params['m']).strip()
 			
 			params['category_name'] = params['pCat']
+			params['parent_category'] = params['pCat']
 			params['category'] = params['cat']
 			try:
 				params['best_price'] = int(params['bup'])
 				params['last_price'] = int(params['bup'])
 				params['last_qnt'] = int(1)
-				params['min_qnt'] = int(params['mq'])
-				params['qnt_available'] = int(params['qa'])
+				#params['min_qnt'] = int(params['mq'])
+				#params['qnt_available'] = int(params['qa'])
 			except ValueError:
 				error_message = 'bad integer value'
 				logging.error(error_message)
@@ -530,15 +540,23 @@ class Product(BaseDocumentManager):
 		"""Create/update a product document and its related datastore entity.  The
 		product id and the field values are taken from the params dict.
 		"""
+		logging.info('here')
+		
 		params = cls._normalizeParams(**params)
 		# check to see if doc already exists.  We do this because we need to retain
 		# some information from the existing doc.  We could skip the fetch if this
 		# were not the case.
 		curr_doc = cls.getDocFromUrlsafeProductKey(params['urlsafeProductKey'])
 		d = cls._createDocument(**params)
+		logging.info('here')
+		
 		if curr_doc:  #	 retain ratings info from existing doc
+			logging.info('here')
+		
 			avg_rating = cls(curr_doc).getAvgRating()
 			cls(d).setAvgRating(avg_rating)
 
 		# This will reindex if a doc with that doc id already exists
+		logging.info('here')
+		
 		doc_ids = cls.add(d)

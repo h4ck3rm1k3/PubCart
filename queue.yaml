@@ -5,3 +5,13 @@ queue:
 - name: livecount-writebacks
   rate: 100/s
   bucket_size: 100
+- name: search-worker
+  rate: 100/s
+  bucket_size: 100
+- name: parsers-worker
+  rate: 100/s
+  bucket_size: 100
+- name: cartTotals-worker
+  rate: 100/s
+  bucket_size: 100
+  

@@ -8,6 +8,7 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 """
 
 ##:	 Python Imports
+import time
 import logging
 import httpagentparser
 from datetime import datetime
@@ -18,8 +19,9 @@ from webapp2_extras.i18n import gettext as _
 
 ##:	 Google Imports
 from google.appengine.ext import ndb
-from google.appengine.ext import deferred
+# from google.appengine.ext import deferred
 from google.appengine.api import memcache
+from google.appengine.api.labs import taskqueue
 from google.appengine.datastore.datastore_query import Cursor
 
 ##:	 BournEE Imports
@@ -251,11 +253,7 @@ class GetProductFormHandler(BaseHandler):
 					if not best_price_cents:
 						raise Exception('Missing a best_price_cents from the parser response')
 					best_price = float(best_price_cents)/100 # convert to dollars
-					productPriceTiers = shoppingModels.ProductTierPrice.get_for_product(productModel.pn, productModel.key)
-					if not productPriceTiers:
-						logging.info('Deferred to parser for Product Tiers')
-						deferred.defer(parsers.parseDigiKey, productModel.key.urlsafe())
-				
+
 				except Exception as e:
 					logging.error('Error creating a productModel: -- {}'.format(e))
 					message = _('Sorry, we could not retrieve your product request. Please try again later.')
@@ -286,7 +284,6 @@ class GetProductFormHandler(BaseHandler):
 						return self.redirect(self.request.referer)
 					except:
 						return self.redirect_to('home')
-			logging.info('here')
 			
 			if not productModel or not best_price:
 				raise Exception('Either the productModel or the best_price is missing')
@@ -314,34 +311,17 @@ class GetProductFormHandler(BaseHandler):
 
 				##: Update the Cart for the Totals Costs
 				if newOrder:
-					logging.info('newOrder.q: {}'.format(newOrder.q))
-					logging.info('newOrder.fetch_bup: {}'.format(newOrder.fetch_bup))
-					logging.info('newOrder.st: {}'.format(newOrder.st))
-					logging.info('old_order_subtotal: {}'.format(old_order_subtotal))
-					
 					##: Updatte the Cart's subtotals
 					orderSubTotal = (int(newOrder.st)-int(old_order_subtotal))
 					oldCartSubTotal = cartModel.st
-					
-					logging.info('orderSubTotal: {}'.format(orderSubTotal))
-					logging.info('oldCartSubTotal: {}'.format(oldCartSubTotal))
-					
 					newCartSubTotal = int(oldCartSubTotal) + int(orderSubTotal)
 					shoppingModels.Cart.update_subtotal_values(cartModel, newCartSubTotal, oldCartSubTotal, put_model=False)
-					logging.info('here')
 
 				ndb.put_multi( [cartModel, newOrder] )
-				logging.info('here')
-
-				##: Run a check in the background to verify Cart Sub-Total
-				deferred.defer(shoppingModels.verify_cart_subtotals, cartModel.key.urlsafe())
-				logging.info('here')
 
 				message = _('We have found the requested Product: {} and have added it to your cart {}.'.format(productModel.pn, cartModel.n))
 				self.add_message(message, 'success')
 			else:
-				logging.info('here')
-				
 				message = _('We have saved the requested Product: {} to our database.'.format(productModel.pn))
 				self.add_message(message, 'success')
 			

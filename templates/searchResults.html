@@ -7,86 +7,48 @@
 {% block header %}{% endblock %}
 
 {% block main_content %}
+<table class="table table-striped table-hover table-condensed">
+    <thead>
+		<tr>
+			<td>
+				<header>
+					<div class='fullpageTitleWrapper'>
+						Search Results.
+					</div>
+				</header>
+			</td>
+		</tr>
+		{% if modelResults %}
+			<tr class='info'>
+				<th class='header'>{{first_res}} - {{last_res}} of {{number_found}} {{qtype}}s shown for query: <i>{{print_query}}</i></th>
+			</tr>
+		{% endif %}
+    </thead>
+	<tbody>
+		{% if modelResults %}
+			{% for product in modelResults %}
+					{% if product %}
+					<tr>
+						<td>
+							{{macros.search_product_widget(product)}}
+						</td>
+					</tr>
+					{% endif %}
+			{% endfor %}
+		{% else %}
+			<tr>
+				<td>
+					<div class="alert alert-info">
+						<strong>Oh snap!</strong>Nothing found using your search query: {{print_query}}
+					</div>
+				</td>
+			</tr>
+		{% endif %}
+	</tbody>
+</table>
 
-    <h4>Product Search</h4>
+{{ macros.render_pager() }}
 
-    {% if search_response %}
-    <div>
-     <h2>Product Search Results</h2>
-
-      <p>
-        {% if prev_link %}
-          <a href="{{prev_link}}">Previous Results</a>
-        {% else %}
-          Previous Results
-        {% endif %}
-         |
-        {% if next_link %}
-          <a href="{{next_link}}">Next Results</a>
-        {% else %}
-          Next Results
-        {% endif %}
-      </p>
-
-      <p>&nbsp;</p>
-      {% if returned_count > 0 %}
-      <p>
-       {{first_res}} - {{last_res}} of {{number_found}} {{qtype}}s shown for query: <i>{{print_query}}</i>.
-      </p>
-      {% endif %}
-	{% if modelResults %}
-		{% for product in modelResults %}
-			<p>
-				{% if product %}
-				<tr class='pointer' onClick='linkTo("{{uri_for('product', urlsafeProductKey=product.key.urlsafe() )}}")'>
-					<td colspan='2'>
-						{{macros.homepage_product_widget(product)}}
-					</td>
-				</tr>
-				{% endif %}
-			</p>
-		{% endfor %}
-	{% endif %}
-      {% for result in search_response %}
-        <p>
-        <span style="color: #014C9D;"><i>Product Number</i></span>: {{result.1|safe}}<br/>
-        <span style="color: #014C9D;"><i>Product Description</i></span>: {{result.3|safe}}<br/>
-        <span style="color: #014C9D;"><i>Category</i></span>: {{result.6}}<br/>
-        <span style="color: #014C9D;"><i>Price</i></span>: {{result.4}}<br/>
-        <span style="color: #014C9D;"><i>Average Rating</i></span>:
-         {% if result.7 < 1 %}
-            None yet
-         {% else %}
-           {{result.7}}
-         {% endif %}
-        <br/>
-
-          <a href="/product/{{result.8}}">View product details</a>
-          &nbsp;<a href="">Reviews</a>
-        </p>
-      {% endfor %}
-
-      <p>
-        {% if prev_link %}
-          <a href="{{prev_link}}">Previous Results</a>
-        {% else %}
-          Previous Results
-        {% endif %}
-         |
-        {% if next_link %}
-          <a href="{{next_link}}">Next Results</a>
-        {% else %}
-          Next Results
-        {% endif %}
-      </p>
-
-    </div>
-    {%else %}
-     {%if print_query %}
-      <p>No results found.</p>
-     {% endif %}
-
-    {% endif %}
 
 {% endblock %}
 

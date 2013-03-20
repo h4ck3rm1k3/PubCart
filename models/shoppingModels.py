@@ -9,8 +9,10 @@ Copyright (c) 2012 Jason Elbourne. All rights reserved.
 
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
+from google.appengine.api.labs import taskqueue
 
 import re
+import time
 import config
 import logging
 
@@ -18,6 +20,7 @@ from lib import utils
 from lib import searchCategories
 from lib import searchDocument
 from models.userModels import User, Seller
+
 
 
 def verify_cart_subtotals(urlsafeCartKey):
@@ -46,70 +49,6 @@ def verify_cart_subtotals(urlsafeCartKey):
 			##:  Now lets update the New Carts SubTotal
 			Cart.update_subtotal_values(cart, newSubTotal, oldSubTotal)
 	else: logging.error('Error in verify_subtotals for Cart, Cart could not be found from the urlsafeCartKey ')
-
-
-class Category(ndb.Model):
-	"""The model class for product category information.  Supports building a
-	category tree."""
-
-	_CATEGORY_INFO = None
-	_CATEGORY_DICT = None
-	_RCATEGORY_DICT = None
-	_ROOT = 'root'  # the 'root' category of the category tree
-
-	parent_category = ndb.KeyProperty()
-
-	@property
-	def category_name(self):
-		return self.key.id()
-
-	@classmethod
-	def buildAllCategories(cls):
-		""" build the category instances from the provided static data, if category
-		entities do not already exist in the Datastore. (see categories.py)."""
-
-		# Don't build if there are any categories in the datastore already
-		if cls.query().get():
-			return
-		root_category = searchCategories.ctree
-		cls.buildCategory(root_category, None)
-
-	@classmethod
-	def buildCategory(cls, category_data, parent_key):
-		"""build a category and any children from the given data dict."""
-
-		if not category_data:
-			return
-		cname = category_data.get('name')
-		if not cname:
-			logging.warn('no category name')
-			return
-		if parent_key:
-			cat = cls(id=cname, parent_category=parent_key)
-		else:
-			cat = cls(id=cname)
-		cat.put()
-
-		children = category_data.get('children')
-		# if there are any children, build them using their parent key
-		cls.buildChildCategories(children, cat.key)
-
-	@classmethod
-	def buildChildCategories(cls, children, parent_key):
-		"""Given a list of category data structures and a parent key, build the
-		child categories, with the given key as their entity group parent."""
-		for cat in children:
-			cls.buildCategory(cat, parent_key)
-
-	@classmethod
-	def getCategoryInfo(cls):
-		"""Build and cache a list of category id/name correspondences.  This info is
-		used to populate html select menus."""
-		if not cls._CATEGORY_INFO:
-			cls.buildAllCategories()  	#first build categories from data file if required
-			cats = cls.query().fetch()
-			cls._CATEGORY_INFO = [(c.key.id(), c.key.id()) for c in cats if c.key.id() != cls._ROOT]
-		return cls._CATEGORY_INFO
 
 
 class Product(ndb.Expando):
@@ -159,6 +98,11 @@ class Product(ndb.Expando):
 		return utils.dollar_float(float(cls.bup)/100)
 
 	@property
+	def d_cp(cls):
+		return utils.dollar_float(float(cls.cp)/100)
+
+
+	@property
 	def d_hup(cls):
 		if cls.hup:
 			return utils.dollar_float(float(cls.hup)/100)
@@ -176,13 +120,33 @@ class Product(ndb.Expando):
 	def _read_properties_for_api():
 		return [u'pn', u'm', u'pn', u'd', u'qa']
 
-
 	def _pre_put_hook(cls):
 		n = utils.clean_product_number(cls.pn)
 		key = ndb.Key(Product, str(n), parent=cls.sk)
 		cls.key = key
 		if not cls.cp:  cls.cp  = cls.bup
 		if not cls.hup: cls.hup = cls.bup
+	
+	@classmethod
+	def _post_put_hook(cls, future):
+		now = time.time()
+		productModelKey = future.get_result()
+		try:
+			taskqueue.add(
+						name=str(str(productModelKey.urlsafe())[:16]+'search-worker'+str(int(now/30))), \
+						queue_name='search-worker', \
+						url='/worker/searchDocUpdate', \
+						params={'urlsafeProductKey': str(productModelKey.urlsafe())})
+		except Exception as e:
+			logging.error('Error Creating the Product Search Document taskqueue: -- {}'.format(e))
+		try:
+			taskqueue.add(
+						name=str(str(productModelKey.urlsafe())[:16]+'parsers-worker'+str(int(now/30))), \
+						queue_name='parsers-worker', \
+						url='/worker/setProductTierPrices', \
+						params={'urlsafeProductKey':  productModelKey.urlsafe()}) # post parameter
+		except Exception as e:
+			logging.error('Error checking product price tier taskqueue: -- {}'.format(e))
 
 	@staticmethod
 	def get_all(quantity=999):
@@ -210,12 +174,6 @@ class Product(ndb.Expando):
 			productModel.populate(**parseData)
 			productKey = productModel.put()
 			if productKey:
-				try:
-					del parseData['sk']
-					parseData['urlsafeProductKey'] = productKey.urlsafe()
-					searchDocument.Product.buildProduct(**parseData)
-				except Exception as e:
-					logging.error('Creating the Product Search Document Failed: -- {}'.format(e))
 				return productModel
 			else:
 				raise Exception('No productKey returned from productModel.put()')
@@ -272,13 +230,13 @@ class ProductTierPrice(ndb.Model):
 			logging.error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
 			return None
 	
-	@classmethod
-	def update_from_parse_data(cls, **parseData):
+	@staticmethod
+	def update_from_parse_data(productTierModel, **parseData):
 		try:
-			cls.populate(**parseData)
-			productTierKey = cls.put()
+			productTierModel.populate(**parseData)
+			productTierKey = productTierModel.put()
 			if productTierKey:
-				return cls
+				return productTierModel
 			else:
 				raise Exception('No productTierKey returned from productTierModel.put()')
 		except Exception as e:
@@ -490,6 +448,24 @@ class Cart(ndb.Model):
 
 	def _pre_put_hook(cls):
 		pass
+	
+	@classmethod
+	def _post_put_hook(cls, future):
+		try:
+			logging.info('future: {}'.format(future.get_result()))
+			now = time.time()
+			cartModelKey = future.get_result()
+			taskqueue.add(
+						name=str(str(cartModelKey.urlsafe())[:16]+'cartTotals-worker'+str(int(now/30))), \
+						queue_name='cartTotals-worker', \
+						url='/worker/checkCartSubtotals', \
+						params={'urlsafeCartKey':  cartModelKey.urlsafe()}) # post parameter
+		except Exception as e:
+			logging.error('Error checking cart subtotals with taskqueue: -- {}'.format(e))
+			
+		##: Run a check in the background to verify Cart Sub-Total
+		now = time.time()
+
 	
 	@staticmethod
 	def create_cart(cartKey, userKey, cartName, cartDescritpion=None, cartCategory=None, put_model=True):
@@ -729,6 +705,21 @@ class Order(ndb.Model):
 	def _read_properties_for_api():
 		# Example : return [u'pn', u'm', u'pn', u'd', u'qa']
 		return []
+	
+	@classmethod
+	def _post_put_hook(cls, future):
+		try:
+			now = time.time()
+			orderModelKey = future.get_result()
+			orderModel = orderModelKey.get()
+			if orderModel:
+				taskqueue.add(
+							name=str(str(orderModel.pk.urlsafe())[:16]+'parsers-worker'+str(int(now/30))), \
+							queue_name='parsers-worker', \
+							url='/worker/setProductTierPrices', \
+							params={'urlsafeProductKey':  orderModel.pk.urlsafe()}) # post parameter
+		except Exception as e:
+			logging.error('Error checking product price tier taskqueue: -- {}'.format(e))
 
 	@classmethod
 	def create_order(cls, cartKey, productKey, qnt, put_model=True):

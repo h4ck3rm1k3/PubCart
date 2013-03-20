@@ -15,7 +15,7 @@ from google.appengine.ext import ndb
 from lib.bourneehandler import RegisterBaseHandler
 from lib import searchDocument as docs
 from lib import utils
-from models import shoppingModels
+from models import shoppingModels, categoryModels
 
 class ProductSearchHandler(RegisterBaseHandler):
 	"""The handler for doing a product search."""
@@ -60,10 +60,6 @@ class ProductSearchHandler(RegisterBaseHandler):
 
 	def doProductSearch(self, params):
 		"""Perform a product search and display the results."""
-
-		# the defined product categories
-		cat_info = shoppingModels.Category.getCategoryInfo()
-		
 		# the product fields that we can sort on from the UI, and their mappings to
 		# search.SortExpression parameters
 		sort_info = docs.Product.getSortMenu()
@@ -77,7 +73,14 @@ class ProductSearchHandler(RegisterBaseHandler):
 			# add specification of the category to the query
 			# Because the category field is atomic, put the category string
 			# in quotes for the search.
-			query += ' %s:"%s"' % (docs.Product.CATEGORY, categoryq)
+			query += ' %s:"%s"' % (docs.Product.PARENT_CATEGORY, categoryq)
+
+		subcategoryq = params.get('subcategory')
+		if subcategoryq:
+			# add specification of the category to the query
+			# Because the category field is atomic, put the category string
+			# in quotes for the search.
+			query += ' %s:"%s"' % (docs.Product.CATEGORY, subcategoryq)
 
 		sortq = params.get('sort')
 		if not sortq: sortq = 'relevance'
@@ -100,11 +103,11 @@ class ProductSearchHandler(RegisterBaseHandler):
 			logging.info('Here')
 			search_query = self._buildQuery(
 				query, sortq, sort_dict, doc_limit, offsetval)
-			logging.info('Here')
+			logging.info('search_query:  {}'.format(search_query))
 				
 			search_results = docs.Product.getIndex().search(search_query)
 			returned_count = len(search_results.results)
-			logging.info('Here')
+			logging.info('search_results:  {}'.format(search_results))
 
 		except search.Error:
 			logging.exception("Search error:")  # log the exception stack trace
@@ -115,41 +118,41 @@ class ProductSearchHandler(RegisterBaseHandler):
 			except:
 				self.redirect_to('home')
 
-		# cat_name = shoppingModels.Category.getCategoryName(categoryq)
+		# cat_name = shoppingModels.getCategoryName(categoryq)
 		psearch_response = []
 		# For each document returned from the search
 		modelsToMultiGet = []
 		for doc in search_results:
 			modelsToMultiGet.append(ndb.Key(urlsafe=str(doc.doc_id)))
 			
-			# logging.info("doc: %s ", doc)
-			pdoc = docs.Product(doc)
-			# use the description field as the default description snippet, since
-			# snippeting is not supported on the dev app server.
-			description_snippet = pdoc.getDescription()
-			price = pdoc.getPrice()
-			# on the dev app server, the doc.expressions property won't be populated.
-			logging.info('Here')
-			for expr in doc.expressions:
-				if expr.name == docs.Product.DESCRIPTION:
-					description_snippet = expr.value
-				# uncomment to use 'adjusted price', which should be
-				# defined in returned_expressions in _buildQuery() below, as the
-				# displayed price.
-				# elif expr.name == 'adjusted_price':
-					# price = expr.value
-
-			# get field information from the returned doc
-			pid = pdoc.getProductNumber()
-			cat = catname = pdoc.getCategory()
-			pname = pdoc.getName()
-			avg_rating = pdoc.getAvgRating()
-			urlsafeKey = doc.doc_id
-			# for this result, generate a result array of selected doc fields, to
-			# pass to the template renderer
-			psearch_response.append(
-				[doc, urllib.quote_plus(pid), cat,
-				description_snippet, price, pname, catname, avg_rating, urlsafeKey])
+			# # logging.info("doc: %s ", doc)
+			# pdoc = docs.Product(doc)
+			# # use the description field as the default description snippet, since
+			# # snippeting is not supported on the dev app server.
+			# description_snippet = pdoc.getDescription()
+			# price = pdoc.getPrice()
+			# # on the dev app server, the doc.expressions property won't be populated.
+			# logging.info('Here')
+			# for expr in doc.expressions:
+			# 	if expr.name == docs.Product.DESCRIPTION:
+			# 		description_snippet = expr.value
+			# 	# uncomment to use 'adjusted price', which should be
+			# 	# defined in returned_expressions in _buildQuery() below, as the
+			# 	# displayed price.
+			# 	# elif expr.name == 'adjusted_price':
+			# 		# price = expr.value
+			# 
+			# # get field information from the returned doc
+			# pid = pdoc.getProductNumber()
+			# cat = catname = pdoc.getCategory()
+			# pname = pdoc.getName()
+			# avg_rating = pdoc.getAvgRating()
+			# urlsafeKey = doc.doc_id
+			# # for this result, generate a result array of selected doc fields, to
+			# # pass to the template renderer
+			# psearch_response.append(
+			# 	[doc, urllib.quote_plus(pid), cat,
+			# 	description_snippet, price, pname, catname, avg_rating, urlsafeKey])
 		if not query:
 			print_query = 'All'
 		else:
@@ -171,15 +174,15 @@ class ProductSearchHandler(RegisterBaseHandler):
 		# construct the template values
 		params = {
 			'modelResults':modelResults,
-			'base_pquery': user_query, 'next_link': next_link,
-			'prev_link': prev_link, 'qtype': 'product',
+			'base_pquery': user_query, 'next_cursor': next_link,
+			'prev_cursor': prev_link, 'qtype': 'product',
 			'query': query, 'print_query': print_query,
 			'pcategory': categoryq, 'sort_order': sortq, 'category_name': categoryq,
 			'first_res': offsetval + 1, 'last_res': offsetval + returned_count,
 			'returned_count': returned_count,
 			'number_found': search_results.number_found,
-			'search_response': psearch_response,
-			'cat_info': cat_info, 'sort_info': sort_info,
+			# 'search_response': psearch_response,
+			'sort_info': sort_info,
 			'ratings_links': rlinks}
 		# render the result page.
 		self.bournee_template('searchResults.html', **params)

@@ -10,7 +10,7 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 from google.appengine.api import search
 
 
-electronics = {'name': 'ELECTRONICS', 'children': []}
+electronics = {'name': 'electronics', 'children': []}
 
 ctree =	 {'name': 'root', 'children': [electronics]}
 
@@ -23,5 +23,5 @@ product_dict =	{'ELECTRONICS': {'p': search.TextField,  ##: Packaging
 								'mt': search.TextField,  ##: Mounting Type
 								'pc': search.TextField,  ##: Package / Case
 								'sdp': search.TextField, ##: Supplier Device Package
-								}, 
+								},
 				}

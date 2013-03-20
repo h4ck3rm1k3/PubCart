@@ -6,7 +6,7 @@ bestPrice.py
 Created by Jason Elbourne on 2013-01-11.
 Copyright (c) 2013 Jason Elbourne. All rights reserved.
 """
-
+import time
 import logging
 
 from google.appengine.ext import ndb
@@ -66,13 +66,8 @@ def getBestPrice(urlsafeProductKey, quantity=1, returnProductModel=False):
 					productTierPrice, tier_cents_price = shoppingModels.ProductTierPrice.get_price_for_qnt(urlsafeProductKey, int(potential_Quantity))
 					logging.info('ProductTierPrice = %s ' % str(productTierPrice))
 				else: raise Exception('productModel does not have a valid property pn')
-			except:
-				raise Exception('Problems with function get_price_for_qnt for ProductTierPrice model when calling from function getBestPrice')
-		
-			if not productTierPrice:
-				logging.info('Could not find a productTierPrice so we will defer to parser')
-				deferred.defer(parsers.parseDigiKey, urlsafeProductKey)
-			else: logging.info('Found productTierPrice')
+			except Exception as e:
+				raise Exception('Problems with function get_price_for_qnt for ProductTierPrice model when calling from function getBestPrice: -- {}'.format(e))
 		
 			##:  We need a copy of the current_BestPrice so we can modify a new_BestPrice and then compare the two variables
 			new_best_price = current_BestPrice ##: current_BestPrice is a Floating Point Number as we converted to it from the productModel.bup
