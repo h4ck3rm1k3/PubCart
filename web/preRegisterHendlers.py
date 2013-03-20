@@ -38,14 +38,12 @@ from boilerplate.lib.basehandler import BaseHandler
 class PreLaunchSignupHandler(RegisterBaseHandler):
 	def get(self):
 		try:
-			if self.user:
-				return self.redirect_to('preLaunchThankyou')
 			params = {
 					'form': self.form,
 					}
-			self.bournee_template('preRegisterSignIn.html', **params)
-		except:
-			logging.error('Error during PreLaunchSignupHandler')
+			self.bournee_template('/prelaunch/preRegisterSignIn.html', **params)
+		except Exception as e:
+			logging.error('Error during PreLaunchSignupHandler: -- {}'.format(e))
 
 	def post(self):
 		""" Get fields from POST dict """
@@ -97,35 +95,6 @@ class PreLaunchSignupHandler(RegisterBaseHandler):
 	def form(self):
 		return forms.PreRegisterForm(self)
 
-class PreLaunchThankyouHandler(BournEEHandler):
-	@user_required
-	def get(self):
-		try:
-			params = {}
-			self.bournee_template('preRegisterThankyou.html', **params)
-		except:
-			logging.error('Error during PreLaunchThankyouHandler')
-
-
-class PreLaunchLogoutHandler(BournEEHandler):
-	"""
-	Destroy user session and redirect to login
-	"""
-	def get(self):
-		try:
-			if self.user:
-				message = _("You've signed out successfully. Warning: Please clear all cookies and logout "
-							"of OpenId providers too if you logged in on a public computer.")
-				self.add_message(message, 'info')
-
-			self.auth.unset_session()
-			# User is logged out, let's try redirecting to login page
-			return self.redirect_to('preLaunchSignup')
-		except (AttributeError, KeyError), e:
-			logging.error("Error logging out: %s" % e)
-			message = _("User is logged out, but there was an error on the redirection.")
-			self.add_message(message, 'error')
-			return self.redirect_to('preLaunchSignup')
 
 class PreLaunchAboutHandler(RegisterBaseHandler):
 	def get(self):
@@ -133,7 +102,7 @@ class PreLaunchAboutHandler(RegisterBaseHandler):
 			params = {
 					'form': self.form,
 					}
-			self.bournee_template('preRegisterAbout.html', **params)
+			self.bournee_template('/prelaunch/preRegisterAbout.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
@@ -147,7 +116,7 @@ class PreLaunchJobsHandler(RegisterBaseHandler):
 			params = {
 				'form': self.form,
 					}
-			self.bournee_template('preRegisterJobs.html', **params)
+			self.bournee_template('/prelaunch/preRegisterJobs.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
