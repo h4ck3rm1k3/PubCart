@@ -52,7 +52,7 @@ class PreLaunchSignupHandler(BaseHandler):
 					'preReg_email': email,
 					'form': self.form,
 					}
-			self.render_template('/prelaunch/preRegisterSignIn.html', **params)
+			self.render_template('/preLaunch/preRegisterSignIn.html', **params)
 		except Exception as e:
 			logging.error('Error during PreLaunchSignupHandler: -- {}'.format(e))
 
@@ -74,7 +74,8 @@ class PreLaunchSignupHandler(BaseHandler):
 				return self.get()
 		
 			emailLead = userModels.EmailLeads()
-			emailLead.email = email
+			emailLead.email = str(email)
+			emailLead.ip = str(self.request.remote_addr)
 			returnedKey = emailLead.put()
 			logging.info('returnedKey: {}'.format(returnedKey))
 			if not returnedKey:
@@ -104,27 +105,19 @@ class PreLaunchAboutHandler(BaseHandler):
 	def get(self):
 		try:
 			params = {
-					'form': self.form,
 					}
-			self.render_template('/prelaunch/preRegisterAbout.html', **params)
+			self.render_template('/preLaunch/preRegisterAbout.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
-	@webapp2.cached_property
-	def form(self):
-		return forms.RegisterForm(self)
 
 class PreLaunchJobsHandler(BaseHandler):
 	def get(self):
 		try:
 			params = {
-				'form': self.form,
 					}
-			self.render_template('/prelaunch/preRegisterJobs.html', **params)
+			self.render_template('/preLaunch/preRegisterJobs.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
-	@webapp2.cached_property
-	def form(self):
-		return forms.RegisterForm(self)
 

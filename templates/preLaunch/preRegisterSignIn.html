@@ -21,14 +21,14 @@
 <div class="mediaPanelSmall" style="margin-bottom:16px;">
 	<div class="container nomargin">
 	    <div class='row'>
-			<div class='span6'>
+			<div class='span3'>
 				{% block small_logo %}
 					<div class="marginTop10">
 						<a href="/" class='marginRight25'><div class="logo_small">{{ app_name }}</div></a>
 					</div>
 				{% endblock %}
 			</div>
-			<div class='span6'>
+			<div class='span9'>
 				<div class='preReg_note'>
 					Pre-Register below, we will be saving you money soon!
 				</div>
@@ -44,9 +44,11 @@
 	<div class="container innerContent">
 	  <div class="row">
 	    <div class="span12">
+			{% block main_content %}
+		
 			<div class='intro_wrapper'>
 	      		<div class="header1">Crowdsource your<strong> Component Buying.</strong></div>
-	      		<div class="header2">PubCart batch orders your components to save you money. <br>The more demand a component has, the more you save!</div>
+	      		<div class="header2">PubCart batch orders your electrical components. <br>The more demand a component has, the more you save!</div>
 				<div class="preReg_wrapper_box">
 					{% if preReg_email %}
 						<h1>Success!</h1>
@@ -68,36 +70,38 @@
 					{% endif %}
 				</div>
 			</div>
+			{% endblock %}
+			
 	    </div>
 	  </div>
 	</div>
 </section>
 <section>
 	<div class='container innerContent'>
-		<div class="hiw_wrapper">
-			<div id="info_wrapper" class="info_wrapper">
-				<div class='row'>
-					<div class='hpw_1 span2'>
-						<h3>1</h3>
-						<div class='blurb'>
-							Buy products from PubCart partners around the web.
-						</div>
-					</div>
-					<div class='arrow span1'></div>
-					<div class='hpw_2 span3'>
-						<h3>2</h3>
-						<div class='blurb'>
-							Product demand is calculated at PubCart's hub.
-						</div>
-					</div>
-					<div class='arrow span1'></div>
-					<div class='hpw_3 span2'>
-						<h3>3</h3>
-						<div class='blurb'>
-							The more demand the less you pay.
-						</div>
+		<div id="info_wrapper" class="info_wrapper">
+			<div class='row'>
+				<div class='span2'></div>
+				<div class='hpw_1 span2'>
+					<h3>1</h3>
+					<div class='blurb'>
+						Buy products from PubCart partners around the web.
 					</div>
 				</div>
+				<div class='arrow span1'></div>
+				<div class='hpw_2 span2'>
+					<h3>2</h3>
+					<div class='blurb'>
+						Product demand is calculated at PubCart's hub.
+					</div>
+				</div>
+				<div class='arrow span1'></div>
+				<div class='hpw_3 span2'>
+					<h3>3</h3>
+					<div class='blurb'>
+						The more demand the less you pay.
+					</div>
+				</div>
+				<div class='span2'></div>
 			</div>
 		</div>
 	</div>
