@@ -40,8 +40,7 @@ class BaseForm(Form):
         return FormTranslations()
 
 class PreRegisterForm(BaseForm):
-	username = fields.TextField(_('Username'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Username invalid. Use only letters and numbers.'))])
-	email = fields.TextField(_('Email'), [validators.Required(), validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.'))])
+	email = fields.TextField(_('Email'), [validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.')), validators.Required()])
 
 	
 class AddAddressForm(BaseForm):

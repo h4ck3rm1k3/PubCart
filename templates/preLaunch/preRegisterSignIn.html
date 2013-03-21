@@ -18,7 +18,7 @@
 	</div><!-- /navbar-inner -->
 </div><!-- /navbar -->
 {% block mediaPanel %}
-<div class="mediaPanelSmall" style='margin-bottom:16px;'>
+<div class="mediaPanelSmall" style="margin-bottom:16px;">
 	<div class="container nomargin">
 	    <div class='row'>
 			<div class='span6'>
@@ -48,17 +48,24 @@
 	      		<div class="header1">Crowdsource your<strong> Component Buying.</strong></div>
 	      		<div class="header2">PubCart batch orders your components to save you money. <br>The more demand a component has, the more you save!</div>
 				<div class="preReg_wrapper_box">
-					<form id="preReg_form" class='nomargin_form'>
-
-
+					{% if preReg_email %}
+						<h1>Success!</h1>
+						<h3>{{preReg_email}}</h3>
+						<p>We thank you for your support and we will notify you as soon as PubCart is ready for you.</p>
+						<a href='{{uri_for("preLaunchSignup", new=True)}}' class='muted'>pre-register another email.</a>
+					{% else %}
+					<form id="preReg_form" class='nomargin_form' method='POST'>
+						<input type="hidden" name="exception" value="{{ exception }}">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					  <div class="field_container email">
-					    <label for="name" class="label_email">Your email</label>
-					    <input class="field_email" type="text" name="email" value="" id="email" placeholder='Enter email to be notified when we launch...' data-validate-email="true">
+					    <label for="email" class="label_email">Your email</label>					
+						{{ macros.field_no_label(form.email, type='email', class="field_email", placeholder='Enter email to be notified when we launch...') }}
 					  </div>
 					  <button class="preReg_button" id="btn_preReg" type="submit">Pre-register now!</button>
 
 					  <div style="clear:both;"></div>
 					</form>
+					{% endif %}
 				</div>
 			</div>
 	    </div>
@@ -66,10 +73,8 @@
 	</div>
 </section>
 <section>
-<div class='container innerContent'>
-	<div class="row">
-		<div class='span8'>
-			{% block main_content %}
+	<div class='container innerContent'>
+		<div class="hiw_wrapper">
 			<div id="info_wrapper" class="info_wrapper">
 				<div class='row'>
 					<div class='hpw_1 span2'>
@@ -79,7 +84,7 @@
 						</div>
 					</div>
 					<div class='arrow span1'></div>
-					<div class='hpw_2 span2'>
+					<div class='hpw_2 span3'>
 						<h3>2</h3>
 						<div class='blurb'>
 							Product demand is calculated at PubCart's hub.
@@ -94,39 +99,8 @@
 					</div>
 				</div>
 			</div>
-			{% endblock %}
 		</div>
-		<div class='span4'>
-			{% if not user_id %}
-			<div class="preReg">
-                <h4>{% trans %}Pre-Register here{% endtrans %}</h4>
-			    <form id="form_pre_register" method="post">
-			        <fieldset>
-				        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-				        <div class="control-group">
-			                <label class="controls">
-			                    <input class="focused required" name="username" id="username" type="text" placeholder="{% trans %}Username{% endtrans %}">
-			                </label>
-			            </div>
-			            <div class="control-group">
-			                <label class="controls">
-			                    <input class="focused required email" name="email" id="email" type="email" placeholder="{% trans %}Email{% endtrans %}">
-			                </label>
-			            </div>
-			            <div class="control-group">
-			                <button type="submit" class="btn btn-primary">{% trans %}Pre-Register{% endtrans %}</button>
-			            </div>
-			        </fieldset>
-			    </form>
-			</div>
-			{% endif %}
-			<div class='preReg_social_links'>
-				<h4>"You should follow PubCart on twitter <a href='https://twitter.com/PubCartApp'>here</a>"</h4>
-			</div>
-
-		</div> <!-- / End of Main Content Column -->
 	</div>
-</div>
 </section>
 {% endblock %}
 

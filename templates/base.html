@@ -217,14 +217,12 @@
 				<div class='container'>
 					{% block header %}{% endblock %}
 			        {% if messages|safe %}
-						<div class='marginTop25'>
 				        	{% for message in messages %}
-				            <p class="alert alert-{{ message[1]|safe }}">
+				            <p class="marginTop25 alert alert-{{ message[1]|safe }}">
 				                <a class="close" data-dismiss="alert">×</a>
 				                {{ message[0]|safe }}
 				            </p>
 				            {% endfor %}
-						</div>
 			        {% endif %}
 				</div>
 			</section>

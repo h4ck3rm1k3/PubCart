@@ -17,78 +17,82 @@ from webapp2_extras.i18n import gettext as _
 
 ##:	 Google Imports
 from google.appengine.ext import ndb
-from google.appengine.api import memcache
-from google.appengine.datastore.datastore_query import Cursor
 
 ##:	 BournEE Imports
 import forms as forms
-from models import shoppingModels, userModels
-from lib import bestPrice
+from models import userModels
 from lib import utils
-from lib.utils import dollar_float
-from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
-from lib.exceptions import FunctionException
-from lib import paypal_settings as settings
 
 ##:	 Boilerplate Imports
-from boilerplate import models
-from boilerplate.lib.basehandler import user_required
 from boilerplate.lib.basehandler import BaseHandler
 
-class PreLaunchSignupHandler(RegisterBaseHandler):
+class PreLaunchSignupHandler(BaseHandler):
 	def get(self):
 		try:
+			
+			email=None
+			
+			newFlag = self.request.get('new', None)
+			if not newFlag:
+				try:
+					urlsafeEmailKey = self.request.get('ck', None)
+					if not urlsafeEmailKey:
+						urlsafeEmailKey = utils.read_cookie(self,"pR")
+					if urlsafeEmailKey:
+						emailModel = ndb.Key(urlsafe=urlsafeEmailKey).get()
+						if emailModel:
+							email = emailModel.email
+							logging.info('Email: {}'.format(email))
+				except Exception as e:
+					logging.error('Error during urlsafeEmailKey retrieval in PreLaunchSignupHandler: -- {}'.format(e))
+
+			logging.info('Email: {}'.format(email))
+			
 			params = {
+					'preReg_email': email,
 					'form': self.form,
 					}
-			self.bournee_template('/prelaunch/preRegisterSignIn.html', **params)
+			self.render_template('/prelaunch/preRegisterSignIn.html', **params)
 		except Exception as e:
 			logging.error('Error during PreLaunchSignupHandler: -- {}'.format(e))
 
 	def post(self):
 		""" Get fields from POST dict """
-
-		if not self.form.validate():
-			return self.get()
-		username = self.form.username.data.strip()
-		email = self.form.email.data.lower()
-		
-		tempPassword = utils.random_string(size=10)
-		# Password to SHA512
-		password = utils.hashing(tempPassword, self.app.config.get('salt'))
-
-		# Passing password_raw=password so password will be hashed
-		# Returns a tuple, where first value is BOOL.
-		# If True ok, If False no new user is created
-		unique_properties = ['username', 'email']
-		auth_id = "own:%s" % username
-		user = self.auth.store.user_model.create_user(
-			auth_id, unique_properties, password_raw=password,
-			username=username, name='Pre-Registered', last_name='Pre-Registered', email=email,
-			ip=self.request.remote_addr, country='Pre-Registered'
-		)
-
-		if not user[0]: #user is a tuple
-			if "username" in str(user[1]):
-				message = _('Sorry, The username %s is already registered.' % '<strong>{0:>s}</strong>'.format(username) )
-			elif "email" in str(user[1]):
-				message = _('Sorry, The email %s is already registered.' % '<strong>{0:>s}</strong>'.format(email) )
-			else:
-				message = _('Sorry, The user is already registered.')
-			self.add_message(message, 'error')
-		else:
-			# User registered successfully
-			db_user = self.auth.get_user_by_password(user[1].auth_ids[0], password)
-			
-			try:
-				message = _('Welcome %s, you are now Pre-Registered.' % '<strong>{0:>s}</strong>'.format(username) )
-				self.add_message(message, 'success')
-			except (AttributeError, KeyError), e:
-				logging.error('Unexpected error creating the user %s: %s' % (username, e ))
-				message = _('Unexpected error during pre-registration of %s' % username )
+		try:
+			if not self.form.validate():
+				return self.get()
+			email = str(self.form.email.data).lower()
+			if not utils.is_email_valid(email):
+				message = _('Sorry, this email does not seem to be valid.')
 				self.add_message(message, 'error')
+				return self.get()
+
+			existing = userModels.EmailLeads.query(userModels.EmailLeads.email==str(email)).fetch()
+			if existing:
+				message = _('Sorry, this email has already been registered.')
+				self.add_message(message, 'error')
+				return self.get()
 		
-		return self.redirect_to('home')
+			emailLead = userModels.EmailLeads()
+			emailLead.email = email
+			returnedKey = emailLead.put()
+			logging.info('returnedKey: {}'.format(returnedKey))
+			if not returnedKey:
+				logging.error('Error saving emailLead model in <post> of PreLaunchSignupHandler.')
+				message = _('Sorry, we are having troubles saving the email to our servers at this time. Please try again later.')
+				self.add_message(message, 'error')
+				return self.get()
+		
+			# message = _('Welcome, you are now Pre-Registered with the email %s' % '<strong>{0:>s}</strong>'.format(email) )
+			# self.add_message(message, 'success')
+			utils.write_cookie(self, "pR", str(returnedKey.urlsafe()), "/", 32096000)
+			return self.redirect_to('preLaunchSignup', ck=str(returnedKey.urlsafe()))
+
+		except Exception as e:
+			logging.error('Error with <post> of PreLaunchSignupHandler: -- {}'.format(e))
+			message = _('Sorry, we are having troubles saving the email to our servers at this time. Please try again later.')
+			self.add_message(message, 'error')
+			return self.get()
 		
 		
 	@webapp2.cached_property
@@ -96,13 +100,13 @@ class PreLaunchSignupHandler(RegisterBaseHandler):
 		return forms.PreRegisterForm(self)
 
 
-class PreLaunchAboutHandler(RegisterBaseHandler):
+class PreLaunchAboutHandler(BaseHandler):
 	def get(self):
 		try:
 			params = {
 					'form': self.form,
 					}
-			self.bournee_template('/prelaunch/preRegisterAbout.html', **params)
+			self.render_template('/prelaunch/preRegisterAbout.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
@@ -110,13 +114,13 @@ class PreLaunchAboutHandler(RegisterBaseHandler):
 	def form(self):
 		return forms.RegisterForm(self)
 
-class PreLaunchJobsHandler(RegisterBaseHandler):
+class PreLaunchJobsHandler(BaseHandler):
 	def get(self):
 		try:
 			params = {
 				'form': self.form,
 					}
-			self.bournee_template('/prelaunch/preRegisterJobs.html', **params)
+			self.render_template('/prelaunch/preRegisterJobs.html', **params)
 		except:
 			logging.error('Error during PreLaunchAboutHandler')
 
