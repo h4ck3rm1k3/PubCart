@@ -33,6 +33,17 @@
             </div>
 {%- endmacro %}
 
+{% macro field_no_label(field) -%}
+            <div class="control-group{% if field.errors %} error{% endif %}">
+                <div class="controls">
+                {{ field(**kwargs) }}
+                {% if field.errors %}
+                    {% for error in field.errors %}<br/><label for="{{ field.id }}" class="error help-inline">{{ error }}</label>{% endfor %}
+                {% endif %}
+                </div>
+            </div>
+{%- endmacro %}
+
 <!-- renders federated login (openId and Oauth) login buttons -->
 {% macro federated_login(provider_info, provider_uris, enable_federated_login) -%}
 {% if enable_federated_login %}
