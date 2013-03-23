@@ -65,7 +65,7 @@ class SoftRegisterRequestHandler(RegisterBaseHandler):
 			params = {
 					'form': self.form,
 					}
-			self.bournee_template('/softRegistration.html', **params)
+			self.bournee_template('softRegistration.html', **params)
 		except Exception as e:
 			logging.error('Error during PreLaunchSignupHandler: -- {}'.format(e))
 
@@ -121,39 +121,101 @@ class SoftRegisterRequestHandler(RegisterBaseHandler):
 class IntimateRegisterRequestHandler(RegisterBaseHandler):
 	def get(self, ek):
 		try:
+			continue_url = self.request.get('continue_url', None)
+			
 			try:
 				emailModel = None
 				urlsafeEmailKey = str(ek)
-				continue_url = self.request.get('continue_url', None)
 				
 				if urlsafeEmailKey:
 					emailModel = ndb.Key(urlsafe=urlsafeEmailKey).get()
 				if not emailModel:
-					if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
-					else: return self.redirect_to('softRegister')
-
+					if continue_url: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey), continue_url=continue_url)
+					else: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey))
 				if not utils.is_email_valid(emailModel.email):
 					message = _('Sorry, this email does not seem to be valid.')
 					self.add_message(message, 'error')
-					if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
-					else: return self.redirect_to('softRegister')
+					if continue_url: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey), continue_url=continue_url)
+					else: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey))
 			except Exception as e:
 				logging.error('Error during urlsafeEmailKey retrieval in PreLaunchSignupHandler: -- {}'.format(e))
-				if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
-				else: return self.redirect_to('softRegister')
+				if continue_url: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey), continue_url=continue_url)
+				else: return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey))
 
 			params = {
 					'currentEmail': str(emailModel.email),
 					'form': self.form,
 					}
-			self.bournee_template('/intimatesRegistration.html', **params)
+			self.bournee_template('intimatesRegistration.html', **params)
 		except Exception as e:
 			logging.error('Error during IntimateRegisterRequestHandler: -- {}'.format(e))
 			if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
 			else: return self.redirect_to('softRegister')
 
-	def post(self):
-		pass
+	def post(self, ek):
+		try:
+			if not self.form.validate():
+				return self.get()
+			username = str(self.form.username.data).strip()
+			email = str(self.form.email.data).lower()
+			password = str(self.form.password.data).strip()
+
+			urlsafeEmailKey = str(ek)
+			continue_url = self.request.get('continue_url', None)
+			
+			if urlsafeEmailKey:
+				emailModel = ndb.Key(urlsafe=urlsafeEmailKey).get()
+			if not emailModel:
+				if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+				else: return self.redirect_to('softRegister')
+			if str(email) != str(emailModel.email).lower():
+				message = _('Sorry, this email does not seem to be valid for creating the user account.')
+				self.add_message(message, 'error')
+				if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+				else: return self.redirect_to('softRegister')
+
+			# Password to SHA512
+			password = utils.hashing(password, self.app.config.get('salt'))
+
+			# Passing password_raw=password so password will be hashed
+			# Returns a tuple, where first value is BOOL.
+			# If True ok, If False no new user is created
+			unique_properties = ['username', 'email']
+			auth_id = "own:%s" % username
+			user = self.auth.store.user_model.create_user(
+				auth_id, unique_properties, password_raw=password,
+				username=username, email=email, ip=self.request.remote_addr
+			)
+
+			if not user[0]: #user is a tuple
+				if "username" in str(user[1]):
+					message = _('Sorry, The username %s is already registered.' % '<strong>{0:>s}</strong>'.format(username) )
+				elif "email" in str(user[1]):
+					message = _('Sorry, The email %s is already registered.' % '<strong>{0:>s}</strong>'.format(email) )
+				else:
+					message = _('Sorry, The user is already registered.')
+				self.add_message(message, 'error')
+				return self.get(ek)
+			else:
+				# User registered successfully
+				# But if the user registered using the form, the user has to check their email to activate the account ???
+				try:
+					user_info = models.User.get_by_email(email)
+
+					# If the user didn't register using registration form ???
+					db_user = self.auth.get_user_by_password(user[1].auth_ids[0], password)
+
+					if continue_url:
+						return self.redirect_to('addressRegister', uk=str(returnedKey.urlsafe()), continue_url=continue_url)
+					else:
+						return self.redirect_to('addressRegister', uk=str(returnedKey.urlsafe()))
+				except (AttributeError, KeyError), e:
+					logging.error('Unexpected error creating the user %s: %s' % (username, e ))
+					message = _('Unexpected error creating the user %s' % username )
+					self.add_message(message, 'error')
+					return self.redirect_to('home')
+		except:
+			logging.error()
 
 	@webapp2.cached_property
 	def form(self):
