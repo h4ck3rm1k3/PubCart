@@ -38,6 +38,127 @@ from lib.livecount.counter import LivecountCounter
 from boilerplate import models
 from boilerplate.lib.basehandler import BaseHandler
 
+class SoftRegisterRequestHandler(RegisterBaseHandler):
+	def get(self):
+		try:
+			email=None
+			newFlag = self.request.get('new', None)
+			continue_url = self.request.get('continue_url', None)
+			if not newFlag:
+				try:
+					urlsafeEmailKey = self.request.get('ck', None)
+					if not urlsafeEmailKey:
+						urlsafeEmailKey = utils.read_cookie(self,"pR")
+					if urlsafeEmailKey:
+						emailModel = ndb.Key(urlsafe=urlsafeEmailKey).get()
+						if emailModel:
+							if continue_url:
+								return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey), continue_url=continue_url)
+							else:
+								return self.redirect_to('intimateRegister', ek=str(urlsafeEmailKey))
+
+				except Exception as e:
+					logging.error('Error during urlsafeEmailKey retrieval in PreLaunchSignupHandler: -- {}'.format(e))
+
+			logging.info('Email: {}'.format(email))
+			
+			params = {
+					'form': self.form,
+					}
+			self.bournee_template('/softRegistration.html', **params)
+		except Exception as e:
+			logging.error('Error during PreLaunchSignupHandler: -- {}'.format(e))
+
+	def post(self):
+		""" Get fields from POST dict """
+		try:
+			continue_url = self.request.get('continue_url',None)
+			
+			if not self.form.validate():
+				return self.get()
+			email = str(self.form.email.data).lower()
+			if not utils.is_email_valid(email):
+				message = _('Sorry, this email does not seem to be valid.')
+				self.add_message(message, 'error')
+				return self.get()
+
+			existing = userModels.EmailLeads.query(userModels.EmailLeads.email==str(email)).fetch()
+			if existing:
+				message = _('Sorry, this email has already been registered.')
+				self.add_message(message, 'error')
+				return self.get()
+		
+			emailLead = userModels.EmailLeads()
+			emailLead.email = str(email)
+			emailLead.ip = str(self.request.remote_addr)
+			returnedKey = emailLead.put()
+			logging.info('returnedKey: {}'.format(returnedKey))
+			if not returnedKey:
+				logging.error('Error saving emailLead model in <post> of PreLaunchSignupHandler.')
+				message = _('Sorry, we are having troubles saving the email to our servers at this time. Please try again later.')
+				self.add_message(message, 'error')
+				return self.get()
+		
+			# message = _('Welcome, you are now Pre-Registered with the email %s' % '<strong>{0:>s}</strong>'.format(email) )
+			# self.add_message(message, 'success')
+			utils.write_cookie(self, "pR", str(returnedKey.urlsafe()), "/", 32096000)
+			if continue_url:
+				return self.redirect_to('intimateRegister', ek=str(returnedKey.urlsafe()), continue_url=continue_url)
+			else:
+				return self.redirect_to('intimateRegister', ek=str(returnedKey.urlsafe()))
+
+		except Exception as e:
+			logging.error('Error with <post> of PreLaunchSignupHandler: -- {}'.format(e))
+			message = _('Sorry, we are having troubles saving the email to our servers at this time. Please try again later.')
+			self.add_message(message, 'error')
+			return self.get()
+		
+		
+	@webapp2.cached_property
+	def form(self):
+		return forms.PreRegisterForm(self)
+
+class IntimateRegisterRequestHandler(RegisterBaseHandler):
+	def get(self, ek):
+		try:
+			try:
+				emailModel = None
+				urlsafeEmailKey = str(ek)
+				continue_url = self.request.get('continue_url', None)
+				
+				if urlsafeEmailKey:
+					emailModel = ndb.Key(urlsafe=urlsafeEmailKey).get()
+				if not emailModel:
+					if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+					else: return self.redirect_to('softRegister')
+
+				if not utils.is_email_valid(emailModel.email):
+					message = _('Sorry, this email does not seem to be valid.')
+					self.add_message(message, 'error')
+					if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+					else: return self.redirect_to('softRegister')
+			except Exception as e:
+				logging.error('Error during urlsafeEmailKey retrieval in PreLaunchSignupHandler: -- {}'.format(e))
+				if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+				else: return self.redirect_to('softRegister')
+
+			params = {
+					'currentEmail': str(emailModel.email),
+					'form': self.form,
+					}
+			self.bournee_template('/intimatesRegistration.html', **params)
+		except Exception as e:
+			logging.error('Error during IntimateRegisterRequestHandler: -- {}'.format(e))
+			if continue_url: return self.redirect_to('softRegister', continue_url=continue_url)
+			else: return self.redirect_to('softRegister')
+
+	def post(self):
+		pass
+
+	@webapp2.cached_property
+	def form(self):
+		return forms.IntimatesRegisterForm(self)
+
 
 class HomeRequestHandler(RegisterBaseHandler):
 	"""

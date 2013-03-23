@@ -42,6 +42,10 @@ class BaseForm(Form):
 class PreRegisterForm(BaseForm):
 	email = fields.TextField(_('Email'), [validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.')), validators.Required()])
 
+class IntimatesRegisterForm(BaseForm):
+	name = fields.TextField(_('Name'), [validators.Length(max=FIELD_MAXLENGTH)])
+	password = fields.TextField(_('Password'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
+	c_password = fields.TextField(_('Confirm Password'), [validators.Required(), validators.EqualTo('password', _('Passwords must match.')), validators.Length(max=FIELD_MAXLENGTH)])
 	
 class AddAddressForm(BaseForm):
 	uk = fields.TextField(_(''), [validators.Required()])

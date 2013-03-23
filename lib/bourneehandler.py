@@ -29,7 +29,7 @@ def user_required(handler):
 			auth = self.auth.get_user_by_session()
 			if not auth:
 				try:
-					self.auth_config['login_url'] = self.uri_for('register', continue_url=self.request.path)
+					self.auth_config['login_url'] = self.uri_for('softRegister', continue_url=self.request.path)
 					self.redirect(self.auth_config['login_url'], abort=True)
 				except (AttributeError, KeyError), e:
 					self.abort(403)

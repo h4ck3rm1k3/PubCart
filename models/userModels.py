@@ -17,7 +17,7 @@ class User(User):
 class EmailLeads(ndb.Model):
 	email = ndb.StringProperty(required=True)
 	notified = ndb.BooleanProperty(default=False)
-	ip = ndb.StringProperty(required=True)
+	ip = ndb.StringProperty(required=True, indexed=False)
 	
 class Address(ndb.Model):
 	uk = ndb.KeyProperty(kind=User) ##: User Model Key

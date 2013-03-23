@@ -9,7 +9,6 @@ from web import webHandlers
 from web import cartHandlers
 from web import oauth_handlers
 from web import productHandlers
-from web import preRegisterHendlers
 from web import paypalHandlers
 from web import searchHandlers
 from api import rest_api
@@ -17,19 +16,10 @@ from lib.livecount import counter as countHandlers
 
 secure_scheme = 'https'
 
-# _routes = [
-# 	RedirectRoute('/', preRegisterHendlers.PreLaunchSignupHandler, name='home', strict_slash=True),
-# 	RedirectRoute('/', preRegisterHendlers.PreLaunchSignupHandler, name='preLaunchSignup', strict_slash=True),
-# 	RedirectRoute('/login/', preRegisterHendlers.PreLaunchSignupHandler, name='login', strict_slash=True),
-#     RedirectRoute('/logout/', preRegisterHendlers.PreLaunchSignupHandler, name='logout', strict_slash=True),
-#     RedirectRoute('/register/', preRegisterHendlers.PreLaunchSignupHandler, name='register', strict_slash=True),
-#     RedirectRoute('/about/', preRegisterHendlers.PreLaunchAboutHandler, name='about', strict_slash=True),
-#     RedirectRoute('/jobs/', preRegisterHendlers.PreLaunchJobsHandler, name='jobs', strict_slash=True),
-#     RedirectRoute('/settings/profile', preRegisterHendlers.PreLaunchSignupHandler, name='edit-profile', strict_slash=True),
-# ]
-
 _routes = [
 	RedirectRoute('/', webHandlers.HomeRequestHandler, name='home', strict_slash=True),
+	RedirectRoute('/r/', webHandlers.SoftRegisterRequestHandler, name='softRegister', strict_slash=True),
+	RedirectRoute('/id/<ek>', webHandlers.IntimateRegisterRequestHandler, name='intimateRegister', strict_slash=True),
 
 	RedirectRoute('/addaddress', webHandlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
 

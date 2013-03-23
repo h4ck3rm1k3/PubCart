@@ -82,44 +82,7 @@ span.label-block {
 		color: #525355;
 	}
 }
-.info_wrapper {
-	width:100%;
-	margin-top:20px;
-	header h2 {color:#006dcc;margin-bottom:20px}
-	.hpw_1, .hpw_2, .hpw_3 {
-		vertical-align: top;
-		line-height: 30px;
-		display: inline-block;
-		height: 200px;
-		font-size: 20px;
-		color: #333;
-		text-align: center;
-		background-repeat: no-repeat;
-		background-position:center top;
-		padding-top: 180px;
-		h3 {
-			font-size: 50px;color:#006dcc;
-			}
-		.blurb {
-			width: 170px;
-			margin: 0 auto;
-			font-weight: bold;
-			
-		}
-	}
-	.hpw_1 {background-image: url('/img/home_hpw_1.png');}
-	.hpw_2 {padding-top: 280px;background-image: url('/img/home_hpw_2.png');}
-	.hpw_3 {background-image: url('/img/home_hpw_3.png');}
-	.arrow {
-		margin-top:76px;
-		height:33px;
-	    text-indent: -9000px;
-		background-image: url('/img/home_hpw_arrow.gif');
-		background-repeat: no-repeat;
-		background-position:center top;
-	}
 
-}
 .pushUp { 
 	margin-top:-19px;
 	z-index:-100;
@@ -442,12 +405,142 @@ span.label-block {
 	line-height: 14px;
 }
 /*/////////////////////////////////////////////////*/
-/*///////  MINI LAST VISITED PRODUCTs MACRO ///////*/
+/*///////////  HOME PAGE NOT-LOGGED IN ////////////*/
 /*/////////////////////////////////////////////////*/
 .navbar {
 	.loginbtn_top {
 		margin-top:0px;
 	}
+}
+#intro {
+	display: block;
+	width: 100%;
+	height: 776px;
+	overflow: hidden;
+	z-index: -999;
+	background: url('/img/pubcart_promo_ee_1.png') center center no-repeat;
+}
+.intro_wrapper{
+	font-family: "ProximaNovaThin","Helvetica Neue",Helvetica,Arial,sans-serif;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	.header1 {
+		margin-bottom: 30px;
+		margin-top: 160px;
+		font-size: 48px;
+		color: #000;
+		line-height: 50px;
+		font-weight: 100;
+		strong {
+			font-weight: normal;
+		}
+	}
+	.header2 {
+		margin-bottom: 100px;
+		font-size: 26px;
+		line-height: 38px;
+		color: #000;
+		font-weight: 100;
+	}
+	.preReg_wrapper_box {
+		margin: 0 auto;
+		width: 775px;
+		padding: 15px;
+		margin-bottom: 30px !important;
+		background: #fff;
+		border-radius: 1px;
+		-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+		-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+		box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+		.field_container{
+			float: left;
+			text-align: left!important;
+			position: relative;
+			margin: 1px 15px 0 0;
+			font-family: "ProximaNovaLight","Helvetica Neue",Helvetica,Arial,sans-serif;
+			.label_email {
+				width: 500px;
+				color: #999;
+				opacity: 1.0;
+				background: #fff;
+				border: none;
+				margin: 0;
+				font-size: 15px;
+				line-height: 17px;
+				padding: 16px 15px 14px;
+				position: absolute;
+				z-index: 10;
+				cursor: text;
+				overflow: hidden;
+				border-radius: 1px;
+			}
+			.field_email {
+				width: 500px;
+				margin: 0;
+				font-size: 15px;
+				padding: 15px 15px 13px;
+				border: 1px solid #ccc;
+				position: relative;
+				z-index: 20;
+				border-radius: 1px;
+			}
+			.control-group {margin:0px;}
+			
+		}
+		.preReg_button {
+			width: 217px;
+			padding: 14px 0 15px;
+			background: #006dcc;
+			color: #fff;
+			font-size: 16px;
+			text-shadow: 0 1px 1px #486a08;
+			border-radius: 1px;
+			border: 1px solid #002a80;
+			cursor: pointer;
+			-webkit-appearance: none;
+		}
+		h3 {color: #006dcc;}
+	}
+}
+.info_wrapper {
+	width:100%;
+	margin-top:20px;
+	header h2 {color:#006dcc;margin-bottom:20px}
+	.hpw_1, .hpw_2, .hpw_3 {
+		vertical-align: top;
+		line-height: 30px;
+		display: inline-block;
+		height: 200px;
+		font-size: 20px;
+		color: #333;
+		text-align: center;
+		background-repeat: no-repeat;
+		background-position:center top;
+		padding-top: 180px;
+		h3 {
+			font-size: 50px;color:#006dcc;
+			}
+		.blurb {
+			width: 170px;
+			margin: 0 auto;
+			font-weight: bold;
+			
+		}
+	}
+	.hpw_1 {background-image: url('/img/home_hpw_1.png');}
+	.hpw_2 {background-image: url('/img/home_hpw_2.png');}
+	.hpw_3 {background-image: url('/img/home_hpw_3.png');}
+	.arrow {
+		margin-top:76px;
+		height:33px;
+	    text-indent: -9000px;
+		background-image: url('/img/home_hpw_arrow.gif');
+		background-repeat: no-repeat;
+		background-position:center top;
+	}
+
 }
 
 /*/////////////////////////////////////////////////*/

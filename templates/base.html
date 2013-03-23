@@ -118,36 +118,38 @@
 		<div class="marginBottom15 mediaPanelSmall">
 			<div class="container nomargin">
 		    <div class='row'>
-			<div class='span3'>
-				<a href="/"><div class="logo_small marginTop15">{{ app_name }}</div></a>
-			</div>
-			<div class='span7'>
-				{% block small_logo %}
-						<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
-							<fieldset>
-								<div>
-									
-									<input type="hidden" name="exception" value="{{ exception }}">
-									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-									<select id="category" name="category" class='span2 marginTop10'>
-										<option value="">Any Category</option>
-										{% for cat in cat_info %}
-											{% if cat.0 == pcategory %}
-												<option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
-											{% else %}
-												<option value="{{cat.0}}">{{cat.1}}</option>
-											{% endif %}
-										{% endfor %}
-									</select>
-									<div class='input-append'>
-										<input type="text" id="query" name="query" class="span4 marginTop10"  value="{{base_pquery}}" placeholder="Search"/>
-										<button id='productSearchFormButton' type="submit" class="btn marginTop10">&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;</button>
-									</div>
+			{% block small_logo %}
+				<div class='span3'>
+					<a href="/"><div class="logo_small marginTop10">{{ app_name }}</div></a>
+				</div>
+				<div class='span7'>
+					{% if user_id %}
+					<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
+						<fieldset>
+							<div>
+								<input type="hidden" name="exception" value="{{ exception }}">
+								<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<select id="category" name="category" class='span2 marginTop10'>
+									<option value="">Any Category</option>
+									{% for cat in cat_info %}
+										{% if cat.0 == pcategory %}
+											<option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
+										{% else %}
+											<option value="{{cat.0}}">{{cat.1}}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+								<div class='input-append'>
+									<input type="text" id="query" name="query" class="span4 marginTop10"  value="{{base_pquery}}" placeholder="Search"/>
+									<button id='productSearchFormButton' type="submit" class="btn marginTop10">&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;</button>
 								</div>
-							</fieldset>
-						</form>
-				{% endblock %}
-			</div>
+							</div>
+						</fieldset>
+					</form>
+					{% endif %}
+				</div>
+			{% endblock %}
+			
 			<div class='span2'>
 				{% if user_id %}
 					<div class='marginTop10'>
