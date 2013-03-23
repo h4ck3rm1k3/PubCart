@@ -13,6 +13,11 @@ from boilerplate.models import User
 
 class User(User):
 	paypal_email = ndb.StringProperty(default=None)
+
+class EmailLeads(ndb.Model):
+	email = ndb.StringProperty(required=True)
+	notified = ndb.BooleanProperty(default=False)
+	ip = ndb.StringProperty(required=True)
 	
 class Address(ndb.Model):
 	uk = ndb.KeyProperty(kind=User) ##: User Model Key
