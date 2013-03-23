@@ -82,7 +82,7 @@ config = {
 
 # Enable Federated login (OpenID and OAuth)
 # Google App Engine Settings must be set to Authentication Options: Federated Login
-'enable_federated_login' : True,
+'enable_federated_login' : False,
 
 # jinja2 base layout template
 'base_layout' : 'base.html',

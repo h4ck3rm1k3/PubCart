@@ -42,19 +42,6 @@
 				<div class="nav-collapse">
 					<div class='container'>
 					<ul class="nav pull-left">
-						<li>
-							<a href="{{uri_for('discoverProducts')}}" class="">Discover Products.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{uri_for('discoverCarts')}}" class="">Discover Carts.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{uri_for('createCart')}}" class="">Create Cart.</a>
-						</li>
-					</ul>
-					<ul class="nav pull-right">
 						{% if not user_id %}
 						<li class="divider-vertical"></li>
 						<li>
@@ -68,7 +55,21 @@
 						<li>
 							<a href="#" class="">About Us.</a>
 						</li>
+						{% else %}
+						<li>
+							<a href="{{uri_for('discoverProducts')}}" class="">Discover Products.</a>
+						</li>
+						<li class="divider-vertical"></li>
+						<li>
+							<a href="{{uri_for('discoverCarts')}}" class="">Discover Carts.</a>
+						</li>
+						<li class="divider-vertical"></li>
+						<li>
+							<a href="{{uri_for('createCart')}}" class="">Create Cart.</a>
+						</li>
 						{% endif %}
+					</ul>
+					<ul class="nav pull-right">
 						{% if user_id %}
 
 						<li class="divider-vertical"></li>
@@ -91,39 +92,21 @@
 						{% elif path != "/" and path != "/login/" %}
 						<li class="divider-vertical"></li>
 						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans %}Login.{% endtrans %} <b class="caret"></b></a>
-							<div class="dropdown-menu well">
-								<form id="form_login_user" action="{{ uri_for('login') }}" method="post" class="auth-at-dropdown">
-									<fieldset>
-										<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-										<div class="control-group">
-											<label class="control-label" for="l_username">{% trans %}Username or Email.{% endtrans %}:</label>
-											<div class="controls">
-												<input class="input-xlarge focused required" id="l_username" name="username" type="text" value="">
-											</div>
-										</div>
-										<div class="control-group">
-											<label class="control-label" for="l_password">{% trans %}Password.{% endtrans %}:</label>
-											<div class="controls">
-												<input class="input-xlarge focused required" id="l_password" name="password" type="password" value="">
-											</div>
-										</div>
-										<div class="control-group row-fluid">
-											<label class="checkbox span7">
-												<input type="checkbox" name="remember_me" id="remember_me" value="on">
-												{% trans %}Remember me?{% endtrans %}
-											</label>
-											<div class="span5">
-												<button type="submit" class="btn btn-primary btn-small btn-login">{% trans %}Login.{% endtrans %}</button>
-											</div>
-										</div>
-										<div class="control-group">
-											<a href="{{ uri_for('password-reset') }}">{% trans %}Forgot your password?{% endtrans %}</a>
-										</div>
-										{{ macros.federated_login(provider_info, provider_uris, enable_federated_login) }}
-									</fieldset>
-								</form>
-							</div>
+							<form class="form-inline nomargin_form" action="{{ uri_for('login') }}" method="POST">
+								<fieldset>
+									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+									<input type="text" class="input-small span2" placeholder="Email or Username" id="l_username" name="username" >
+									<input type="password" class="input-small span2" placeholder="Password" id="l_password" name="password" >
+
+									<button type="submit" class="btn loginbtn_top">{% trans %}Login.{% endtrans %}</button>
+									<label class="checkbox onblack">
+										<input type="checkbox" name="remember_me" id="remember_me" value="on"> {% trans %}Remember me?{% endtrans %}
+										<br/>
+										<a href="{{ uri_for('password-reset') }}" class='halfsizeText'>{% trans %}Forgot password?{% endtrans %}</a>
+										
+									</label>
+								</fieldset>
+							</form>
 						</li>
 						{% endif %}
 					</ul>
@@ -135,12 +118,15 @@
 		<div class="marginBottom15 mediaPanelSmall">
 			<div class="container nomargin">
 		    <div class='row'>
-			<div class='span9'>
+			<div class='span3'>
+				<a href="/"><div class="logo_small marginTop15">{{ app_name }}</div></a>
+			</div>
+			<div class='span7'>
 				{% block small_logo %}
 						<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
 							<fieldset>
 								<div>
-									<a href="/" class='marginRight25'><div class="logo_small">{{ app_name }}</div></a>
+									
 									<input type="hidden" name="exception" value="{{ exception }}">
 									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 									<select id="category" name="category" class='span2 marginTop10'>
@@ -162,7 +148,7 @@
 						</form>
 				{% endblock %}
 			</div>
-			<div class='span3'>
+			<div class='span2'>
 				{% if user_id %}
 					<div class='marginTop10'>
 						<div id='sidebarToggleButtons' class="btn-group">

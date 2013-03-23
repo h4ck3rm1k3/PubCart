@@ -27,13 +27,12 @@ import forms as forms
 from models import shoppingModels, userModels
 from lib import bestPrice, utils
 from lib.livecount import counter
-from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
+from lib.bourneehandler import RegisterBaseHandler, BournEEHandler, user_required
 from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
 
 ##:	 Boilerplate Imports
 from boilerplate import models
-from boilerplate.lib.basehandler import user_required
 from boilerplate.lib.basehandler import BaseHandler
 
 

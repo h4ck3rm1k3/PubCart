@@ -14,7 +14,34 @@ from lib import paypal_settings as settings
 from lib import paypal
 from lib import utils
 
+def user_required(handler):
+	"""
+		 Decorator for checking if there's a user associated
+		 with the current session.
+		 Will also fail if there's no session present.
+	"""
 
+	def check_login(self, *args, **kwargs):
+		"""
+			If handler has no login_url specified invoke a 403 error
+		"""
+		try:
+			auth = self.auth.get_user_by_session()
+			if not auth:
+				try:
+					self.auth_config['login_url'] = self.uri_for('register', continue_url=self.request.path)
+					self.redirect(self.auth_config['login_url'], abort=True)
+				except (AttributeError, KeyError), e:
+					self.abort(403)
+			else:
+				return handler(self, *args, **kwargs)
+		except AttributeError, e:
+			# avoid AttributeError when the session was delete from the server
+			logging.error(e)
+			self.auth.unset_session()
+			self.redirect_to('home')
+
+	return check_login
 
 
 class BournEEHandler(BaseHandler):

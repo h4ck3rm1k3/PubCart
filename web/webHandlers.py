@@ -29,14 +29,13 @@ from models import shoppingModels, userModels
 from lib import bestPrice
 from lib import utils
 from lib.utils import dollar_float
-from lib.bourneehandler import RegisterBaseHandler, BournEEHandler
+from lib.bourneehandler import RegisterBaseHandler, BournEEHandler, user_required
 from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
 from lib.livecount.counter import LivecountCounter
 
 ##:	 Boilerplate Imports
 from boilerplate import models
-from boilerplate.lib.basehandler import user_required
 from boilerplate.lib.basehandler import BaseHandler
 
 
@@ -44,7 +43,7 @@ class HomeRequestHandler(RegisterBaseHandler):
 	"""
 	Handler to show the home page
 	"""
-
+	@user_required
 	def get(self):
 		""" Returns a simple HTML form for home """
 		try:

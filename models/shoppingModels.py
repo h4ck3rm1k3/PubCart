@@ -19,7 +19,7 @@ import logging
 from lib import utils
 from lib import searchCategories
 from lib import searchDocument
-from models.userModels import User, Seller
+from userModels import User, Seller
 
 
 
