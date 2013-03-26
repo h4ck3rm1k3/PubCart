@@ -17,9 +17,9 @@ class User(User):
     # Not used by OpenID
     username = ndb.StringProperty()
     #: User Name
-    name = ndb.StringProperty()
+    fname = ndb.StringProperty()
     #: User Last Name
-    last_name = ndb.StringProperty()
+    lname = ndb.StringProperty()
     #: User email
     email = ndb.StringProperty()
     #: Hashed password. Only set for own authentication.
@@ -29,7 +29,7 @@ class User(User):
     #: User Country
     country = ndb.StringProperty()
     #: Account activation verifies email
-    activated = ndb.BooleanProperty(default=False)
+    activated = ndb.BooleanProperty(default=True)
     
     @classmethod
     def get_by_email(cls, email):

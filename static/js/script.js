@@ -102,11 +102,9 @@ $(document).ready(function() {
 	$('#fcAddProductButton').click(toggleAddProductForm);
 	
 	// Initiaize the tooltips
-	$('#toggleCart').tooltip();
 	$('#toggleWatchlist').tooltip();
 	$('#togglePublicCarts').tooltip();
-	$('#toggleMMOrders').tooltip();
-	$('#toggleLimitOrders').tooltip();
+	$('#togglePaidTabs').tooltip();
 	$('#toggleAlerts').tooltip();
 	$('#moreOptionsButton').tooltip();
 	for (var i=0; i<3; i++)

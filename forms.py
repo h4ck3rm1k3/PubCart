@@ -15,13 +15,10 @@ FIELD_MAXLENGTH = 50 # intended to stop maliciously long input
 FIELD_MAXLENGTH_KEY = 500 # intended to stop maliciously long urlsafe Key input
 
 def base_categories():
-	logging.info('here')
 	CATEGORIES = [("", "Choose Category...")]
 	cats = categoryModels.Category.getCategoryInfo()
-	logging.info('cats: {}'.format(cats))
 	if not cats: CATEGORIES = [("", "Choose Category..."),('ELECTRONICS', 'electronics')]
 	else: CATEGORIES.extend(cats)
-	logging.info('CATEGORIES: {}'.format(CATEGORIES))
 	return CATEGORIES
 	
 class FormTranslations(object):
@@ -39,25 +36,31 @@ class BaseForm(Form):
     def _get_translations(self):
         return FormTranslations()
 
+class FullNameForm(BaseForm):
+	n = fields.TextField(_('Full Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), validators.regexp(utils.PERSONALNAME_REGEXP, message=_('First Name invalid. Use only letters'))])
+	
 class PreRegisterForm(BaseForm):
 	email = fields.TextField(_('Email'), [validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.')), validators.Required()])
 
 class IntimatesRegisterForm(BaseForm):
+	email = fields.TextField(_('Email'), [validators.Required()])
 	username = fields.TextField(_('Username'), [validators.Length(max=FIELD_MAXLENGTH)])
 	password = fields.TextField(_('Password'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	c_password = fields.TextField(_('Confirm Password'), [validators.Required(), validators.EqualTo('password', _('Passwords must match.')), validators.Length(max=FIELD_MAXLENGTH)])
-	
+
+
 class AddAddressForm(BaseForm):
 	uk = fields.TextField(_(''), [validators.Required()])
-	adn = fields.TextField(_('Address Ref. Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Address Reference Name invalid. Use only letters and numbers.'))])
-	ad1 = fields.TextField(_('Address'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
-	ad2 = fields.TextField(_('Address2'), [validators.Length(max=FIELD_MAXLENGTH)])
+	ad = fields.TextField(_('Address'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	s = fields.TextField(_('State/province'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	c = fields.TextField(_('City'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	z = fields.TextField(_('Zip / Postal Code'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
+	pn = fields.IntegerField(_('Phone Number'), [validators.Required()])
 	con = fields.SelectField(_('Country'), choices=utils.COUNTRIES)
     
-
+class RegisterAddressForm(AddAddressForm, FullNameForm):
+	pass
+	
 class ProductSearchForm(BaseForm):
 	CATEGORIES = base_categories()
 	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)

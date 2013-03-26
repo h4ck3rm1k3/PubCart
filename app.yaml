@@ -77,7 +77,7 @@ handlers:
   mime_type: text/javascript
   static_dir: static/js
 
-- url: /img/(.*\.(gif|png|jpg))
+- url: /img/(.*\.(gif|png|jpg|jpeg))
   static_files: static/img/\1
   upload: static/img/(.*\.(gif|png|jpg))
   

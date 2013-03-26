@@ -222,6 +222,8 @@ def is_email_valid(email):
 	return 0
 
 ALPHANUMERIC_REGEXP = "^\w+$"
+PERSONALNAME_REGEXP = "^[a-zA-Z\\-\\'\s]+$"
+
 
 def is_alphanumeric(field):
 	if re.match(ALPHANUMERIC_REGEXP, field) is not None:

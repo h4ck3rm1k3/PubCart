@@ -428,7 +428,7 @@ span.label-block {
 	border: 0;
 	.header1 {
 		margin-bottom: 30px;
-		margin-top: 160px;
+		margin-top: 80px;
 		font-size: 48px;
 		color: #000;
 		line-height: 50px;
@@ -438,7 +438,7 @@ span.label-block {
 		}
 	}
 	.header2 {
-		margin-bottom: 100px;
+		margin-bottom: 60px;
 		font-size: 26px;
 		line-height: 38px;
 		color: #000;
@@ -458,7 +458,7 @@ span.label-block {
 			float: left;
 			text-align: left!important;
 			position: relative;
-			margin: 1px 15px 0 0;
+			margin: 1px auto;
 			font-family: "ProximaNovaLight","Helvetica Neue",Helvetica,Arial,sans-serif;
 			.label_reg_form {
 				width: 500px;
@@ -477,6 +477,7 @@ span.label-block {
 				border-radius: 1px;
 			}
 			.label_small { width:195px}
+			.label_medium { width:460px}
 			
 			.field_reg_form {
 				width: 500px;
@@ -488,7 +489,15 @@ span.label-block {
 				z-index: 20;
 				border-radius: 1px;
 			}
-			.field_small { width:195px}
+			select.field_small {width:228px;height:50px;border-radius: 0px;}
+			.field_small {
+				width:195px;
+				
+			}
+			.field_medium {
+				width:423px;
+			}
+			.controls {margin:0px;}
 			.control-group {margin:0px;}
 			
 		}
@@ -504,9 +513,39 @@ span.label-block {
 			cursor: pointer;
 			-webkit-appearance: none;
 		}
+		.preReg_button_grey {
+			background: #999;
+		}
+		.preReg_link_to_button {
+			width: 217px;
+			padding: 14px 20px 15px 20px;
+			background: #006dcc;
+			color: #fff;
+			font-size: 16px;
+			text-shadow: 0 1px 1px #486a08;
+			text-decoration: none;
+			border-radius: 1px;
+			border: 1px solid #002a80;
+			cursor: pointer;
+			-webkit-appearance: none;
+		}
 		h3 {color: #006dcc;}
+		.appicon {
+			display:block-inline;
+			width:50%;
+			float:left;
+		}
+		.share_buttons_wrapper {
+			height:30px;
+		}
+		.link_button_wrapper {
+			height:50px;
+			padding-top:35px;
+		}
 	}
 	.wrapper_box_wide {width: 950px;
+	}
+	.wrapper_box_small {width: 455px;
 	}
 }
 .info_wrapper {
@@ -546,6 +585,29 @@ span.label-block {
 		background-position:center top;
 	}
 
+}
+
+/*/////////////////////////////////////////////////*/
+/*///////  SIDEBAR TAB SECTION ///////*/
+/*/////////////////////////////////////////////////*/
+
+.white_wrapper_box {
+	margin: 0 auto;
+	width: 160px;
+	height:500px;
+	padding: 5px;
+	margin-bottom: 30px !important;
+	background: #fff;
+	border-radius: 1px;
+	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	h1 {
+		line-height: 18px;
+		font-size: 14px;
+		color: #333;
+		text-align: center;
+	}
 }
 
 /*/////////////////////////////////////////////////*/

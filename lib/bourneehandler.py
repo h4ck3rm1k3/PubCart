@@ -4,6 +4,7 @@ import webapp2
 import logging
 import datetime
 import forms as forms
+from webapp2_extras.i18n import gettext as _
 
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
@@ -34,6 +35,15 @@ def user_required(handler):
 				except (AttributeError, KeyError), e:
 					self.abort(403)
 			else:
+				address = userModels.Address.query(userModels.Address.is_default==True,ancestor=self.user_key).get()
+				if not address:
+					try:
+						message = _('Sorry, we dont have a default address for you yet. Could you please fill in this form.')
+						self.add_message(message, 'error')
+						self.redirect_to('addressRegister', uk=self.user_key.urlsafe())
+					except (AttributeError, KeyError), e:
+						pass
+
 				return handler(self, *args, **kwargs)
 		except AttributeError, e:
 			# avoid AttributeError when the session was delete from the server

@@ -154,15 +154,15 @@
 				{% if user_id %}
 					<div class='marginTop10'>
 						<div id='sidebarToggleButtons' class="btn-group">
-							<button id='toggleCartButton{% if not defaultCartItems %}_disabled{% endif %}' class="btn {% if not defaultCartItems or defaultCart.key.urlsafe() in path %} disabled {% endif %}" >
-								<span id='toggleCart' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not defaultCartItems %} No&nbsp;{% endif %}Default Private Cart">
-									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
+							<button id='togglePaidTabsButton{% if not publicCarts %}_disabled{% endif %}' class="btn {% if not publicCarts %} disabled {% endif %}" >
+								<span id='togglePaidTabs' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not publicCarts %} No&nbsp;{% endif %}Paid Tabs">
+									&nbsp;<i class="icon-list-alt"></i>&nbsp;
 								</span>
 							</button>
-
+							
 							<button id='togglePublicCartsButton{% if not publicCarts %}_disabled{% endif %}' class="btn {% if not publicCarts %} disabled {% endif %}" >
-								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not publicCarts %} No&nbsp;{% endif %}Public Carts">
-									&nbsp;<i class=" icon-globe"></i>&nbsp;
+								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not allCarts %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
+									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
 								</span>
 							</button>
 
@@ -172,23 +172,6 @@
 								</span>
 							</button>
 
-							<button id='toggleMMOrdersButton{% if not marketMakerPos %}_disabled{% endif %}' class="btn {% if not marketMakerPos %} disabled {% endif %}" rel="tooltip">
-								<span id='toggleMMOrders' class='fillButton' data-placement='bottom' rel="tooltip" title="{% if not marketMakerPos %} No&nbsp;{% endif %}Positions">
-									&nbsp;<i class="icon-retweet"></i>&nbsp;
-								</span>
-							</button>
-
-							<button id='toggleLimitOrdersButton{% if not limitOrders %}_disabled{% endif %}' class="btn {% if not limitOrders %} disabled {% endif %}">
-								<span id='toggleLimitOrders' class='fillButton' data-placement='bottom' rel="tooltip" title="{% if not limitOrders %} No&nbsp;{% endif %}Limit Orders">
-									&nbsp;<i class="icon-screenshot"></i>&nbsp;
-								</span>
-							</button>
-
-							<button id='toggleAlertsButton{% if not alerts %}_disabled{% endif %}' class="btn {% if not alerts %} disabled {% endif %}" >
-								<span id='toggleAlerts' class='fillButton' data-placement='bottom' rel="tooltip" title="{% if not alerts %} No&nbsp;{% endif %}Alerts">
-									&nbsp;<i class="icon-bell"></i>&nbsp;
-								</span>
-							</button>
 
 						</div>
 					</div>
