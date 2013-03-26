@@ -19,12 +19,15 @@ secure_scheme = 'https'
 
 _routes = [
 	RedirectRoute('/', webHandlers.HomeRequestHandler, name='home', strict_slash=True),
+	RedirectRoute('/login', webHandlers.LoginRequestHandler, name='login', methods=['GET','POST'], strict_slash=True),
 
 	RedirectRoute('/r', registrationHandlers.SoftRegisterRequestHandler, name='softRegister', methods=['GET', 'POST'], strict_slash=True),
 	RedirectRoute('/id/<ek>', registrationHandlers.IntimateRegisterRequestHandler, name='intimateRegister', methods=['GET', 'POST'], strict_slash=True),
 	RedirectRoute('/adr/<uk>', registrationHandlers.AddressRegisterRequestHandler, name='addressRegister', methods=['GET', 'POST'], strict_slash=True),
 	RedirectRoute('/sh', registrationHandlers.ShareRegisterRequestHandler, name='shareRegister', methods=['GET'], strict_slash=True),
 	RedirectRoute('/ap', registrationHandlers.AppsRegisterRequestHandler, name='appRecommendRegister', methods=['GET'], strict_slash=True),
+	
+	
 	
 	RedirectRoute('/addaddress', webHandlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
 

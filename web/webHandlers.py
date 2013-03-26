@@ -62,6 +62,139 @@ class HomeRequestHandler(BournEEHandler):
 			self.bournee_template('home.html', **params)
 
 
+class LoginRequestHandler(RegisterBaseHandler):
+	"""
+	Handler for authentication
+	"""
+
+	def get(self):
+		""" Returns a simple HTML form for login """
+
+		if self.user:
+			self.redirect_to('home')
+		params = {'form':self.form,}
+		return self.render_template('login.html', **params)
+
+	def post(self):
+		"""
+		username: Get the username from POST dict
+		password: Get the password from POST dict
+		"""
+
+		if not self.form.validate():
+			return self.get()
+		username = self.form.username.data.lower()
+		continue_url = self.request.get('continue_url').encode('ascii', 'ignore')
+
+		try:
+			if utils.is_email_valid(username):
+				user = models.User.get_by_email(username)
+				if user:
+					auth_id = user.auth_ids[0]
+				else:
+					raise InvalidAuthIdError
+			else:
+				auth_id = "own:%s" % username
+				user = models.User.get_by_auth_id(auth_id)
+
+			password = self.form.password.data.strip()
+			remember_me = True if str(self.request.POST.get('remember_me')) == 'on' else False
+
+			# Password to SHA512
+			password = utils.hashing(password, self.app.config.get('salt'))
+
+			# Try to login user with password
+			# Raises InvalidAuthIdError if user is not found
+			# Raises InvalidPasswordError if provided password
+			# doesn't match with specified user
+			self.auth.get_user_by_password(
+				auth_id, password, remember=remember_me)
+
+			# if user account is not activated, logout and redirect to home
+			if (user.activated == False):
+				# logout
+				self.auth.unset_session()
+
+				# redirect to home with error message
+				resend_email_uri = self.uri_for('resend-account-activation', user_id=user.get_id(),
+												token=models.User.create_resend_token(user.get_id()))
+				message = _('Your account has not yet been activated. Please check your email to activate it or') +\
+						  ' <a href="'+resend_email_uri+'">' + _('click here') + '</a> ' + _('to resend the email.')
+				self.add_message(message, 'error')
+				return self.redirect_to('home')
+
+			# check twitter association in session
+			twitter_helper = twitter.TwitterAuth(self)
+			twitter_association_data = twitter_helper.get_association_data()
+			if twitter_association_data is not None:
+				if models.SocialUser.check_unique(user.key, 'twitter', str(twitter_association_data['id'])):
+					social_user = models.SocialUser(
+						user = user.key,
+						provider = 'twitter',
+						uid = str(twitter_association_data['id']),
+						extra_data = twitter_association_data
+					)
+					social_user.put()
+
+			# check facebook association
+			fb_data = None
+			try:
+				fb_data = json.loads(self.session['facebook'])
+			except:
+				pass
+
+			if fb_data is not None:
+				if models.SocialUser.check_unique(user.key, 'facebook', str(fb_data['id'])):
+					social_user = models.SocialUser(
+						user = user.key,
+						provider = 'facebook',
+						uid = str(fb_data['id']),
+						extra_data = fb_data
+					)
+					social_user.put()
+
+			# check linkedin association
+			li_data = None
+			try:
+				li_data = json.loads(self.session['linkedin'])
+			except:
+				pass
+			if li_data is not None:
+				if models.SocialUser.check_unique(user.key, 'linkedin', str(li_data['id'])):
+					social_user = models.SocialUser(
+						user = user.key,
+						provider = 'linkedin',
+						uid = str(li_data['id']),
+						extra_data = li_data
+					)
+					social_user.put()
+
+			# end linkedin
+
+			logVisit = models.LogVisit(
+				user=user.key,
+				uastring=self.request.user_agent,
+				ip=self.request.remote_addr,
+				timestamp=utils.get_date_time()
+			)
+			logVisit.put()
+			if continue_url:
+				self.redirect(continue_url)
+			else:
+				self.redirect_to('home')
+		except (InvalidAuthIdError, InvalidPasswordError), e:
+			# Returns error message to self.response.write in
+			# the BaseHandler.dispatcher
+			message = _("Your username or password is incorrect. "
+						"Please try again (make sure your caps lock is off)")
+			self.add_message(message, 'error')
+			self.redirect_to('login', continue_url=continue_url) if continue_url else self.redirect_to('login')
+
+	@webapp2.cached_property
+	def form(self):
+		return forms.LoginForm(self)
+
+
 class FullPageWatchlistHandler(BournEEHandler):
 	"""
 	Handler to view full page of Watchlist items.
