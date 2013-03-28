@@ -39,8 +39,11 @@
 				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
 					<span class="icon-chevron-down icon"></span>
 				</button>
-				<div class="nav-collapse">
+				<div class="nav-collapse">					
 					<div class='container'>
+					<a href="/"><div class='home_icon'>
+						<i class="icon-home icon-white"></i>
+					</div></a>
 					<ul class="nav pull-left">
 						{% if not user_id %}
 						<li class="divider-vertical"></li>
@@ -68,7 +71,7 @@
 							<a href="{{uri_for('createCart')}}" class="">Create Cart.</a>
 						</li>
 						{% endif %}
-					</ul>
+					</ul>					
 					<ul class="nav pull-right">
 						{% if user_id %}
 
@@ -89,9 +92,8 @@
 								<li><a href="{{ logout_url }}">{% trans %}Logout.{% endtrans %}</a></li>
 							</ul>
 						</li>
-						{% elif path != "/" and path != "/login/" %}
-						<li class="divider-vertical"></li>
-						<li class="dropdown">
+						{% elif path != "/login/" %}
+						<li>
 							<form class="form-inline nomargin_form" action="{{ uri_for('login') }}" method="POST">
 								<fieldset>
 									<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">

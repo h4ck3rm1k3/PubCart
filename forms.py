@@ -22,19 +22,23 @@ def base_categories():
 	return CATEGORIES
 	
 class FormTranslations(object):
-    def gettext(self, string):
-        return gettext(string)
+	def gettext(self, string):
+		return gettext(string)
 
-    def ngettext(self, singular, plural, n):
-        return ngettext(singular, plural, n)
+	def ngettext(self, singular, plural, n):
+		return ngettext(singular, plural, n)
 
 
 class BaseForm(Form):
-    
-    def __init__(self, request_handler):
+	
+	def __init__(self, request_handler):
 		super(BaseForm, self).__init__(request_handler.request.POST)
-    def _get_translations(self):
-        return FormTranslations()
+	def _get_translations(self):
+		return FormTranslations()
+
+class LoginForm(BaseForm):
+	password = fields.TextField(_('Password'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)], id='l_password')
+	username = fields.TextField(_('Username'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)], id='l_username')
 
 class FullNameForm(BaseForm):
 	n = fields.TextField(_('Full Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), validators.regexp(utils.PERSONALNAME_REGEXP, message=_('First Name invalid. Use only letters'))])
@@ -57,7 +61,7 @@ class AddAddressForm(BaseForm):
 	z = fields.TextField(_('Zip / Postal Code'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	pn = fields.IntegerField(_('Phone Number'), [validators.Required()])
 	con = fields.SelectField(_('Country'), choices=utils.COUNTRIES)
-    
+	
 class RegisterAddressForm(AddAddressForm, FullNameForm):
 	pass
 	

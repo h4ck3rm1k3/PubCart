@@ -17,6 +17,8 @@ from datetime import datetime
 ##:	 Webapp2 Imports
 import webapp2
 from webapp2_extras.i18n import gettext as _
+from webapp2_extras.auth import InvalidAuthIdError, InvalidPasswordError
+
 
 ##:	 Google Imports
 from google.appengine.ext import ndb
@@ -69,10 +71,12 @@ class LoginRequestHandler(RegisterBaseHandler):
 
 	def get(self):
 		""" Returns a simple HTML form for login """
-
+		
 		if self.user:
 			self.redirect_to('home')
-		params = {'form':self.form,}
+		
+		logged_out = self.request.get('logged_out', None)
+		params = {'form':self.form,'logged_out':logged_out,}
 		return self.render_template('login.html', **params)
 
 	def post(self):
@@ -123,54 +127,6 @@ class LoginRequestHandler(RegisterBaseHandler):
 				self.add_message(message, 'error')
 				return self.redirect_to('home')
 
-			# check twitter association in session
-			twitter_helper = twitter.TwitterAuth(self)
-			twitter_association_data = twitter_helper.get_association_data()
-			if twitter_association_data is not None:
-				if models.SocialUser.check_unique(user.key, 'twitter', str(twitter_association_data['id'])):
-					social_user = models.SocialUser(
-						user = user.key,
-						provider = 'twitter',
-						uid = str(twitter_association_data['id']),
-						extra_data = twitter_association_data
-					)
-					social_user.put()
-
-			# check facebook association
-			fb_data = None
-			try:
-				fb_data = json.loads(self.session['facebook'])
-			except:
-				pass
-
-			if fb_data is not None:
-				if models.SocialUser.check_unique(user.key, 'facebook', str(fb_data['id'])):
-					social_user = models.SocialUser(
-						user = user.key,
-						provider = 'facebook',
-						uid = str(fb_data['id']),
-						extra_data = fb_data
-					)
-					social_user.put()
-
-			# check linkedin association
-			li_data = None
-			try:
-				li_data = json.loads(self.session['linkedin'])
-			except:
-				pass
-			if li_data is not None:
-				if models.SocialUser.check_unique(user.key, 'linkedin', str(li_data['id'])):
-					social_user = models.SocialUser(
-						user = user.key,
-						provider = 'linkedin',
-						uid = str(li_data['id']),
-						extra_data = li_data
-					)
-					social_user.put()
-
-			# end linkedin
-
 			logVisit = models.LogVisit(
 				user=user.key,
 				uastring=self.request.user_agent,
@@ -193,6 +149,30 @@ class LoginRequestHandler(RegisterBaseHandler):
 	@webapp2.cached_property
 	def form(self):
 		return forms.LoginForm(self)
+
+
+class LogoutRequestHandler(RegisterBaseHandler):
+	"""
+	Destroy user session and redirect to login
+	"""
+
+	def get(self):
+		try:
+			if self.user:
+				message = _("You've signed out successfully. Warning: If you logged in on a public computer, please clear all cookies.")
+				self.add_message(message, 'info')
+
+			self.auth.unset_session()
+			# User is logged out, let's try redirecting to login page
+			try:
+				self.redirect_to('login', logged_out=True)
+			except Exception, e:
+				logging.error("Error, User is logged out, but there was an error on the redirection.: %s" % e)
+				return self.redirect_to('softRegister')
+		except Exception as e:
+			logging.error("Error logging out: %s" % e)
+			return self.redirect_to('softRegister')
+
 
 
 class FullPageWatchlistHandler(BournEEHandler):
