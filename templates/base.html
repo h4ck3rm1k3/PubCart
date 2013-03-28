@@ -155,14 +155,14 @@
 			<div class='span2'>
 				{% if user_id %}
 					<div class='marginTop10'>
-						<div id='sidebarToggleButtons' class="btn-group">
-							<button id='togglePaidTabsButton{% if not publicCarts %}_disabled{% endif %}' class="btn {% if not publicCarts %} disabled {% endif %}" >
+						<div id='sidebarToggleButtons'>
+							<button id='togglePaidTabsButton{% if not publicCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not publicCarts %} disabled {% endif %}" >
 								<span id='togglePaidTabs' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not publicCarts %} No&nbsp;{% endif %}Paid Tabs">
 									&nbsp;<i class="icon-list-alt"></i>&nbsp;
 								</span>
 							</button>
 							
-							<button id='togglePublicCartsButton{% if not publicCarts %}_disabled{% endif %}' class="btn {% if not publicCarts %} disabled {% endif %}" >
+							<button id='togglePublicCartsButton{% if not publicCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not publicCarts %} disabled {% endif %}" >
 								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not allCarts %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
 									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
 								</span>
@@ -203,20 +203,24 @@
 			{% block footer %}
 			<footer class="global-footer">
 				<div class='container'>
-				    <nav class="footer-nav">
-				        <ul>
-				            <li data-analytics="footer for you"><a href="">For You.</a></li>
-				            <li data-analytics="footer for websties"><a href="">For Websites.</a></li>
-				            <li data-analytics="footer for sellers"><a href="">For Sellers.</a></li>
-				            <li data-analytics="footer about"><a href="">About.</a></li>
-				            <li data-analytics="footer docs"><a href="">Help.</a></li>
-				            <li data-analytics="footer blog"><a href="">Blog.</a></li>
-				            <li data-analytics="footer api"><a href="">API.</a></li>
-				            <li data-analytics="footer jobs"><a href="">Jobs.</a></li>
-				            <li data-analytics="footer terms"><a href="">Terms and Policies.</a></li>
-				        </ul>
-				        <span class="copyright">Copyright 2013 · <a href="/" class="PubCart page-active">{{app_name}}</a></span>
-				    </nav>
+					<div class='row'>
+						<div class='span10'>
+						    <nav class="footer-nav">
+						        <ul>
+						            <li data-analytics="footer for you"><a href="">For You.</a></li>
+						            <li data-analytics="footer for websties"><a href="">For Websites.</a></li>
+						            <li data-analytics="footer for sellers"><a href="">For Sellers.</a></li>
+						            <li data-analytics="footer about"><a href="">About.</a></li>
+						            <li data-analytics="footer docs"><a href="">Help.</a></li>
+						            <li data-analytics="footer blog"><a href="">Blog.</a></li>
+						            <li data-analytics="footer api"><a href="">API.</a></li>
+						            <li data-analytics="footer jobs"><a href="">Jobs.</a></li>
+						            <li data-analytics="footer terms"><a href="">Terms and Policies.</a></li>
+						        </ul>
+						        <span class="copyright">Copyright 2013 · <a href="/" class="PubCart page-active">{{app_name}}</a></span>
+						    </nav>
+						</div>
+					</div>
 				</div>
 			</footer>
 			{% endblock %}

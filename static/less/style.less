@@ -40,49 +40,6 @@ span.label-block {
 .product_demo_wrapper {
 	margin: -20px 35px 0 0;
 }
-.cart_demo_wrapper {
-	margin: -20px 0 0 0;
-}
-.product_demo_wrapper, .cart_demo_wrapper {
-	float:left;
-	z-index: 1;
-	position: relative;
-	overflow: hidden;
-	width: 396px;
-	padding: 40px 8px 0;
-	background: #eeeeef;
-	-webkit-border-radius: 14px 14px 0 0;
-	-moz-border-radius: 14px 14px 0 0;
-	border-radius: 14px 14px 0 0;
-	-webkit-box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
-	-moz-box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
-	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
-	-webkit-transition: all 1s;
-	-moz-transition: all 1s;
-	-ms-transition: all 1s;
-	-o-transition: all 1s;
-	transition: all 1s;
-	.inner {
-		z-index: 2;
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		-ms-box-sizing: content-box;
-		box-sizing: content-box;
-		height: 260px;
-		padding: 10px 10px 0 10px;
-		background: #ffffff;
-		-webkit-border-radius: 4px 4px 0 0;
-		-moz-border-radius: 4px 4px 0 0;
-		border-radius: 4px 4px 0 0;
-		overflow: hidden;
-	}
-	header h4 {
-		z-index: 2;
-		margin:-35px 0 8px 8px;
-		position: relative;
-		color: #525355;
-	}
-}
 
 .pushUp { 
 	margin-top:-19px;
@@ -286,18 +243,7 @@ span.label-block {
 .home_search {
 	margin-top:20px;
 }
-.info_section_shadow {
-	z-index:-1;
-	position:absolute;
-	top:572px;
-	left:0;
-	right:0;
-	margin-top:3px;
-	border-bottom: 1px solid #999;
-	-webkit-box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
-	-moz-box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
-	box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
-}
+
 .global-footer {
 	width: 100%;
 	margin: 0;
@@ -405,6 +351,7 @@ span.label-block {
 	font-size: 14px;
 	line-height: 14px;
 }
+
 /*/////////////////////////////////////////////////*/
 /*///////////  HOME PAGE NOT-LOGGED IN ////////////*/
 /*/////////////////////////////////////////////////*/
@@ -589,13 +536,75 @@ span.label-block {
 }
 
 /*/////////////////////////////////////////////////*/
+/*///////////  HOME PAGE LOGGED IN ////////////*/
+/*/////////////////////////////////////////////////*/
+
+.cart_demo_wrapper {
+	margin: -20px 0 0 0;
+}
+.product_demo_wrapper, .cart_demo_wrapper {
+	float:left;
+	z-index: 1;
+	position: relative;
+	overflow: hidden;
+	width: 450px;
+	padding: 40px 8px 0;
+	background: #eeeeef;
+	-webkit-border-radius: 14px 14px 0 0;
+	-moz-border-radius: 14px 14px 0 0;
+	border-radius: 14px 14px 0 0;
+	-webkit-box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
+	-moz-box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
+	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.45);
+	-webkit-transition: all 1s;
+	-moz-transition: all 1s;
+	-ms-transition: all 1s;
+	-o-transition: all 1s;
+	transition: all 1s;
+	.inner {
+		text-align: left;
+		z-index: 2;
+		-webkit-box-sizing: content-box;
+		-moz-box-sizing: content-box;
+		-ms-box-sizing: content-box;
+		box-sizing: content-box;
+		height: 436px;
+		padding: 10px 10px 0 10px;
+		background: #ffffff;
+		-webkit-border-radius: 4px 4px 0 0;
+		-moz-border-radius: 4px 4px 0 0;
+		border-radius: 4px 4px 0 0;
+		overflow: hidden;
+	}
+	header h4 {
+		z-index: 2;
+		margin:-35px 0 8px 8px;
+		position: relative;
+		color: #525355;
+	}
+}
+.info_section_shadow {
+	z-index:-1;
+	position:absolute;
+	top:865px;
+	left:0;
+	right:0;
+	margin-top:3px;
+	border-bottom: 1px solid #999;
+	-webkit-box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 -2px 3px 0px rgba(0, 0, 0, 0.25);
+}
+
+/*/////////////////////////////////////////////////*/
 /*///////  SIDEBAR TAB SECTION ///////*/
 /*/////////////////////////////////////////////////*/
 
-.white_wrapper_box {
-	margin: 0 auto;
+.white_wrapper_box_tab {
+	z-index:0;
+	margin: 15px auto;
 	width: 160px;
-	height:500px;
+	height:700px;
 	padding: 5px;
 	margin-bottom: 30px !important;
 	background: #fff;
@@ -606,10 +615,39 @@ span.label-block {
 	h1 {
 		line-height: 18px;
 		font-size: 14px;
-		color: #333;
+		color: #666;
 		text-align: center;
 	}
+	.preReg_button {
+		width: 160px;
+		margin: 0 auto;
+		padding: 10px 0 10px;
+		background: #006dcc;
+		color: #fff;
+		font-size: 16px;
+		text-shadow: 0 1px 1px #486a08;
+		border-radius: 1px;
+		border: 1px solid #002a80;
+		cursor: pointer;
+		-webkit-appearance: none;
+	}
 }
+ul.yourtab_content {
+	line-height: 12px;
+	font-size: 11px;
+	color: #999;
+	list-style: none;
+	margin: 0px;
+	padding:5px;
+	width:150px;
+	overflow:hidden;
+	li {width:150px;overflow:hidden}
+}
+p {
+	padding:5px;
+	color:#666;
+}
+
 
 /*/////////////////////////////////////////////////*/
 /*///////  MINI LAST VISITED PRODUCTs MACRO ///////*/
@@ -1119,6 +1157,12 @@ span.label-block {
 }
 .marginRight25 {
 	margin-right:25px;
+}
+.marginRight10 {
+	margin-right:10px;
+}
+.marginRight5 {
+	margin-right:5px;
 }
 .paddingTop5{
 	padding-top:5px;
