@@ -209,7 +209,7 @@ class FullPageCartHandler(RegisterBaseHandler):
 						owner of the cart, this is a must for Private Carts')
 
 
-			productOrders = shoppingModels.Order.get_for_cart(cart.key)
+			productOrders = shoppingModels.Order.get_for_parentKey(cart.key)
 			
 			createCart = self.request.get('create', None) ##: The create flag for showing the add Product Form at the top of the page
 			a = self.request.get('a', None) ##: Address urlsafe Key
@@ -350,7 +350,7 @@ class AddToCartHandler(BaseHandler):
 					raise Exception('No Cart returned, error creating Cart, in function POST of AddToCartHandler')
 
 				##: Check to see if user already created this Order within this Cart
-				currentOrder = shoppingModels.Order.get_for_product_and_cart(cart.key, str(productModel.pn))
+				currentOrder = shoppingModels.Order.get_for_product_and_parent(cart.key, str(productModel.pn))
 
 				##: Create or Update the Order Model
 				if currentOrder:
@@ -404,33 +404,34 @@ class DeleteOrderFromCartHandler(BaseHandler):
 			logging.info("deleteFromCart_form Form Was valid")
 			
 			##: Try to fetch the data from the Form responce
-			urlsafeCartKey = str(self.deleteFromCart_form.ck.data.strip()) ##: Urlsafe Key
-			urlsafeOrderKey = str(self.deleteFromCart_form.ok.data.strip()) ##: Urlsafe Key
+			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data).strip() ##: This will be a cart key
+			urlsafeOrderKey = str(self.deleteFromCart_form.ok.data).strip() ##: Urlsafe Key
 			orderSubTotal = self.deleteFromCart_form.ost.data
 
-			if urlsafeCartKey and urlsafeOrderKey:
-				cartKey = ndb.Key(urlsafe=urlsafeCartKey)
+			if urlsafeParentKey and urlsafeOrderKey:
+				cartKey = ndb.Key(urlsafe=urlsafeParentKey)
 				cart = cartKey.get()
 				if cart:
 					##: Convert orderKey back to Normal
 					orderKey = ndb.Key(urlsafe=urlsafeOrderKey)
 					if cart.key != orderKey.parent():
-						logging.error('The order being modified does not have a parent matching this cart')
+						logging.error('The order being modified does not have a parent matching this parent')
 						message = _('Your request could not be completed at this time. Please try again later.')
 						self.add_message(message, 'error')
 					elif cart.uk == self.user_key:
-						##: Updatte the Cart's subtotals
+						##: Update the Cart's subtotals
 						oldCartSubTotal = cart.st
 						newCartSubTotal = int(oldCartSubTotal) - int(orderSubTotal)
-						shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal)
-						
+						if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
+						shoppingModels.Cart.update_subtotal_values(newCartSubTotal, oldCartSubTotal)
+
 						orderKey.delete()
 
-						logging.info("We have removed the Order Item form the Cart and we Redirect to referrer")
-						message = _('We have removed the Order Item form the Cart')
+						logging.info("We have removed the Order Item form the parent and we Redirect to referrer")
+						message = _('We have removed the Order Item form the List')
 						self.add_message(message, 'success')
 					else:
-						logging.error("User Keys did not match between User and Cart Owner")
+						logging.error("User Keys did not match between User and parent Owner")
 						message = _('You do not appear to be the owner of this Cart. We can not complete request.')
 						self.add_message(message, 'error')
 				else:
@@ -475,17 +476,17 @@ class ChangeQuantityOfOrderHandler(BaseHandler):
 			newOrderSubTotal = 0
 			
 			##: Try to fetch the data from the Form responce
-			urlsafeCartKey = str(self.chgQntOfOrder_form.ck.data.strip())
+			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data.strip())
 			urlsafeOrderKey = str(self.chgQntOfOrder_form.ok.data.strip())
 			quantity = self.chgQntOfOrder_form.q.data
 			
-			if urlsafeCartKey and urlsafeOrderKey:
+			if urlsafeParentKey and urlsafeOrderKey:
 
 				##: Get the Cart to check ownership
-				cart = ndb.Key(urlsafe=urlsafeCartKey).get()
+				cart = ndb.Key(urlsafe=urlsafeParentKey).get()
 
 				if cart:
-					logging.info('Cart Found')
+					logging.info('Parent Model Found')
 
 					if cart.uk == self.user_key:
 						logging.info('User Keys Match')
@@ -501,19 +502,20 @@ class ChangeQuantityOfOrderHandler(BaseHandler):
 								order.update_order_new_qnt(order, quantity, put_model=False)
 								newOrderSubTotal = int(order.st)
 								
-								##: Work on Sub-totals
 								if int(oldOrderSubtotal) == int(newOrderSubTotal):
 									logging.info('The new Sub-Total is the same as the existing Sub-Total, so we do nothing.')
 								else:
 									logging.info('Quantities are different, so we update Order')
-									
+								
 									orderSubTotal = int(newOrderSubTotal) - int(oldOrderSubtotal)
 									oldCartSubTotal = cart.st
-									newCartSubTotal = oldCartSubTotal + orderSubTotal
-									shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal, put_model=False)
+									newCartSubTotal = int(oldCartSubTotal) + int(orderSubTotal)
+									if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
+									shoppingModels.Cart.update_subtotal_values(cart, newParentSubTotal, oldCartSubTotal, put_model=False)
 
-								##: Now we save both the Cart and the Order using put_multi()
-								ndb.put_multi( [cart, order] )
+								##: Now we save both the Tab (Parent) and the Order using put_multi()
+								ndb.put_multi( [parent, order] )
+
 
 								##: All Done
 								logging.info("We have updated the Order Quantity and we Redirect to referrer thru <finally:> block")
@@ -712,7 +714,7 @@ class MakeCartPublicHandler(BournEEHandler):
 
 					logging.info("entitiesToPut: {}".format(entitiesToPut))
 
-					orderItems = shoppingModels.Order.get_for_cart(cart.key)
+					orderItems = shoppingModels.Order.get_for_parentKey(cart.key)
 					if orderItems:
 						forkedOrderKeyList = []
 						for orderItem in orderItems:
@@ -769,34 +771,6 @@ class MakeCartPublicHandler(BournEEHandler):
 	def forkCart_form(self):
 		return forms.ForkCartForm(self)
 
-class MakeCartDefaultFormHandler(BaseHandler):
-	@user_required
-	def post(self):
-		try:
-			if not self.makeCartDefault_form.validate():
-				raise Exception('MakeCartDefault Form was not valid')
-			logging.info("makeCartDefault_form Form Was valid")
-			
-			##: Try to fetch the data from the Form responce
-			urlsafeCartKey = str(self.makeCartDefault_form.ck.data).strip()
-			shoppingModels.Cart.update_default_cart(self.user_key, urlsafeCartKey)
-			
-			message = _('Default Cart has been changed.')
-			self.add_message(message, 'success')
-
-		except Exception as e:
-			logging.error("Error occurred running function POST of class MakeCartDefaultFormHandler: -- %s" % str(e))
-			message = _('There was an Error during form submission to make cart default. We can not complete request at this time. Please try again later')
-			self.add_message(message, 'error')
-		finally:
-			try:
-				self.redirect(self.request.referer)
-			except:
-				self.redirect_to('home')
-
-	@webapp2.cached_property
-	def makeCartDefault_form(self):
-		return forms.MakeCartDefaultForm(self)
 
 class DeleteCartHandler(BournEEHandler):
 	@user_required
@@ -824,7 +798,7 @@ class DeleteCartHandler(BournEEHandler):
 						entitiesToDelete.append(cartKey)
 						if cart.default:
 							shoppingModels.Cart.update_default_cart(self.user_key)
-						cartOrders = shoppingModels.Order.get_for_cart(cartKey)
+						cartOrders = shoppingModels.Order.get_for_parentKey(cartKey)
 						if cartOrders:
 							for order in cartOrders:
 								entitiesToDelete.append(order.key)
@@ -998,7 +972,7 @@ class ForkCartHandler(BournEEHandler):
 
 					entitiesToPut = [forkedCart]
 					
-					orderItems = shoppingModels.Order.get_for_cart(cart.key)
+					orderItems = shoppingModels.Order.get_for_parentKey(cart.key)
 					if orderItems:
 						forkedOrderKeyList = []
 						for orderItem in orderItems:

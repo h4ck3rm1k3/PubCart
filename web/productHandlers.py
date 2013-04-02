@@ -296,7 +296,7 @@ class GetProductFormHandler(BaseHandler):
 					raise Exception('cartModel was not found using the urlsafeCartKey given in the form.')
 
 				##: Check to see if user already created this Order within this Cart
-				currentOrder = shoppingModels.Order.get_for_product_and_cart(cartModel.key, str(productModel.pn))
+				currentOrder = shoppingModels.Order.get_for_product_and_parent(cartModel.key, str(productModel.pn))
 				newOrder = None
 				##: Create or Update the Order Model
 				if currentOrder:

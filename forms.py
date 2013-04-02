@@ -47,7 +47,6 @@ class PreRegisterForm(BaseForm):
 	email = fields.TextField(_('Email'), [validators.Length(min=7, max=FIELD_MAXLENGTH), validators.regexp(utils.EMAIL_REGEXP, message=_('Invalid email address.')), validators.Required()])
 
 class IntimatesRegisterForm(BaseForm):
-	email = fields.TextField(_('Email'), [validators.Required()])
 	username = fields.TextField(_('Username'), [validators.Length(max=FIELD_MAXLENGTH)])
 	password = fields.TextField(_('Password'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH)])
 	c_password = fields.TextField(_('Confirm Password'), [validators.Required(), validators.EqualTo('password', _('Passwords must match.')), validators.Length(max=FIELD_MAXLENGTH)])
@@ -124,17 +123,21 @@ class AddToCartForm(BaseForm):
 	lop = fields.FloatField(_('Limit Order Price'))
 	cn = fields.TextField(_('Cart Name'), [validators.Length(max=FIELD_MAXLENGTH)])
 
+class AddToTabForm(BaseForm):
+	pk = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+	uk = fields.TextField(_('User Number'), [validators.Length(max=FIELD_MAXLENGTH_KEY)])
+	q = fields.IntegerField(_('QNT'), [validators.Required()])
+
 class DeleteFromCartForm(BaseForm):
-	ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+	park = fields.TextField(_('Parent Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	ok = fields.TextField(_('Order Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	ost = fields.IntegerField(_('Order Sub Total'))
-	lo = fields.TextField(_('Limit Order'), [validators.Length(max=FIELD_MAXLENGTH)])
 
 class DeleteCartForm(BaseForm):
 	ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 
 class ChangeQntOfOrderForm(BaseForm):
-	ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+	park = fields.TextField(_('Parent Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	ok = fields.TextField(_('Order Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	q = fields.IntegerField(_('QNT'), [validators.Required()])
 

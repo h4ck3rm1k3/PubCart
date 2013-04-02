@@ -22,17 +22,6 @@
 			      <span class="caret"></span>
 			    </button>
 			    <ul class="dropdown-menu pull-right">
-					{% if not public and not cart.default %}
-						<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('makeCartDefault') }}" method="POST">
-							<fieldset>
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-								<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
-								<li><button type='submit'>Make Default</button></li>
-							</fieldset>
-						</form>
-						<li class="divider"></li>
-					{% endif %}
 			        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">View Cart</a></li>
 			        <li><a href="{{ uri_for('editCartDetails', urlsafeCartKey=cart.key.urlsafe()) }}">Edit Cart Details</a></li>
 			        <li><a href="{{ uri_for('forkCart', urlsafeCartKey=cart.key.urlsafe()) }}">Fork Cart</a></li>
@@ -94,19 +83,10 @@
 				<th class="span2">Published #</th>
 				<th class="span1"></th>
 	        </tr>
-			<tr class='info'>
-				<th colspan='6' class='header'>Default Private Cart</th>
-			</tr>
 	    </thead>
 		<tbody>
 		{% set iter = 0 %}
-			{% if publicCarts or privateCarts or defaultCart %}
-				{% if defaultCart %}
-				{% set iter = iter + 1 %}
-				{% set pre = '(Private)' %}
-				{{cart_widget(defaultCart, False, iter, pre)}}
-				{% endif %}
-			{% else %}
+			{% if not publicCarts and not privateCarts %}
 				<tr>
 					<td colspan='6'>
 						<div class="alert alert-info">

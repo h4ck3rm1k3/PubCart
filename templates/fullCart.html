@@ -239,7 +239,7 @@
 									            <input type="hidden" name="exception" value="{{ exception }}">
 									            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 												<input type="hidden" name="ok" value="{{order.key.urlsafe()}}">
-												<input type="hidden" name="ck" value="{{order.ck.urlsafe()}}">
+												<input type="hidden" name="park" value="{{order.key.parent().urlsafe()}}">
 												<input type="text" name="q" class="span1" value="{{order.q}}">
 												<button type='submit' class='btn btn-mini'>update</button>
 											</fieldset>
@@ -264,7 +264,7 @@
 							            <input type="hidden" name="exception" value="{{ exception }}">
 							            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 										<input type="hidden" name="ok" value="{{order.key.urlsafe()}}">
-										<input type="hidden" name="ck" value="{{order.ck.urlsafe()}}">
+										<input type="hidden" name="park" value="{{order.key.parent().urlsafe()}}">
 										<input type="hidden" name="ost" value="{{order.st}}">
 										<button class='btn btn-mini btn-block' type='submit' ><i class="icon-trash"></i></button>
 									</fieldset>
@@ -289,74 +289,7 @@
 					<td colspan='2'>{{cart.d_st}}</td>
 				</tr>
 				<tr>
-					<td colspan='5'><div class='pull-right'>Shipping / Fees.</div></td>
-					<td colspan='2'>{{cart.d_sh_fees}}</td>
-				</tr>
-				<tr>
-					<td colspan='5'><div class='pull-right'>Taxes.</div></td>
-					<td colspan='2'>{{cart.d_tx}}</td>
-				</tr>
-				<tr class='info'>
-					<td colspan='5'><div class='pull-right'>Grand Total.</div></td>
-					<td colspan='2'>{{cart.d_gt}}</td>
-				</tr>
-				<tr>
 					<td colspan='5' class='vaTop'>
-						<div>
-							<div><h4>Shipping address information.</h4></div>
-							<div id='showAddressWrapper'>
-								<div class="pull-left span4">
-									{% if userAddresses %}
-										{% if userAddresses|count > 0 %}
-										<form class='nomargin_form' method='GET'>
-											<fieldset>
-												<select class="marginTop10 span2" name='a'>
-													{% for addr in userAddresses %}
-													  <option value="{{addr.key.urlsafe()}}" {% if address %}{% if addr.adn == address.adn %}selected{% endif %}{% endif %}>{{addr.adn}}</option>
-													{% endfor %}
-												</select>
-												<button class='btn' type='submit' >set address.</button>
-											</fieldset>
-										</form>
-										{% endif %}
-									{% endif %}
-									<button id='toggleNewAddressFormButton' class='btn btn-block'>{% if userAddresses %}create new address.{% else %}Setup shipping address.{% endif %}</button>
-								</div>
-								<div class="pull-left span2">
-									{% if address %}
-										<div>
-											{{address.n}}<br/>
-											{{address.ad1}}<br/>
-											{% if address.ad2 %}{{address.ad2}}<br/>{% endif %}
-											{{address.c}}, {{address.s}}<br/>
-											{{address.con}} {{address.z}}<br/>
-										</div>
-									{% endif %}
-								</div>
-								<div class="clearfix"></div>
-							</div>
-							<div id='addAddressFormWrapper' style='display:none;'>
-								<div class='well well-small form-horizontal'>
-									<button id='toggleNewAddressFormX' style='margin-top:-4px'class="close">&times;</button>
-									<h4>Create Shipping Address.</h4>
-									<form class='nomargin_form' action="{{ uri_for('addAddress') }}" method='POST'>
-										<fieldset>
-								            <input type="hidden" name="exception" value="{{ exception }}">
-								            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-								            <input type="hidden" name="uk" value="{{ urlsafeUserKey }}">
-											{{ lib.field(addressForm.adn, class="span3", label=_("Address Ref Name")) }}
-											{{ lib.field(addressForm.ad1, class="span3", label=_("Address")) }}
-											{{ lib.field(addressForm.ad2, class="span3", label=_("Address2")) }}
-											{{ lib.field(addressForm.c, class="span3", label=_("City")) }}
-											{{ lib.field(addressForm.s, class="span3", label=_("State / Province")) }}
-											{{ lib.field(addressForm.con, class="span3", label=_("Country")) }}
-											{{ lib.field(addressForm.z, class="span3", label=_("Zip / Postal Code")) }}
-											<button class='btn btn-primary' type='submit' >create address.</button>
-										</fieldset>
-									</form>
-								</div>
-							</div>
-						</div>
 					</td>
 					<td colspan='2' class='vaTop'>
 						<center>
@@ -365,9 +298,9 @@
 					            <input type="hidden" name="exception" value="{{ exception }}">
 					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 								<input type="hidden" name="ck" value="{{urlsafeCartKey}}">
-								<input type="hidden" name="ogt" value="{{cart.gt}}">
+								<input type="hidden" name="ogt" value="">
 								<input type="text" name="coupon" placeholder='optional coupon'>
-								<button class='btn btn-primary btn-large btn-block' type='submit' ><strong>Check Out&nbsp;&nbsp;${{cart.d_gt}}</strong></button>
+								<button class='btn btn-primary btn-large btn-block' type='submit' ><strong>Check Out&nbsp;&nbsp;$</strong></button>
 							</fieldset>
 						</form>
 						<img src='https://www.paypalobjects.com/en_US/i/bnr/horizontal_solution_PP.gif' \>

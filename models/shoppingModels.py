@@ -30,7 +30,7 @@ def verify_cart_subtotals(urlsafeCartKey):
 	if cart:
 		oldSubTotal = cart.st
 		
-		cartOrders = Order.get_for_cart(cartKey)
+		cartOrders = Order.get_for_parentKey(cartKey)
 
 		if cartOrders:
 			if len(cartOrders) == 1:
@@ -374,29 +374,77 @@ class MarketMaker(ndb.Model):
 			logging.error("Error with query in function get_for_UserKey for Model class OrderItem")
 			return None
 
+class Tab(ndb.Model):
+	uk = ndb.KeyProperty(kind=User) ##: User Model Key
+
+	st = ndb.IntegerProperty(default=0) ##: Sub-Total (Cents)
+	
+	cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
+	ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
+	
+	pdd = ndb.DateTimeProperty(verbose_name='paid_datetime') ##: Paid Date time
+	pd = ndb.BooleanProperty(default=False) ##: Paid Boolean
+	sh = ndb.BooleanProperty(default=False) ##: Shipped Boolean
+	
+
+	@property
+	def num_items(cls):
+		return Order.query(ancestor=cls.key).count()
+
+	@staticmethod
+	def _write_properties_for_api():
+		return []
+
+	@staticmethod
+	def _read_properties_for_api():
+		# Example : return [u'd', u'pp', u'lp', u'q']
+		return []
+
+	@staticmethod
+	def get_or_create_tab(userKey):
+		try:
+			tab = Tab.query(Tab.pd==False, ancestor=userKey).get()
+			if tab:
+				return tab
+			else:
+				first, last = Tab.allocate_ids(1, parent=userKey)
+				keyName = first
+				tab = Tab()
+				tab.key = ndb.Key(Tab, keyName, parent=userKey)
+				tab.uk = userKey
+				tabKey = tab.put()
+				if tabKey: return tab
+			return None
+		except Exception as e:
+			logging.error("Error in function get_or_create_cart for Model class Cart: -- {}".format(e))
+			return None
+
+	@staticmethod
+	def update_subtotal_values(tab, newSubTotal, old_subtotal=0, put_model=True):
+		try:
+			tab.st = int(newSubTotal)
+			if int(old_subtotal) != int(tab.st):
+				if put_model:
+					tab.put()
+		except Exception as e:
+			logging.error("Error with function update_subtotal_values for Model class Cart: -- {}".format(e))
+
+
 
 class Cart(ndb.Model):
 	"""
 		The Model for storing the different Cart's.
-		Shopping Cart is Private
-		BeList Cart is Public
+		Carts can be public
 	"""
 	uk = ndb.KeyProperty(kind=User) ##: User Model Key
-	ouk = ndb.KeyProperty(kind=User) ##: Original User Key
-	n = ndb.StringProperty(default='SHOPPING') ##: Watchlist Name
+	n = ndb.StringProperty(default='My list') ##: Cart Name
 	d = ndb.StringProperty(indexed=False) ##: Cart Description
 	cat = ndb.StringProperty() ##: Cart Category
 	img = ndb.StringProperty(indexed=False) ##: Image
-	
+
 	st = ndb.IntegerProperty(default=0) ##: Sub-Total (Cents)
-	txrp = ndb.IntegerProperty(default=0, indexed=False) ##: Tax Rate Percentage (Integer for Percentage)
-	tx = ndb.IntegerProperty(default=0, indexed=False) ##: Taxes (Cents)
-	sh = ndb.IntegerProperty(default=0, indexed=False) ##: Shipping (Cents)
-	mu = ndb.IntegerProperty(default=0, indexed=False) ##: BournEE Exchange Mark-up (5% + $0.30) (Cents)
-	gt = ndb.IntegerProperty(default=0) ##: Grand Total (Cents)
-	
+
 	public = ndb.BooleanProperty(default=False) ##: Shopping Carts are PRIVATE and BeList Carts are public.
-	default = ndb.BooleanProperty(default=True) ##: When adding products to cart, this defines which cart to add to.
 	
 	garbage = ndb.BooleanProperty(default=False) ##: The Creator (User) deleted cart but we still need to serve to embeded carts
 
@@ -409,33 +457,8 @@ class Cart(ndb.Model):
 		return utils.dollar_float(float(cls.st)/100)
 
 	@property
-	def d_tx(cls):
-		## d_tx = Dollar Taxes
-		return utils.dollar_float(float(cls.tx)/100)
-
-	@property
-	def d_sh_fees(cls):
-		## d_sh = Dollar Shipping
-		sh_fees = int(cls.sh) + int(cls.mu)
-		return utils.dollar_float(float(sh_fees)/100)
-
-	@property
-	def d_mu(cls):
-		## d_mu = Dollar Mark-up
-		return utils.dollar_float(float(cls.mu)/100)
-
-	@property
-	def d_gt(cls):
-		## d_gt = Dollar Grand-Total
-		return utils.dollar_float(float(cls.gt)/100)
-
-	@property
 	def num_items(cls):
 		return Order.query(ancestor=cls.key).count()
-	
-	@property
-	def published(cls):
-		return 0
 
 	@staticmethod
 	def _write_properties_for_api():
@@ -446,9 +469,6 @@ class Cart(ndb.Model):
 		# Example : return [u'd', u'pp', u'lp', u'q']
 		return []
 
-	def _pre_put_hook(cls):
-		pass
-	
 	@classmethod
 	def _post_put_hook(cls, future):
 		try:
@@ -466,7 +486,6 @@ class Cart(ndb.Model):
 		##: Run a check in the background to verify Cart Sub-Total
 		now = time.time()
 
-	
 	@staticmethod
 	def create_cart(cartKey, userKey, cartName, cartDescritpion=None, cartCategory=None, put_model=True):
 		try:
@@ -477,9 +496,6 @@ class Cart(ndb.Model):
 						d = cartDescritpion, \
 						cat = cartCategory, \
 						)
-			dc = Cart.query(Cart.default == True, ancestor=userKey).get()
-			if dc:
-				cart.default = False
 			if put_model:
 				cart.put()
 			return cart
@@ -493,34 +509,17 @@ class Cart(ndb.Model):
 			if urlsafeCartKey:
 				return ndb.Key(urlsafe=urlsafeCartKey).get()
 			else:
-				first, last = Cart.allocate_ids(1, parent=userKey)
-				cartID = first
-				cartKeyName = "{}_(D{})".format(str(cartName).upper(),cartID)
+				cartKeyName = "{}".format(str(cartName).upper())
 				cartKey = ndb.Key(Cart, cartKeyName, parent=userKey)
 				cart = cartKey.get()
 				if cart: return cart
-				else: return Cart.create_cart(cartKey, userKey, str(cartName).upper(), cartDescritpion, cartCategory)
+				else: return Cart.create_cart(cartKey, userKey, str(cartName).lower(), cartDescritpion, cartCategory)
 
 			return None
 		except Exception as e:
 			logging.error("Error in function get_or_create_cart for Model class Cart: -- {}".format(e))
 			return None
-	
-	@staticmethod
-	def get_all_defaults(userKey, quantity=999):
-		try:
-			return Cart.query(Cart.default == True, ancestor=userKey).fetch(quantity)
-		except Exception as e:
-			logging.error("Error with query in function get_all_defaults for Model class Cart: -- {}".format(e))
-			return None
 
-	@staticmethod
-	def get_default_private_cart(userKey):
-		try:
-			return Cart.query(ndb.AND(Cart.public == False, Cart.default == True), ancestor=userKey).get()
-		except Exception as e:
-			logging.error("Error with query in function get_default_private_cart for Model class Cart: -- {}".format(e))
-			return None
 
 	@staticmethod
 	def get_public_carts(userKey=None, quantity=999):
@@ -544,28 +543,19 @@ class Cart(ndb.Model):
 	@staticmethod
 	def update_subtotal_values(cart, newSubTotal, old_subtotal=0, put_model=True):
 		try:
-			cart.st = newSubTotal
-			if old_subtotal != cart.st:
-				tax_perc = float(cart.txrp)/100
-				cart.tx = int(((float(cart.st)/100) * float(tax_perc))*100)
-				cart.sh = 0 ##: Not known at this time
-				cart.mu = int((( ( (float(cart.st)/100) + (float(cart.tx)/100) )*0.05)+0.3)*100)
-				if cart.mu == 30:
-					cart.mu = 0
-				cart.gt = int(cart.st)+int(cart.tx)+int(cart.mu)+int(cart.sh)
-			if put_model:
-				cart.put()
+			cart.st = int(newSubTotal)
+			if int(old_subtotal) != int(cart.st):
+				if put_model:
+					cart.put()
 		except Exception as e:
 			logging.error("Error with function update_subtotal_values for Model class Cart: -- {}".format(e))
 	
 	@staticmethod
-	def update_cart_to_be_public(cart, cartName, cartDescription, cartCategory, put_model=True):
+	def update_cart_to_be_public(cart, cartDescription, cartCategory, put_model=True):
 		try:
-			cart.n = cartName
 			cart.d = cartDescription
 			cart.cat = cartCategory
 			cart.public = True
-			cart.default = False
 			cart.garbage = False
 			if put_model:
 				cart.put()
@@ -582,53 +572,16 @@ class Cart(ndb.Model):
 		except Exception as e:
 			logging.error("Error with function update_cart_to_be_public for Model class Cart: -- {}".format(e))
 
-	@staticmethod
-	def update_default_cart(userKey, urlsafeCartKey=None):
-		try:
-			entitiesToPut = []
-			if urlsafeCartKey:
-				currentCartKey = ndb.Key(urlsafe=urlsafeCartKey)
-
-				currentCart = currentCartKey.get()
-				currentDefaultCarts = Cart.get_all_defaults(userKey)
-
-				if currentDefaultCarts:
-					logging.info('Here')
-					if len(currentDefaultCarts) >= 1:
-						for dc in currentDefaultCarts:
-							if dc.key != currentCartKey:
-								logging.info('Here')
-								dc.default = False
-								entitiesToPut.append(dc)
-		
-				if currentCart.public == False:
-					logging.info('Here')
-					currentCart.default = True
-					entitiesToPut.append(currentCart)
-
-				if len(entitiesToPut) == 1:
-					logging.info('Here')
-					entitiesToPut[0].put()
-				elif len(entitiesToPut) > 1:
-					logging.info('Here')
-					ndb.put_multi(entitiesToPut)
-			else:
-				cart = Cart.query(ndb.AND(Cart.default==False, Cart.public==False), ancestor=userKey).get()
-				if cart:
-					cart.default=True
-					cart.put()
-		except Exception as e:
-			logging.error("Error with function update_default_cart for Model class Cart: -- {}".format(e))
-				
 
 class Order(ndb.Model):
 	"""
 		The Model for storing the Order Item information.
 	"""
-	ck = ndb.KeyProperty(kind=Cart) ##: Cart Model Key
 	pk = ndb.KeyProperty(kind=Product) ##: Product Model Key
 
 	q = ndb.IntegerProperty() ##: Quantity
+	
+	removed = ndb.BooleanProperty(default=False) ##: Was the Order removed from the User's Tab
 
 	cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
 	ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -722,15 +675,14 @@ class Order(ndb.Model):
 			logging.error('Error checking product price tier taskqueue: -- {}'.format(e))
 
 	@classmethod
-	def create_order(cls, cartKey, productKey, qnt, put_model=True):
+	def create_order(cls, parentKey, productKey, qnt, put_model=True):
 		try:
 			product = productKey.get()
 			if product:
 				pn = utils.clean_product_number(product.pn)
 				order = cls(
-							key = ndb.Key(Order, str(pn), parent=cartKey),
+							key = ndb.Key(Order, str(pn), parent=parentKey),
 							pk = productKey, ##: Product Model Key
-							ck = cartKey, ##: Cart Model Key
 							q = int(qnt), ##: Quantity for Order
 							)
 				if put_model:
@@ -793,18 +745,18 @@ class Order(ndb.Model):
 			return None
 
 	@classmethod
-	def get_for_cart(cls, cartKey, quantity=999):
+	def get_for_parentKey(cls, parentKey, quantity=999):
 		try:
-			return Order.query(ancestor=cartKey).fetch(quantity)
+			return Order.query(ancestor=parentKey).fetch(quantity)
 		except:
 			logging.error("Error with query in function get_for_UserKey for Model class Order ")
 			return None
 
 	@classmethod
-	def get_for_product_and_cart(cls, cartKey, productName, quantity=999):
+	def get_for_product_and_parent(cls, parentKey, productNumber, quantity=999):
 		try:
-			pn = utils.clean_product_number(productName)
-			return ndb.Key(Order, str(pn), parent=cartKey).get()
+			pn = utils.clean_product_number(productNumber)
+			return ndb.Key(Order, str(pn), parent=parentKey).get()
 		except:
 			logging.error("Error with query in function get_for_UserKey for Model class Order ")
 			return None

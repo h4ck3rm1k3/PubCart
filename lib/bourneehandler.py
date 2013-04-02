@@ -70,17 +70,14 @@ class BournEEHandler(BaseHandler):
 				allCarts = shoppingModels.Cart.query(shoppingModels.Cart.garbage==False, ancestor=self.user_key).fetch(50)
 				if allCarts:
 					for cart in allCarts:
-						if cart.default == True: defaultCart = cart
-						elif cart.public == True: publicCarts.append(cart)
+						if cart.public == True: publicCarts.append(cart)
 						elif cart.public == False: privateCarts.append(cart)
-					if defaultCart: defaultCartItems = shoppingModels.Order.get_for_cart(defaultCart.key)
-					logging.info('defaultCart: {}'.format(defaultCart))
-				return allCarts, publicCarts, privateCarts, defaultCart, defaultCartItems
+				return allCarts, publicCarts, privateCarts
 			logging.info('Did not find any Carts')
-			return None, None, None, None, None
+			return None, None, None
 		except Exception as e:
 			logging.error("Error in function <cartInfo> : -- {}".format(e))
-			return None, None, None, None, None
+			return None, None, None
 
 	@webapp2.cached_property
 	def watchlistProducts(self):
@@ -224,12 +221,10 @@ class BournEEHandler(BaseHandler):
 		return (ok, pay)
 
 	def bournee_template(self, filename, **params):
-		allCarts, publicCarts, privateCarts, defaultCart, defaultCartItems = self.cartInfo
+		allCarts, publicCarts, privateCarts = self.cartInfo
 		watchlist, watchlistItems = self.watchlistProducts
 		params.update({
 			'urlsafeUserKey': self.urlsafeUserKey,
-			'defaultCart': defaultCart,
-			'defaultCartItems': defaultCartItems,
 			'allCarts': allCarts,
 			'publicCarts': publicCarts,
 			'privateCarts': privateCarts,

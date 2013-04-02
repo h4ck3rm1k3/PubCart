@@ -353,6 +353,22 @@ span.label-block {
 }
 
 /*/////////////////////////////////////////////////*/
+/*////////////  TYPICAL PAGE PARTS  ///////////////*/
+/*/////////////////////////////////////////////////*/
+
+.white_wrapper_box_span10 {
+	margin: 0 auto;
+	width: 940px;
+	padding: 15px;
+	margin-bottom: 30px !important;
+	background: #fff;
+	border-radius: 1px;
+	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+}
+
+/*/////////////////////////////////////////////////*/
 /*///////////  HOME PAGE NOT-LOGGED IN ////////////*/
 /*/////////////////////////////////////////////////*/
 .navbar {
@@ -599,12 +615,11 @@ span.label-block {
 /*/////////////////////////////////////////////////*/
 /*///////  SIDEBAR TAB SECTION ///////*/
 /*/////////////////////////////////////////////////*/
-
-.white_wrapper_box_tab {
+.white_wrapper_box_cred {
 	z-index:0;
 	margin: 15px auto;
 	width: 160px;
-	height:700px;
+	height:110px;
 	padding: 5px;
 	margin-bottom: 30px !important;
 	background: #fff;
@@ -631,7 +646,60 @@ span.label-block {
 		cursor: pointer;
 		-webkit-appearance: none;
 	}
+	p {
+		margin:0px;
+		padding:3px;
+		color:#666;
+	}
+	.credLevel_label {
+		margin: -15px 0 3px 0;
+		color:#666;
+		font-size: 12px;
+		.left {width:60%; float:left; text-align:left;}
+		.right {width:30%; float:right; text-align:right;}
+		}
+	.more_details_Link{
+		text-align: center;
+	}
 }
+.white_wrapper_box_tab {
+	z-index:0;
+	margin: 15px auto;
+	width: 160px;
+	height:550px;
+	padding: 5px;
+	margin-bottom: 30px !important;
+	background: #fff;
+	border-radius: 1px;
+	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	h1 {
+		line-height: 18px;
+		font-size: 14px;
+		color: #666;
+		text-align: center;
+	}
+	.preReg_button {
+		width: 160px;
+		margin: 0 auto;
+		padding: 10px 0 10px;
+		background: #006dcc;
+		color: #fff;
+		font-size: 16px;
+		text-shadow: 0 1px 1px #486a08;
+		border-radius: 1px;
+		border: 1px solid #002a80;
+		cursor: pointer;
+		-webkit-appearance: none;
+	}
+	p {
+		padding:5px;
+		color:#666;
+		.red {color:red;}
+		.tiny {line-height: 12px;font-size: 11px;}
+	}
+
 ul.yourtab_content {
 	line-height: 12px;
 	font-size: 11px;
@@ -643,11 +711,8 @@ ul.yourtab_content {
 	overflow:hidden;
 	li {width:150px;overflow:hidden}
 }
-p {
-	padding:5px;
-	color:#666;
-}
 
+}
 
 /*/////////////////////////////////////////////////*/
 /*///////  MINI LAST VISITED PRODUCTs MACRO ///////*/

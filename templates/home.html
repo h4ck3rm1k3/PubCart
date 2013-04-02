@@ -9,8 +9,9 @@
 <section id="intro">
 	<div class="container innerContent">
 	  <div class="row">
-		{% block main_content %}
 			<div class='span10'>
+				{% block main_content %}
+				
 				<div class='intro_wrapper'>
 					<div class="header1">Re-think <strong> E-Commerce</strong></div>
 					<div class="header2">Taking the barriers away from online shopping</br>Safer, Faster, Cheaper, and Friendlier.</div>
@@ -56,29 +57,16 @@
 					</div>
 					<div class='clearfix'></div>
 				</div>
-			</div> <!-- END of span9 -->
+				{% endblock %}
+				<div id='pageMessageWrapper' class='pageMessageWrapper'>
+					{% block important %}
+					{% endblock %}
+				</div>
+			</div> <!-- END of span10 -->
 
 			<div class='span2'>
-				<div class="white_wrapper_box_tab" data-spy="affix" data-offset-top="0">
-					<header>
-						<h1>on your tab.</h1>
-					</header>
-					<ul class='yourtab_content'>
-						<li>1 x IC REG CTRLR Patt...</li>
-						<li>3 x SIREN 9-28VDC Patt...</li>
-						<li>10 x KIT #8 CLEAR Home...</li>
-					</ul>
-					<p>
-						==================
-						total: $25.56
-						==================
-					</p>
-					<form class='nomargin_form' action='{% if continue_url %}{{continue_url}}{% else %} {{uri_for("home")}} {% endif %}'>
-					  <button class="preReg_button marginTop15" id="btn_preReg" type="submit">pay tab.</button>
-					</form>
-				</div>
-			</div>
-		{% endblock %}
+				{{macros.tab_sidebar_widget(tab_items)}}
+			</div> <!-- END of span2 -->
 	  </div>
 	</div>
 </section>

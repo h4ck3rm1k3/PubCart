@@ -12,6 +12,7 @@ from web import productHandlers
 from web import paypalHandlers
 from web import searchHandlers
 from web import registrationHandlers
+from web import tabHandlers
 from api import rest_api
 from lib.livecount import counter as countHandlers
 
@@ -40,6 +41,10 @@ _routes = [
 	RedirectRoute(r'/getProduct', productHandlers.GetProductFormHandler, name='getProduct', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/clearLastProductsViewed', productHandlers.ClearLastProductsViewedHandler, name='clearLastProductsViewed', methods=['POST'], strict_slash=True),
 
+	RedirectRoute(r'/paidTabs', tabHandlers.PaidTabsRequestHandler, name='paidTabsList', methods=['GET'], strict_slash=True),
+	RedirectRoute(r'/viewTab/<urlsafeTabKey>', tabHandlers.ViewTabRequestHandler, name='viewTab', methods=['GET'], strict_slash=True),
+	RedirectRoute(r'/addToTab', tabHandlers.AddToTabHandler, name='addToTab', methods=['POST'], strict_slash=True),
+
 	RedirectRoute(r'/exchangeOrder/<pk>', webHandlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
 	RedirectRoute(r'/createLimitOrder/<pk>', webHandlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
 	RedirectRoute(r'/createAlertForm/<pk>', webHandlers.CreateAlertFormHandler, name='createAlert', strict_slash=True),
@@ -60,7 +65,6 @@ _routes = [
 	RedirectRoute(r'/makeCartPublic/<urlsafeCartKey>', cartHandlers.MakeCartPublicHandler, name='makeCartPublic', methods=['GET', 'POST'], strict_slash=True),
 	RedirectRoute(r'/forkCart/<urlsafeCartKey>', cartHandlers.ForkCartHandler, name='forkCart', methods=['GET','POST'], strict_slash=True),
 	RedirectRoute(r'/editCartDetails/<urlsafeCartKey>', cartHandlers.EditCartDetailsFormHandler, name='editCartDetails', methods=['GET','POST'], strict_slash=True),
-	RedirectRoute(r'/makeCartDefault', cartHandlers.MakeCartDefaultFormHandler, name='makeCartDefault', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/addToCart', cartHandlers.AddToCartHandler, name='addToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/selectCartForm/<urlsafeProductKey>', cartHandlers.AddToSelectedCartFormHandler, name='selectCartForm', methods=['GET', 'POST'], strict_slash=True),
 	RedirectRoute(r'/removeFromCart', cartHandlers.DeleteOrderFromCartHandler, name='removeFromCart', methods=['POST'], strict_slash=True),

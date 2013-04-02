@@ -13,7 +13,6 @@ import logging
 import string
 import re
 import sys
-import httpagentparser
 from urllib import urlopen
 from models import shoppingModels
 from google.appengine.ext import ndb

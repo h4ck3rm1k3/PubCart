@@ -1,5 +1,5 @@
-$('#submitAddToCartForm').click(function (e) {
-   $("#addToCartForm").submit(); 
+$('#submitAddToTabForm').click(function (e) {
+   $("#addToTabForm").submit(); 
 });
 function linkTo(url)
 {
