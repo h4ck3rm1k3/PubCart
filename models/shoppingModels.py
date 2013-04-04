@@ -578,7 +578,7 @@ class Order(ndb.Model):
 		The Model for storing the Order Item information.
 	"""
 	pk = ndb.KeyProperty(kind=Product) ##: Product Model Key
-
+	
 	q = ndb.IntegerProperty() ##: Quantity
 	
 	removed = ndb.BooleanProperty(default=False) ##: Was the Order removed from the User's Tab
@@ -587,12 +587,28 @@ class Order(ndb.Model):
 	ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
 
 	@property
-	def pn(cls):
+	def productName(cls):
 		return cls.key.id()
 
 	@property
 	def clean_pn(cls):
 		return utils.clean_product_number(cls.key.id())
+	
+	@property
+	def seller(cls):
+		return "TODO"
+			
+	@property
+	def popularity(cls):
+		return str(20)
+
+	@property
+	def description(cls):
+		if cls.pk:
+			product = cls.pk.get()
+			if product:
+				return product.d
+		return " "
 
 	@property
 	def fetch_bup(cls):

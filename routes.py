@@ -72,9 +72,9 @@ _routes = [
 	RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/deleteCart', cartHandlers.DeleteCartHandler, name='deleteCart', methods=['POST'], strict_slash=True),
 
-	RedirectRoute(r'/paypal/<urlsafeCartKey>', paypalHandlers.PayPalPaymentHandler, name='paypalPayment', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/paypal/<urlsafeCartKey>/return/<urlsafePurchaseKey>/<secret>', paypalHandlers.PaypalReturnHandler, name='paypalReturn', strict_slash=True),
-	RedirectRoute(r'/paypal/<urlsafeCartKey>/cancel/<urlsafePurchaseKey>', paypalHandlers.PaypalCancelHandler, name='patpalCancel', strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeTabKey>', paypalHandlers.PayPalPaymentHandler, name='paypalPayment', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeTabKey>/return/<urlsafePurchaseKey>/<secret>', paypalHandlers.PaypalReturnHandler, name='paypalReturn', strict_slash=True),
+	RedirectRoute(r'/paypal/<urlsafeTabKey>/cancel/<urlsafePurchaseKey>', paypalHandlers.PaypalCancelHandler, name='patpalCancel', strict_slash=True),
 	RedirectRoute(r'/ipn/<urlsafePurchaseKey>/<secret>', paypalHandlers.PaypalIPNHandler, name='paypalIPN', methods=['POST'], strict_slash=True),
 
 	RedirectRoute(r'/oauth/register/portal', webHandlers.RegisterOAuthClientHandler, name='reg_oauth_client', strict_slash=True),

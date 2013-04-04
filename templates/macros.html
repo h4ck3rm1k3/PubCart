@@ -82,8 +82,15 @@
 								</div>
 							</div>
 							<div class="white_wrapper_box_tab" >
-								<form class='nomargin_form' action='{% if continue_url %}{{continue_url}}{% else %} {{uri_for("home")}} {% endif %}'>
-								  <button class="preReg_button marginTop15" id="btn_preReg" type="submit">pay tab.</button>
+								<form id='payTabButton' class='payTabButton' action="" method='POST'>
+									<fieldset>
+							            <input type="hidden" name="exception" value="{{ exception }}">
+							            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+										<input type="hidden" name="tk" value="{{urlsafeTabKey}}">
+										<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+										<input type="hidden" name="tt" value="{{tabGrandTotalCents}}">
+										<button class="preReg_button marginTop15" id="btn_preReg" type="submit">pay tab.</button>
+									</fieldset>
 								</form>
 								<p>
 									total: $25.56
