@@ -368,7 +368,7 @@ class AddToCartHandler(BaseHandler):
 					shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal, put_model=False)
 
 				ndb.put_multi( [cart, order] )
-
+				
 				logging.info("We have a order_key and a cart_key so Success and Redirect")
 				message = _('Submission request successful for Product number -	 %s' % str(productModel.pn))
 				self.add_message(message, 'success')
@@ -393,82 +393,81 @@ class AddToCartHandler(BaseHandler):
 		return forms.AddToCartForm(self)
 
 
-class DeleteOrderFromCartHandler(BaseHandler):
-	""" Handles the submission of a Exchange Order, then Redirects to a different Handler"""
-	## Login Required
-	@user_required
-	def post(self):
-		try:
-			if not self.deleteFromCart_form.validate():
-				raise Exception('deleteFromCart_form did not Validate, in function POST of DeleteFromCartHandler')
-			logging.info("deleteFromCart_form Form Was valid")
-			
-			##: Try to fetch the data from the Form responce
-			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data).strip() ##: This will be a cart key
-			urlsafeOrderKey = str(self.deleteFromCart_form.ok.data).strip() ##: Urlsafe Key
-			orderSubTotal = self.deleteFromCart_form.ost.data
-
-			if urlsafeParentKey and urlsafeOrderKey:
-				cartKey = ndb.Key(urlsafe=urlsafeParentKey)
-				cart = cartKey.get()
-				if cart:
-					##: Convert orderKey back to Normal
-					orderKey = ndb.Key(urlsafe=urlsafeOrderKey)
-					if cart.key != orderKey.parent():
-						logging.error('The order being modified does not have a parent matching this parent')
-						message = _('Your request could not be completed at this time. Please try again later.')
-						self.add_message(message, 'error')
-					elif cart.uk == self.user_key:
-						##: Update the Cart's subtotals
-						oldCartSubTotal = cart.st
-						newCartSubTotal = int(oldCartSubTotal) - int(orderSubTotal)
-						if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
-						shoppingModels.Cart.update_subtotal_values(newCartSubTotal, oldCartSubTotal)
-
-						orderKey.delete()
-
-						logging.info("We have removed the Order Item form the parent and we Redirect to referrer")
-						message = _('We have removed the Order Item form the List')
-						self.add_message(message, 'success')
-					else:
-						logging.error("User Keys did not match between User and parent Owner")
-						message = _('You do not appear to be the owner of this Cart. We can not complete request.')
-						self.add_message(message, 'error')
-				else:
-					logging.error("Cart was not Found")
-					message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-					self.add_message(message, 'error')
-			else:
-				logging.error("CartKey or OrderKey not received from the Form Submission")
-				message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-				self.add_message(message, 'error')
-
-		except Exception as e:
-			logging.error("Error occurred running function POST of class DeleteOrderFromCartHandler: -- %s" % str(e))
-			message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-			self.add_message(message, 'error')
-
-		finally:
-			logging.debug('Redirecting to Referer')
-			try:
-				self.redirect(self.request.referer)
-			except:
-				self.redirect_to('home')
-					
-
-	@webapp2.cached_property
-	def deleteFromCart_form(self):
-		return forms.DeleteFromCartForm(self)
+# class DeleteOrderFromCartHandler(BaseHandler):
+# 	""" Handles the submission of a Exchange Order, then Redirects to a different Handler"""
+# 	## Login Required
+# 	@user_required
+# 	def post(self):
+# 		try:
+# 			if not self.deleteFromCart_form.validate():
+# 				raise Exception('deleteFromCart_form did not Validate, in function POST of DeleteFromCartHandler')
+# 			logging.info("deleteFromCart_form Form Was valid")
+# 			
+# 			##: Try to fetch the data from the Form responce
+# 			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data).strip() ##: This will be a cart key
+# 			urlsafeOrderKey = str(self.deleteFromCart_form.ok.data).strip() ##: Urlsafe Key
+# 			orderSubTotal = self.deleteFromCart_form.ost.data
+# 
+# 			if urlsafeParentKey and urlsafeOrderKey:
+# 				cartKey = ndb.Key(urlsafe=urlsafeParentKey)
+# 				cart = cartKey.get()
+# 				if cart:
+# 					##: Convert orderKey back to Normal
+# 					orderKey = ndb.Key(urlsafe=urlsafeOrderKey)
+# 					if cart.key != orderKey.parent():
+# 						logging.error('The order being modified does not have a parent matching this parent')
+# 						message = _('Your request could not be completed at this time. Please try again later.')
+# 						self.add_message(message, 'error')
+# 					elif cart.uk == self.user_key:
+# 						##: Update the Cart's subtotals
+# 						oldCartSubTotal = cart.st
+# 						newCartSubTotal = int(oldCartSubTotal) - int(orderSubTotal)
+# 						if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
+# 						shoppingModels.Cart.update_subtotal_values(newCartSubTotal, oldCartSubTotal)
+# 
+# 						orderKey.delete()
+# 
+# 						logging.info("We have removed the Order Item form the parent and we Redirect to referrer")
+# 						message = _('We have removed the Order Item form the List')
+# 						self.add_message(message, 'success')
+# 					else:
+# 						logging.error("User Keys did not match between User and parent Owner")
+# 						message = _('You do not appear to be the owner of this Cart. We can not complete request.')
+# 						self.add_message(message, 'error')
+# 				else:
+# 					logging.error("Cart was not Found")
+# 					message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
+# 					self.add_message(message, 'error')
+# 			else:
+# 				logging.error("CartKey or OrderKey not received from the Form Submission")
+# 				message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
+# 				self.add_message(message, 'error')
+# 
+# 		except Exception as e:
+# 			logging.error("Error occurred running function POST of class DeleteOrderFromCartHandler: -- %s" % str(e))
+# 			message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
+# 			self.add_message(message, 'error')
+# 
+# 		finally:
+# 			logging.debug('Redirecting to Referer')
+# 			try:
+# 				self.redirect(self.request.referer)
+# 			except:
+# 				self.redirect_to('home')
+# 					
+# 
+# 	@webapp2.cached_property
+# 	def deleteFromCart_form(self):
+# 		return forms.DeleteFromCartForm(self)
 
 
 class ChangeQuantityOfOrderHandler(BaseHandler):
-	""" Handles the submission of a Exchange Order, then Redirects to a different Handler"""
-	## Login Required
 	@user_required
 	def post(self):
 		try:
+			logging.info('Here')
 			if not self.chgQntOfOrder_form.validate():
-				raise FunctionException('chgQntOfOrder_form did not Validate, in function POST of ChangeQuantityOfOrderHandler')
+				raise Exception('chgQntOfOrder_form did not Validate, in function POST of ChangeQuantityOfOrderHandler')
 			
 			logging.info("chgQntOfOrder_form Form Was valid")
 			
@@ -476,51 +475,85 @@ class ChangeQuantityOfOrderHandler(BaseHandler):
 			newOrderSubTotal = 0
 			
 			##: Try to fetch the data from the Form responce
-			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data.strip())
-			urlsafeOrderKey = str(self.chgQntOfOrder_form.ok.data.strip())
-			quantity = self.chgQntOfOrder_form.q.data
-			
+			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data).strip()
+			urlsafeOrderKey = str(self.chgQntOfOrder_form.ok.data).strip()
+			quantity = self.chgQntOfOrder_form.qnt.data
+			logging.info('Here')
+			logging.info('Quantity: {}'.format(quantity))
 			if urlsafeParentKey and urlsafeOrderKey:
 
 				##: Get the Cart to check ownership
 				cart = ndb.Key(urlsafe=urlsafeParentKey).get()
 
 				if cart:
-					logging.info('Parent Model Found')
+					logging.info('Cart Model Found')
 
 					if cart.uk == self.user_key:
 						logging.info('User Keys Match')
 
 						order = ndb.Key(urlsafe=urlsafeOrderKey).get() ##: Get from Datastore
 						if order:
-							if int(order.q) == int(quantity):
-								logging.info('The new Quantity is the same as the existing quantity, so we do nothing.')
-							elif cart.key != order.key.parent():
-								logging.error('The order being modified does not have a parent matching this cart')
-							else:
-								oldOrderSubtotal = int(order.st)
-								order.update_order_new_qnt(order, quantity, put_model=False)
-								newOrderSubTotal = int(order.st)
+							logging.info('Here')
+							logging.info('Quantity: {}'.format(quantity))
+							
+							##: First Check if order quantity will be zero, meaning Delete
+							if int(quantity) <= int(0):
+								logging.info('Here')
+							
+								##: Update the Cart's subtotals
+								orderSubTotal = order.st
+								oldCartSubTotal = cart.st
+								newCartSubTotal = int(oldCartSubTotal) - int(orderSubTotal)
+								if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
+								logging.info('Here')
 								
-								if int(oldOrderSubtotal) == int(newOrderSubTotal):
-									logging.info('The new Sub-Total is the same as the existing Sub-Total, so we do nothing.')
-								else:
-									logging.info('Quantities are different, so we update Order')
+								shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal)
+								logging.info('Here')
 								
-									orderSubTotal = int(newOrderSubTotal) - int(oldOrderSubtotal)
-									oldCartSubTotal = cart.st
-									newCartSubTotal = int(oldCartSubTotal) + int(orderSubTotal)
-									if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
-									shoppingModels.Cart.update_subtotal_values(cart, newParentSubTotal, oldCartSubTotal, put_model=False)
-
-								##: Now we save both the Tab (Parent) and the Order using put_multi()
-								ndb.put_multi( [parent, order] )
-
-
-								##: All Done
-								logging.info("We have updated the Order Quantity and we Redirect to referrer thru <finally:> block")
-								message = _('We have updated the %s Order Quantity to: %s' % (str(order.pn), str(order.q)))
+								productName = order.productName
+								order.key.delete()
+								logging.info('Here')
+								
+								logging.info("We have deleted the Order and we Redirect to referrer thru <finally:> block")
+								message = _('You entered a quantity of 0 for the %s Order, so it has been removed from this cart.' % (str(productName)))
 								self.add_message(message, 'success')
+								
+							##: Else, this is simply a quantity update.
+							else:
+								logging.info('Here')
+								
+								if int(order.q) == int(quantity):
+									logging.info('The new Quantity is the same as the existing quantity, so we do nothing.')
+									message = _('The new Quantity is the same as the existing quantity: %s' % (str(order.q)))
+									self.add_message(message, 'info')
+								elif cart.key != order.key.parent():
+									logging.error('The order being modified does not have a parent matching this cart')
+									message = _('Things were not matching up on our server so we did not modify the quantity' % (str(order.q)))
+									self.add_message(message, 'error')
+								else:
+									oldOrderSubtotal = int(order.st)
+									order.update_order_new_qnt(order, quantity, put_model=False)
+									newOrderSubTotal = int(order.st)
+								
+									if int(oldOrderSubtotal) == int(newOrderSubTotal):
+										logging.info('The new Sub-Total is the same as the existing Sub-Total, so we do nothing.')
+									else:
+										logging.info('Quantities are different, so we update Order')
+								
+										orderSubTotal = int(newOrderSubTotal) - int(oldOrderSubtotal)
+										oldCartSubTotal = cart.st
+										newCartSubTotal = int(oldCartSubTotal) + int(orderSubTotal)
+										if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
+										shoppingModels.Cart.update_subtotal_values(cart, newCartSubTotal, oldCartSubTotal, put_model=False)
+
+									##: Now we save both the Tab (Parent) and the Order using put_multi()
+									ndb.put_multi( [cart, order] )
+
+
+									##: All Done
+									logging.info("We have updated the Order Quantity and we Redirect to referrer thru <finally:> block")
+									message = _('We have updated the %s Order Quantity to: %s' % (str(order.productName), str(order.q)))
+									self.add_message(message, 'success')
 						else:
 							##: Missing Order
 							logging.error('Error - Order not found using given Order Key')

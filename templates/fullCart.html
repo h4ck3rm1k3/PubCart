@@ -23,6 +23,7 @@
 		{% else %}
 			<img class="img-rounded" data-src="holder.js/170x170/text:PubCart." alt="{{cart.n}}">
 		{% endif %}
+		{% if cart.st > 0.01 %}
 		<div id='addCartToTabButtonWrapper' class='addCartToTabButtonWrapper'>
 			<form id='addCartToTabForm' name='addCartToTabForm' action="" method="POST">
 		            <input type="hidden" name="exception" value="{{ exception }}">
@@ -30,11 +31,14 @@
 					<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
 					<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
 					<div class="btn-group">
-					<button id='submitAddToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addCartToTabForm" >${{cart.d_st}} - <small>put on Tab.</small></button></div>
+					<button id='submitAddToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addCartToTabForm" >
+						{% if not cart.dirty %} ${{cart.d_st}} - <small>put on Tab.</small>
+						{% else %} put on Tab.
+						{% endif %}
+					</button></div>
 			</form>
-			
-
 		</div>
+		{% endif %}
 	</div>
 	<div class='span8'>
 		<header class='fullpageTitleWrapper'>
@@ -97,22 +101,23 @@
 		</nav>
 		<div class='clearfix'></div>
 		{% if cartOwner %}
-			<section class="white_wrapper_box_span7" {% if not createCart %}style='display:none;'{% endif %}>
-				<div id='addProductFormWrapper' class='pushUp'>
-					<div class='form-horizontal'>
-						<h4>Add product to this cart.</h4>
-						<form class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
-							<fieldset>
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-					            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-								{{ lib.field(addProductForm.productNumber, class="span6", maxlength="50", placeholder='Manufacturer Product Number', label=_("Product Number")) }}
-								{{ lib.field(addProductForm.urlsafeSellerKey, class="span3", label=_("Product Seller *")) }}
-								<button class='btn btn-primary pull-right' type='submit' >Add product.</button>
-							</fieldset>
-						</form>
-					</div>
-				</div>
+			<section id='addProductFormWrapper' class="white_wrapper_box_span7" {% if not createCart %}style='display:none;'{% endif %}>
+					<form id="addProduct_form" class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
+						<input type="hidden" name="exception" value="{{ exception }}">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+					  <div class="field_container product_number">
+					    <label for="product_number" class="form_label label_small">Product Number</label>					
+						{{ macros.field_no_label(addProductForm.productNumber, class="form_field field_small", placeholder='Manufacturer product number...') }}
+					  </div>
+					  <div class="field_container product_seller">
+					    <label for="product_seller" class="form_label label_small">Product Seller</label>					
+						{{ macros.field_no_label(addProductForm.urlsafeSellerKey, class="form_field field_small") }}
+					  </div>
+					  <button class="pubcart_button" id="btn_addProduct" type="submit">Add product to cart.</button>
+
+					  <div style="clear:both;"></div>
+					</form>
 			</section>
 		{% endif %}
 			<section class='white_wrapper_box_span7'>
@@ -193,7 +198,7 @@
 
 					{% block CartContent %}
 						{% if productOrders %}
-							<table class="table table-striped table-hover table-condensed cartTable">
+							<table class="table table-striped table-hover table-condensed cartTable nomargin_table">
 								<thead>
 							        <tr>
 										<th class="span1">Cart Qnt.</th>
@@ -208,21 +213,31 @@
 								    {% for order in productOrders %}
 										<tr>
 											<td class='span1'>
+												{% if cartOwner %}
+												<form class='nomargin_form marginTop5' action="{{ uri_for('changeQntOfOrder')}}" method='POST'>
+													<input type="hidden" name="exception" value="{{ exception }}">
+										            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+										            <input type="hidden" name="park" value="{{ urlsafeCartKey }}">
+										            <input type="hidden" name="ok" value="{{ order.key.urlsafe() }}">
+													<input id='fullCart_itemQNT_update' rel='tooltip' data-original-title='Hit Enter' data-trigger='focus' name='qnt' type='text' class='span1 fullCart_itemQNT_update' value='{{order.q}}'>
+												</form>
+												{% else %}
 												<div class='qntNumber'>
 												{{order.q}}
 												</div>
 												<div class='xSymbol'>x</div>
 												<div class='clearfix'></div>
+												{% endif %}
 											</td>
 											<td class='span1'>
-												{% if order.img %}
-													<img class="img-rounded" src="{{order.img}}" width='35px' alt="{{cart.n}}">
+												{% if order.fetch_img %}
+													<img class="img-rounded" src="{{order.fetch_img}}" width='35px' alt="{{cart.n}}">
 												{% else %}
 													<img class="img-rounded" data-src="holder.js/35x35/text:PubCart." alt="{{cart.n}}">
 												{% endif %}
 											</td>
 											<td class='span3'>
-												<div id='{{order.pn}}_order_widget_info_wrapper_homepage' class='order_widget_info_wrapper_homepage'>
+												<div id='{{order.productName}}_order_widget_info_wrapper_homepage' class='order_widget_info_wrapper_homepage'>
 													<div class='order_pn_homepage'>
 														{{order.productName|truncate(length=19, killwords=True)}}
 													</div>
@@ -249,12 +264,22 @@
 														<li><a href="{{ uri_for('product', urlsafeProductKey=order.pk.urlsafe() ) }}">View Product</a></li>
 													</ul>
 												</div>
+												{% if order.q > 1 %}
+												<div>
+													<small>${{order.d_st}} @ {{order.q}}</small>
+												</div>
+												{% endif %}
 											</td>
 										</tr>
 									{% endfor %}
 								</tbody>
+								<tfoot>
+									<tr>
+										<td colspan='4'>Total unique items: {{productOrders|count}}</td>
+										<td colspan='2'><div class='textRight'>Cart sub-total: ${{cart.d_st}}</div></td>
+									</tr>
+								</tfoot>
 							</table>
-							
 						{% else %}
 							<div class="alert alert-info">
 								<strong>Oh snap!</strong>You don't seem to have any orders in your cart.
@@ -262,6 +287,15 @@
 						{% endif %}
 					{% endblock %}
 			</section>
+			<div class='clearfix'></div>
+			
+			{% if cartOwner %}
+			<section>
+				<div class="alert alert-info">
+					<strong>Remove Items:</strong>  To remove an item from the cart, change it's quantity to 0.
+				</div>
+			</section>
+			{% endif %}
 	</div> <!-- End of Span8 -->
 </div> <!-- End of Row -->
 

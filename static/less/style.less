@@ -16,7 +16,7 @@ button .btn-large>i {height:17px}
 span.label-block {
 	}
 .innerContent {
-	margin-top:20px;
+	margin-top:60px;
 }
 .mediaPanelSmall {
 	background-color: #006dcc;
@@ -73,6 +73,10 @@ span.label-block {
 		font-weight: bold;
 		color: inherit ;
 		font-size: inherit;
+	}
+	tfoot {
+		font-weight: bold;
+		td{padding-top:15px;}
 	}
 }
 
@@ -377,6 +381,59 @@ span.label-block {
 	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
 	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
 	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	.field_container{
+		float: left;
+		text-align: left!important;
+		position: relative;
+		margin: 2px 15px 0 0;
+		font-family: "ProximaNovaLight","Helvetica Neue",Helvetica,Arial,sans-serif;
+		.form_label {
+			width: 500px;
+			color: #999;
+			opacity: 1.0;
+			background: #fff;
+			border: none;
+			margin: 0;
+			font-size: 15px;
+			line-height: 17px;
+			padding: 16px 15px 14px;
+			position: absolute;
+			z-index: 10;
+			cursor: text;
+			overflow: hidden;
+			border-radius: 1px;
+		}
+		.label_small { width:195px}
+		.label_medium { width:460px}
+		
+		.form_field {
+			width: 500px;
+			margin: 0;
+			font-size: 15px;
+			padding: 15px 15px 13px;
+			border: 1px solid #ccc;
+			position: relative;
+			z-index: 20;
+			border-radius: 1px;
+		}
+		select.field_small {width:230px;height:50px;border-radius: 0px;}
+		.field_small {width:215px;}
+		.field_medium {width:415px;}
+		.controls {margin:0px;}
+		.control-group {margin:0px;}
+	}
+	.pubcart_button {
+		width: 230px;
+		padding: 14px 0 15px;
+		background: #006dcc;
+		color: #fff;
+		font-size: 16px;
+		text-shadow: 0 1px 1px #486a08;
+		border-radius: 1px;
+		border: 1px solid #002a80;
+		cursor: pointer;
+		-webkit-appearance: none;
+	}
 }
 .pubcart_button {
 	margin:0;
@@ -389,6 +446,11 @@ span.label-block {
 	border: 1px solid #002a80;
 	cursor: pointer;
 	-webkit-appearance: none;
+}
+.messages_wrapper {
+	position:absolute;
+	top:75px;
+	width:100%;
 }
 /*/////////////////////////////////////////////////*/
 /*///////////  HOME PAGE NOT-LOGGED IN ////////////*/
@@ -444,7 +506,7 @@ span.label-block {
 			float: left;
 			text-align: left!important;
 			position: relative;
-			margin: 1px auto;
+			margin: 2px 15px 0 0;
 			font-family: "ProximaNovaLight","Helvetica Neue",Helvetica,Arial,sans-serif;
 			.label_reg_form {
 				width: 500px;
@@ -475,18 +537,16 @@ span.label-block {
 				z-index: 20;
 				border-radius: 1px;
 			}
-			select.field_small {width:228px;height:50px;border-radius: 0px;}
-			.field_small {
-				width:195px;
-				
-			}
-			.field_medium {
-				width:423px;
-			}
+			select.field_small {width:217px;height:50px;border-radius: 0px;}
+			.field_small {width:186px;}
+			.field_medium {width:415px;}
 			.controls {margin:0px;}
 			.control-group {margin:0px;}
 			
 		}
+		.address_field_container {margin:5px;}
+		.login_field_container {margin-top:15px;}
+		
 		.preReg_button {
 			width: 217px;
 			padding: 14px 0 15px;
@@ -639,7 +699,7 @@ span.label-block {
 /*/////////////////////////////////////////////////*/
 .white_wrapper_box_cred {
 	z-index:0;
-	margin: 15px auto;
+	margin: 0px auto;
 	width: 160px;
 	height:110px;
 	padding: 5px;
@@ -688,7 +748,7 @@ span.label-block {
 	z-index:0;
 	margin: 15px auto;
 	width: 160px;
-	height:550px;
+	height:500px;
 	padding: 5px;
 	margin-bottom: 30px !important;
 	background: #fff;
@@ -1071,6 +1131,7 @@ ul.yourtab_content {
 		width:40px;
 		color: #999;
 		overflow:hidden;
+		text-align: center;
 	}
 	.xSymbol {
 		float:right;
@@ -1259,9 +1320,10 @@ ul.yourtab_content {
 .onblack {
 	color:#fff;
 }
-.nomargin_form {
+.nomargin_form, .nomargin_table {
 	margin-bottom:0px;
 }
+
 .nomargin_label {
 	margin:0px;
 }

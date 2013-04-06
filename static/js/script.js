@@ -11,6 +11,11 @@ function toggleSidebarQntForm (e) {
 	$(hidden_div).toggle();
 };
 
+function addTooltip (e) {
+	$(this).tooltip('show');
+};
+
+
 function showCopyOrderToCartForm (e) {
 	$('#copyToCartFormDescription').hide();
 	$('#copyToCartForm').show();
@@ -89,6 +94,8 @@ function toggleCartDetails (e) {
 $(document).ready(function() {
 	// put all your jQuery goodness in here.
 	
+	$('#alert_messages').fadeOut(10000);
+	
 	$('.toggleChangeQntButton').click(toggleSidebarQntForm);
 	$('.toggleChangeQntButtonX').click(toggleSidebarQntForm);
 	$('.rowcheckident').click(showCopyOrderToCartForm);
@@ -122,7 +129,12 @@ $(document).ready(function() {
 		$(aButtonId).tooltip();
 		
 	}
-	
+	$('.fullCart_itemQNT_update').tooltip()
+	$('#fullCart_itemQNT_update').keyup(function(e) {
+	    if(e.keyCode == 13) {       
+	    $(self).parent().submit();
+	    }
+	});
 	// Sidebar Menu Button's Toggle Functions
 	//////////////////////////////////////////
 	$('#toggleCartButton').click(function (e) {

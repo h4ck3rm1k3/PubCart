@@ -117,7 +117,7 @@
 			</div><!-- /navbar-inner -->
 		</div><!-- /navbar -->
 		{% block mediaPanel %}
-		<div class="marginBottom15 mediaPanelSmall">
+		<div class="mediaPanelSmall">
 			<div class="container nomargin">
 		    <div class='row'>
 			{% block small_logo %}
@@ -162,11 +162,11 @@
 								</span>
 							</button>
 							
-							<button id='togglePublicCartsButton{% if not publicCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not publicCarts %} disabled {% endif %}" >
+							<a href="{{ uri_for('mycarts') }}" id='togglePublicCartsButton{% if not allCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not allCarts %} disabled {% endif %}" >
 								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not allCarts %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
 									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
 								</span>
-							</button>
+							</a>
 
 							<button id='toggleWatchlistButton{% if not watchlistItems %}_disabled{% endif %}' class="btn {% if not watchlistItems %}disabled {% endif %}">
 								<span id='toggleWatchlist' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not watchlistItems %} No&nbsp; {% endif %}Watchlist">
@@ -184,21 +184,20 @@
 		</div>
 		{% endblock %} <!-- End of mediaPanel Block -->
         {% endblock %}
-
-        <div id="content" class="xled">
-			<section class='header_backdrop'>
+			{% if messages|safe %}
+			<section id='alert_messages' class='messages_wrapper'>
 				<div class='container'>
-					{% block header %}{% endblock %}
-			        {% if messages|safe %}
-				        	{% for message in messages %}
-				            <p class="marginTop25 alert alert-{{ message[1]|safe }}">
-				                <a class="close" data-dismiss="alert">×</a>
-				                {{ message[0]|safe }}
-				            </p>
-				            {% endfor %}
-			        {% endif %}
+		        	{% for message in messages %}
+		            <p class="marginTop25 alert alert-{{ message[1]|safe }}">
+		                <a class="close" data-dismiss="alert">×</a>
+		                {{ message[0]|safe }}
+		            </p>
+		            {% endfor %}
 				</div>
 			</section>
+			{% endif %}
+        <div id="content" class="xled">
+	        
 			{% block content %}{% endblock %}
 			{% block footer %}
 			<footer class="global-footer">

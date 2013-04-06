@@ -67,7 +67,7 @@ _routes = [
 	RedirectRoute(r'/editCartDetails/<urlsafeCartKey>', cartHandlers.EditCartDetailsFormHandler, name='editCartDetails', methods=['GET','POST'], strict_slash=True),
 	RedirectRoute(r'/addToCart', cartHandlers.AddToCartHandler, name='addToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/selectCartForm/<urlsafeProductKey>', cartHandlers.AddToSelectedCartFormHandler, name='selectCartForm', methods=['GET', 'POST'], strict_slash=True),
-	RedirectRoute(r'/removeFromCart', cartHandlers.DeleteOrderFromCartHandler, name='removeFromCart', methods=['POST'], strict_slash=True),
+	#RedirectRoute(r'/removeFromCart', cartHandlers.DeleteOrderFromCartHandler, name='removeFromCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/changeQntOfOrder', cartHandlers.ChangeQuantityOfOrderHandler, name='changeQntOfOrder', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/deleteCart', cartHandlers.DeleteCartHandler, name='deleteCart', methods=['POST'], strict_slash=True),

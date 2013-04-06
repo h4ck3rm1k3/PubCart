@@ -139,7 +139,7 @@ class DeleteCartForm(BaseForm):
 class ChangeQntOfOrderForm(BaseForm):
 	park = fields.TextField(_('Parent Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	ok = fields.TextField(_('Order Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
-	q = fields.IntegerField(_('QNT'), [validators.Required()])
+	qnt = fields.IntegerField(_('QNT'), [validators.InputRequired()])
 
 class CreateCartForm(BaseForm):
 	CATEGORIES = base_categories()

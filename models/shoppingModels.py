@@ -385,7 +385,9 @@ class Tab(ndb.Model):
 	pdd = ndb.DateTimeProperty(verbose_name='paid_datetime') ##: Paid Date time
 	pd = ndb.BooleanProperty(default=False) ##: Paid Boolean
 	sh = ndb.BooleanProperty(default=False) ##: Shipped Boolean
-	
+	##: If the tabs's orders have been modified (added or taken out) dirty flag is set.
+	##: When the task queue runs a check on the tabs's subtotal, this is set to false.
+	dirty = ndb.BooleanProperty(default=False)
 
 	@property
 	def num_items(cls):
@@ -448,6 +450,10 @@ class Cart(ndb.Model):
 	
 	garbage = ndb.BooleanProperty(default=False) ##: The Creator (User) deleted cart but we still need to serve to embeded carts
 
+	##: If the cart's orders have been modified (added or taken out) dirty flag is set.
+	##: When the task queue runs a check on the carts subtotal, this is set to false.
+	dirty = ndb.BooleanProperty(default=False)
+
 	cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
 	ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
 	
@@ -480,11 +486,10 @@ class Cart(ndb.Model):
 						queue_name='cartTotals-worker', \
 						url='/worker/checkCartSubtotals', \
 						params={'urlsafeCartKey':  cartModelKey.urlsafe()}) # post parameter
+			logging.info('Ran a task queue to verify cart subtotals for cart: {}'.format(cartModelKey))
 		except Exception as e:
 			logging.error('Error checking cart subtotals with taskqueue: -- {}'.format(e))
-			
-		##: Run a check in the background to verify Cart Sub-Total
-		now = time.time()
+
 
 	@staticmethod
 	def create_cart(cartKey, userKey, cartName, cartDescritpion=None, cartCategory=None, put_model=True):
@@ -640,31 +645,16 @@ class Order(ndb.Model):
 		if cls.st: return ("%.2f" % (float(cls.st)/100))
 		return None
 
-	@property
-	def fetch_d(cls):
-		if hasattr(cls, 'd'):
-			return cls.d
-		else:
-			if cls.pk:
-				d = None
-				product = cls.pk.get()
-				if product:
-					d = product.d
-					if d: return d
-			return None
 	
 	@property
 	def fetch_img(cls):
-		if hasattr(cls, 'img'):
-			return cls.img
-		else:
-			if cls.pk:
-				img = None
-				product = cls.pk.get()
-				if product:
-					img = product.img
-					if img: return img
-			return None
+		if cls.pk:
+			img = None
+			product = cls.pk.get()
+			if product:
+				img = product.img
+				if img: return img
+		return None
 
 	@staticmethod
 	def _write_properties_for_api():
