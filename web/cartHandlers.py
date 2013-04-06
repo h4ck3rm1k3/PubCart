@@ -393,74 +393,6 @@ class AddToCartHandler(BaseHandler):
 		return forms.AddToCartForm(self)
 
 
-# class DeleteOrderFromCartHandler(BaseHandler):
-# 	""" Handles the submission of a Exchange Order, then Redirects to a different Handler"""
-# 	## Login Required
-# 	@user_required
-# 	def post(self):
-# 		try:
-# 			if not self.deleteFromCart_form.validate():
-# 				raise Exception('deleteFromCart_form did not Validate, in function POST of DeleteFromCartHandler')
-# 			logging.info("deleteFromCart_form Form Was valid")
-# 			
-# 			##: Try to fetch the data from the Form responce
-# 			urlsafeParentKey = str(self.chgQntOfOrder_form.park.data).strip() ##: This will be a cart key
-# 			urlsafeOrderKey = str(self.deleteFromCart_form.ok.data).strip() ##: Urlsafe Key
-# 			orderSubTotal = self.deleteFromCart_form.ost.data
-# 
-# 			if urlsafeParentKey and urlsafeOrderKey:
-# 				cartKey = ndb.Key(urlsafe=urlsafeParentKey)
-# 				cart = cartKey.get()
-# 				if cart:
-# 					##: Convert orderKey back to Normal
-# 					orderKey = ndb.Key(urlsafe=urlsafeOrderKey)
-# 					if cart.key != orderKey.parent():
-# 						logging.error('The order being modified does not have a parent matching this parent')
-# 						message = _('Your request could not be completed at this time. Please try again later.')
-# 						self.add_message(message, 'error')
-# 					elif cart.uk == self.user_key:
-# 						##: Update the Cart's subtotals
-# 						oldCartSubTotal = cart.st
-# 						newCartSubTotal = int(oldCartSubTotal) - int(orderSubTotal)
-# 						if int(newCartSubTotal) < 0: newCartSubTotal = orderSubTotal
-# 						shoppingModels.Cart.update_subtotal_values(newCartSubTotal, oldCartSubTotal)
-# 
-# 						orderKey.delete()
-# 
-# 						logging.info("We have removed the Order Item form the parent and we Redirect to referrer")
-# 						message = _('We have removed the Order Item form the List')
-# 						self.add_message(message, 'success')
-# 					else:
-# 						logging.error("User Keys did not match between User and parent Owner")
-# 						message = _('You do not appear to be the owner of this Cart. We can not complete request.')
-# 						self.add_message(message, 'error')
-# 				else:
-# 					logging.error("Cart was not Found")
-# 					message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-# 					self.add_message(message, 'error')
-# 			else:
-# 				logging.error("CartKey or OrderKey not received from the Form Submission")
-# 				message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-# 				self.add_message(message, 'error')
-# 
-# 		except Exception as e:
-# 			logging.error("Error occurred running function POST of class DeleteOrderFromCartHandler: -- %s" % str(e))
-# 			message = _('There was an Error during form Submission. We can not complete request. Please try again Later')
-# 			self.add_message(message, 'error')
-# 
-# 		finally:
-# 			logging.debug('Redirecting to Referer')
-# 			try:
-# 				self.redirect(self.request.referer)
-# 			except:
-# 				self.redirect_to('home')
-# 					
-# 
-# 	@webapp2.cached_property
-# 	def deleteFromCart_form(self):
-# 		return forms.DeleteFromCartForm(self)
-
-
 class ChangeQuantityOfOrderHandler(BaseHandler):
 	@user_required
 	def post(self):
@@ -591,9 +523,7 @@ class ChangeQuantityOfOrderHandler(BaseHandler):
 
 
 class AddToSelectedCartFormHandler(BournEEHandler):
-	"""
-	Handler for the Products Exchange order form and info page.
-	"""
+
 	@user_required
 	def get(self, urlsafeProductKey):
 		""" Returns page containing part info and exchange order form """
@@ -1042,111 +972,111 @@ class ForkCartHandler(BournEEHandler):
 	def cartDetails_form(self):
 		return forms.CartDetailsForm(self)
 
-class CopyOrderBetweenCartsHandler(BaseHandler):
-	@user_required
-	def post(self):
-		try:
-			if not self.copyOrder_form.validate():
-				raise Exception("copyOrder_form did not validate.")
-			logging.info("cartDetails_form Form Was valid")
-			
-			cartOwner = False
-			entitiesToPut = []
-			orderItemKeys = []
-			orderItems = []
-			ordersToDeleteKeys = []
-			deletedOrderItemsSubTotal = 0
-			copiedOrderItemsSubTotal = 0
-
-			##: Try to fetch the data from the Form responce
-			originalUrlsafeCartKey = str(self.copyOrder_form.ock.data).strip()
-			newUrlsafeCartKey = str(self.copyOrder_form.nck.data).strip()
-			newCart = ndb.Key(urlsafe=newUrlsafeCartKey).get()
-			originalCart = ndb.Key(urlsafe=originalUrlsafeCartKey).get()
-
-			if newCart and originalCart:
-				if self.user:
-					if originalCart.uk == self.user_key:
-						cartOwner = True
-
-				newCart_oldSubTotal = newCart.st
-				
-				urlsafeOrderKey_values = self.request.get('oks', allow_multiple=True)
-				if cartOwner:
-					deleteItemsBoolean = self.request.get('di', None)
-				else:
-					deleteItemsBoolean = None
-
-				logging.info(urlsafeOrderKey_values)
-				if urlsafeOrderKey_values:
-					if len(urlsafeOrderKey_values) == 1:
-						orderItems = [ndb.Key(urlsafe=urlsafeOrderKey_values[0]).get()]
-					elif len(urlsafeOrderKey_values) > 1:
-						orderKey_values = [ndb.Key(urlsafe=urlsafeOrderKey) for urlsafeOrderKey in urlsafeOrderKey_values]
-						orderItems = ndb.get_multi(orderKey_values)
-
-					for orderItem in orderItems:
-						if deleteItemsBoolean and cartOwner:
-							ordersToDeleteKeys.append(orderItem.key)
-							deletedOrderItemsSubTotal += orderItem.st
-							
-						keyname = orderItem.key.id()
-						forkedOrderKey = ndb.Key(shoppingModels.Order, keyname, parent=newCart.key)
-						forkedOrder = forkedOrderKey.get()
-						if not forkedOrder:
-							copiedOrderItemsSubTotal += orderItem.st
-							forkedOrder = utils.clone_entity(orderItem, ck=newCart.key)
-							forkedOrder.key = forkedOrderKey
-							entitiesToPut.append(forkedOrder)
-
-					if len(entitiesToPut) > 0:
-						if deleteItemsBoolean and cartOwner:
-							##: We have the orginal Cart so we Delete the orders requested
-							if len(ordersToDeleteKeys) > 1:
-								ndb.delete_multi(ordersToDeleteKeys)
-								logging.info('Order items have been deleted during Order Copy in class CopyOrderBetweenCartsHandler')
-							elif len(ordersToDeleteKeys) == 1:
-								ordersToDeleteKeys[0].delete()
-								logging.info('Order items have been deleted during Order Copy in class CopyOrderBetweenCartsHandler')
-							##: Now we must update the Cart subtotals
-							oldSubTotal = originalCart.st
-							newSubTotal = (oldSubTotal - deletedOrderItemsSubTotal)
-							shoppingModels.Cart.update_subtotal_values(originalCart, newSubTotal, oldSubTotal, put_model=False)
-							entitiesToPut.append(originalCart)
-
-						##:	 Now lets update the New Carts SubTotal
-						oldSubTotal = newCart.st
-						newSubTotal = (oldSubTotal + copiedOrderItemsSubTotal)
-						shoppingModels.Cart.update_subtotal_values(newCart, newSubTotal, oldSubTotal, put_model=False)
-
-						entitiesToPut.append(newCart)
-						ndb.put_multi(entitiesToPut)
-
-						logging.error("The Order items have been copied.")
-						message = _('The Order items have been copied to the Cart named {}'.format(newCart.n))
-						self.add_message(message, 'success')
-					else:
-						logging.error("All orders selected were already in the other Cart")
-						message = _('All the orders selected were already in the Cart named {}'.format(newCart.n))
-						self.add_message(message, 'error')
-				else:
-					logging.error("None of the orders were selected for the form submission")
-					message = _('You did not select any of the orders below.')
-					self.add_message(message, 'error')
-			else:
-				logging.error("Cart was not found in function POST of class CopyOrderBetweenCartsHandler")
-				raise Exception("Cart was not found in function POST of class CopyOrderBetweenCartsHandler")
-
-		except Exception as e:
-			logging.error("Error occurred running function POST of class CopyOrderBetweenCartsHandler: -- %s" % str(e))
-			message = _('There was an Error during form submission. We can not complete request at this time. Please try again later')
-			self.add_message(message, 'error')
-		finally:
-			try:
-				self.redirect(self.request.referer)
-			except:
-				self.redirect_to('home')
-
-	@webapp2.cached_property
-	def copyOrder_form(self):
-		return forms.CopyOrderForm(self)	
+# class CopyOrderBetweenCartsHandler(BaseHandler):
+# 	@user_required
+# 	def post(self):
+# 		try:
+# 			if not self.copyOrder_form.validate():
+# 				raise Exception("copyOrder_form did not validate.")
+# 			logging.info("cartDetails_form Form Was valid")
+# 			
+# 			cartOwner = False
+# 			entitiesToPut = []
+# 			orderItemKeys = []
+# 			orderItems = []
+# 			ordersToDeleteKeys = []
+# 			deletedOrderItemsSubTotal = 0
+# 			copiedOrderItemsSubTotal = 0
+# 
+# 			##: Try to fetch the data from the Form responce
+# 			originalUrlsafeCartKey = str(self.copyOrder_form.ock.data).strip()
+# 			newUrlsafeCartKey = str(self.copyOrder_form.nck.data).strip()
+# 			newCart = ndb.Key(urlsafe=newUrlsafeCartKey).get()
+# 			originalCart = ndb.Key(urlsafe=originalUrlsafeCartKey).get()
+# 
+# 			if newCart and originalCart:
+# 				if self.user:
+# 					if originalCart.uk == self.user_key:
+# 						cartOwner = True
+# 
+# 				newCart_oldSubTotal = newCart.st
+# 				
+# 				urlsafeOrderKey_values = self.request.get('oks', allow_multiple=True)
+# 				if cartOwner:
+# 					deleteItemsBoolean = self.request.get('di', None)
+# 				else:
+# 					deleteItemsBoolean = None
+# 
+# 				logging.info(urlsafeOrderKey_values)
+# 				if urlsafeOrderKey_values:
+# 					if len(urlsafeOrderKey_values) == 1:
+# 						orderItems = [ndb.Key(urlsafe=urlsafeOrderKey_values[0]).get()]
+# 					elif len(urlsafeOrderKey_values) > 1:
+# 						orderKey_values = [ndb.Key(urlsafe=urlsafeOrderKey) for urlsafeOrderKey in urlsafeOrderKey_values]
+# 						orderItems = ndb.get_multi(orderKey_values)
+# 
+# 					for orderItem in orderItems:
+# 						if deleteItemsBoolean and cartOwner:
+# 							ordersToDeleteKeys.append(orderItem.key)
+# 							deletedOrderItemsSubTotal += orderItem.st
+# 							
+# 						keyname = orderItem.key.id()
+# 						forkedOrderKey = ndb.Key(shoppingModels.Order, keyname, parent=newCart.key)
+# 						forkedOrder = forkedOrderKey.get()
+# 						if not forkedOrder:
+# 							copiedOrderItemsSubTotal += orderItem.st
+# 							forkedOrder = utils.clone_entity(orderItem, ck=newCart.key)
+# 							forkedOrder.key = forkedOrderKey
+# 							entitiesToPut.append(forkedOrder)
+# 
+# 					if len(entitiesToPut) > 0:
+# 						if deleteItemsBoolean and cartOwner:
+# 							##: We have the orginal Cart so we Delete the orders requested
+# 							if len(ordersToDeleteKeys) > 1:
+# 								ndb.delete_multi(ordersToDeleteKeys)
+# 								logging.info('Order items have been deleted during Order Copy in class CopyOrderBetweenCartsHandler')
+# 							elif len(ordersToDeleteKeys) == 1:
+# 								ordersToDeleteKeys[0].delete()
+# 								logging.info('Order items have been deleted during Order Copy in class CopyOrderBetweenCartsHandler')
+# 							##: Now we must update the Cart subtotals
+# 							oldSubTotal = originalCart.st
+# 							newSubTotal = (oldSubTotal - deletedOrderItemsSubTotal)
+# 							shoppingModels.Cart.update_subtotal_values(originalCart, newSubTotal, oldSubTotal, put_model=False)
+# 							entitiesToPut.append(originalCart)
+# 
+# 						##:	 Now lets update the New Carts SubTotal
+# 						oldSubTotal = newCart.st
+# 						newSubTotal = (oldSubTotal + copiedOrderItemsSubTotal)
+# 						shoppingModels.Cart.update_subtotal_values(newCart, newSubTotal, oldSubTotal, put_model=False)
+# 
+# 						entitiesToPut.append(newCart)
+# 						ndb.put_multi(entitiesToPut)
+# 
+# 						logging.error("The Order items have been copied.")
+# 						message = _('The Order items have been copied to the Cart named {}'.format(newCart.n))
+# 						self.add_message(message, 'success')
+# 					else:
+# 						logging.error("All orders selected were already in the other Cart")
+# 						message = _('All the orders selected were already in the Cart named {}'.format(newCart.n))
+# 						self.add_message(message, 'error')
+# 				else:
+# 					logging.error("None of the orders were selected for the form submission")
+# 					message = _('You did not select any of the orders below.')
+# 					self.add_message(message, 'error')
+# 			else:
+# 				logging.error("Cart was not found in function POST of class CopyOrderBetweenCartsHandler")
+# 				raise Exception("Cart was not found in function POST of class CopyOrderBetweenCartsHandler")
+# 
+# 		except Exception as e:
+# 			logging.error("Error occurred running function POST of class CopyOrderBetweenCartsHandler: -- %s" % str(e))
+# 			message = _('There was an Error during form submission. We can not complete request at this time. Please try again later')
+# 			self.add_message(message, 'error')
+# 		finally:
+# 			try:
+# 				self.redirect(self.request.referer)
+# 			except:
+# 				self.redirect_to('home')
+# 
+# 	@webapp2.cached_property
+# 	def copyOrder_form(self):
+# 		return forms.CopyOrderForm(self)	

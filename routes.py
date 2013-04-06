@@ -44,6 +44,8 @@ _routes = [
 	RedirectRoute(r'/paidTabs', tabHandlers.PaidTabsRequestHandler, name='paidTabsList', methods=['GET'], strict_slash=True),
 	RedirectRoute(r'/viewTab/<urlsafeTabKey>', tabHandlers.ViewTabRequestHandler, name='viewTab', methods=['GET'], strict_slash=True),
 	RedirectRoute(r'/addToTab', tabHandlers.AddToTabHandler, name='addToTab', methods=['POST'], strict_slash=True),
+	RedirectRoute(r'/addCartToTab', tabHandlers.AddCartToTabHandler, name='addCartToTab', methods=['POST'], strict_slash=True),
+	
 
 	RedirectRoute(r'/exchangeOrder/<pk>', webHandlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
 	RedirectRoute(r'/createLimitOrder/<pk>', webHandlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
@@ -69,7 +71,7 @@ _routes = [
 	RedirectRoute(r'/selectCartForm/<urlsafeProductKey>', cartHandlers.AddToSelectedCartFormHandler, name='selectCartForm', methods=['GET', 'POST'], strict_slash=True),
 	#RedirectRoute(r'/removeFromCart', cartHandlers.DeleteOrderFromCartHandler, name='removeFromCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/changeQntOfOrder', cartHandlers.ChangeQuantityOfOrderHandler, name='changeQntOfOrder', methods=['POST'], strict_slash=True),
-	RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
+	#RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
 	RedirectRoute(r'/deleteCart', cartHandlers.DeleteCartHandler, name='deleteCart', methods=['POST'], strict_slash=True),
 
 	RedirectRoute(r'/paypal/<urlsafeTabKey>', paypalHandlers.PayPalPaymentHandler, name='paypalPayment', methods=['POST'], strict_slash=True),

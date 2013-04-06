@@ -25,19 +25,58 @@
 		{% endif %}
 		{% if cart.st > 0.01 %}
 		<div id='addCartToTabButtonWrapper' class='addCartToTabButtonWrapper'>
-			<form id='addCartToTabForm' name='addCartToTabForm' action="" method="POST">
+			<form id='addCartToTabForm' name='addCartToTabForm' action="{{ uri_for('addCartToTab')}}" method="POST">
 		            <input type="hidden" name="exception" value="{{ exception }}">
 		            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
-					<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
 					<div class="btn-group">
-					<button id='submitAddToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addCartToTabForm" >
+					<button id='submitAddCartToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addCartToTabForm" >
 						{% if not cart.dirty %} ${{cart.d_st}} - <small>put on Tab.</small>
 						{% else %} put on Tab.
 						{% endif %}
 					</button></div>
 			</form>
 		</div>
+		{% endif %}
+		{% if cart.owner %}
+			<div class='cartInfoWrapper'>
+				<div class='cartInfoTitle'>
+					Cart creator:
+				</div>
+				<div class='cartInfo'>
+					{{cart.owner}}
+				</div>
+			</div>
+		{% endif %}
+		{% if cart.cat %}
+			<div class='cartInfoWrapper'>
+				<div class='cartInfoTitle'>
+					Category:
+				</div>
+				<div class='cartInfo'>
+					{{cart.cat}}
+				</div>
+			</div>
+		{% endif %}
+		{% if cart.cd %}
+			<div class='cartInfoWrapper'>
+				<div class='cartInfoTitle'>
+					Created on:
+				</div>
+				<div class='cartInfo'>
+					{{cart.cd}}
+				</div>
+			</div>
+		{% endif %}
+		{% if cart.ud %}
+			<div class='cartInfoWrapper'>
+				<div class='cartInfoTitle'>
+					Updated on:
+				</div>
+				<div class='cartInfo'>
+					{{cart.ud}}
+				</div>
+			</div>
 		{% endif %}
 	</div>
 	<div class='span8'>
@@ -253,20 +292,41 @@
 												<div class="progress">
 												  <div class="bar bar-success" style="width: {{ order.popularity }}%;"></div>
 												</div>
+												<div class='cartRow_extraInfo green'>
+													$TODO popularity savings
+												</div>
 											</td>
 											<td class='span2 right'>
-												<div class="btn-group">
-													<button class="btn btn-mini">${{order.d_bup}} Buy</button>
-													<button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-														<span class="caret"></span>
-													</button>
-													<ul class="dropdown-menu pull-right">
-														<li><a href="{{ uri_for('product', urlsafeProductKey=order.pk.urlsafe() ) }}">View Product</a></li>
-													</ul>
+												<div class='small_buy_button_with_dropdown'>
+												<div class='form_with_dropdown_wrapper'>
+													<form id='addToTabForm' name='addToTabForm' action="{{ uri_for('addToTab')}}" method="POST" class='nomargin_form'>
+												            <input type="hidden" name="exception" value="{{ exception }}">
+												            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+															<input type="hidden" name="pk" value="{{order.pk.urlsafe()}}">
+															<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+															<input type="hidden" name="q" value="1">
+															<div class="btn-group">
+																<button class="btn btn-mini">${{order.d_bup}} Buy</button>
+															</div>
+													</form>
 												</div>
+												<div class='dropDown_in_form'>
+													<div class="btn-group">
+														<button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+															<span class="caret"></span>
+														</button>
+														<ul class="dropdown-menu pull-right">
+															<li><a href="{{ uri_for('product', urlsafeProductKey=order.pk.urlsafe() ) }}">View Product</a></li>
+														</ul>
+													</div>
+												</div>
+												<div class='clearfix'></div>
+												</div>
+												<div class='clearfix'></div>
+												
 												{% if order.q > 1 %}
-												<div>
-													<small>${{order.d_st}} @ {{order.q}}</small>
+												<div class='cartRow_extraInfo'>
+													${{order.d_st}} @ {{order.q}}
 												</div>
 												{% endif %}
 											</td>

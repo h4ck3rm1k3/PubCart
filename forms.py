@@ -128,6 +128,9 @@ class AddToTabForm(BaseForm):
 	uk = fields.TextField(_('User Number'), [validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	q = fields.IntegerField(_('QNT'), [validators.Required()])
 
+class AddCartToTabForm(BaseForm):
+	ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+
 class DeleteFromCartForm(BaseForm):
 	park = fields.TextField(_('Parent Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
 	ok = fields.TextField(_('Order Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])

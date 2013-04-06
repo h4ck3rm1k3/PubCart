@@ -143,6 +143,13 @@ class BournEEHandler(BaseHandler):
 			logging.error("Error determining user_real_name: -- {}".format(e))
 			return None
 
+	@webapp2.cached_property
+	def user_key(self):
+		if self.user:
+			user_info = models.User.get_by_id(long(self.user_id))
+			return user_info.key
+		return	None
+
 	@webapp2.cached_property	
 	def urlsafeUserKey(self):
 		if self.user:

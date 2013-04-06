@@ -47,7 +47,7 @@ def verify_cart_subtotals(urlsafeCartKey):
 		newSubTotal = cart.st
 		if oldSubTotal != newSubTotal:
 			##:  Now lets update the New Carts SubTotal
-			Cart.update_subtotal_values(cart, newSubTotal, oldSubTotal)
+			Cart.update_subtotal_values(cart, newSubTotal, oldSubTotal, put_model=True, dirty=False)
 	else: logging.error('Error in verify_subtotals for Cart, Cart could not be found from the urlsafeCartKey ')
 
 
@@ -465,6 +465,13 @@ class Cart(ndb.Model):
 	@property
 	def num_items(cls):
 		return Order.query(ancestor=cls.key).count()
+	
+	@property
+	def owner(cls):
+		user = cls.uk.get()
+		if user:
+			return user.username
+		return None
 
 	@staticmethod
 	def _write_properties_for_api():
@@ -546,9 +553,10 @@ class Cart(ndb.Model):
 			return None
 
 	@staticmethod
-	def update_subtotal_values(cart, newSubTotal, old_subtotal=0, put_model=True):
+	def update_subtotal_values(cart, newSubTotal, old_subtotal=0, put_model=True, dirty=True):
 		try:
 			cart.st = int(newSubTotal)
+			cart.dirty = dirty
 			if int(old_subtotal) != int(cart.st):
 				if put_model:
 					cart.put()
