@@ -1,0 +1,50 @@
+{% extends "not_loggedin_base.html" %}
+
+{% block main_content %}
+<div class="span10">
+	<div class='intro_wrapper'>
+		<div class="header1">We need a default address <strong> {{user.username}}.</strong></div>
+		<div class="header2">Setup your default address so we can ship everything to the right place!</br>Now there's one less thing to fill out when you buy online.</div>
+		<div class="preReg_wrapper_box wrapper_box_small">
+			<form class='nomargin_form form-horizontal' method='POST'>
+				<fieldset>
+		            <input type="hidden" name="exception" value="{{ exception }}">
+		            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		            <input type="hidden" name="uk" value="{{ urlsafeUserKey }}">
+					<div class="field_container name address_field_container">
+						{{ macros.field_no_label(form.n, type='text', class="field_reg_form field_medium", placeholder='Full Name...')}}
+					</div>
+					<div class="field_container address address_field_container">
+						{{ macros.field_no_label(form.ad, type='text', class="field_reg_form field_medium", placeholder='Address...')}}
+					</div>
+					<div class="field_container city address_field_container">
+						{{ macros.field_no_label(form.c, type='text', class="field_reg_form field_small", placeholder='City...')}}
+					</div>
+					<div class="field_container state address_field_container">
+						{{ macros.field_no_label(form.s, type='text', class="field_reg_form field_small", placeholder='State / Province...')}}
+					</div>
+					<div class="field_container country address_field_container">
+						{{ macros.field_no_label(form.con, type='text', class="field_reg_form field_small")}}
+					</div>
+					<div class="field_container zip address_field_container">
+						{{ macros.field_no_label(form.z, type='text', class="field_reg_form field_small", placeholder='Zip / Postal Code...')}}
+					</div>
+					<div class="field_container phone address_field_container">
+						{{ macros.field_no_label(form.pn, type='text', class="field_reg_form field_medium", placeholder='Phone Number...')}}
+					</div>
+						<button class='preReg_button marginTop10 marginBottom10' type='submit' >Setup address.</button>
+					<div style="clear:both;"></div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="span2">
+	<div class="white_wrapper_box_tab">
+		<header>
+			<h1>on your tab.</h1>
+		</header>
+	</div>
+</div>
+{% endblock %}

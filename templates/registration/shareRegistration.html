@@ -1,0 +1,47 @@
+{% extends "not_loggedin_base.html" %}
+
+{% block mediaScripts %}
+<script type="text/javascript">var switchTo5x=false;</script>
+<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+<script type="text/javascript">stLight.options({publisher: "f8506e67-f112-448c-bfee-c3e10c576198", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+{% endblock %}
+
+{% block main_content %}
+<div class="span10">
+	<div class='intro_wrapper'>
+		<div class="header1">Shopping is better with friends. <strong> Share Us.</strong></div>
+		<div class="header2">Also the more people shop the bigger the savings get!</br>Many people choose to share us using Twitter.</div>
+		<div class="preReg_wrapper_box wrapper_box_small">
+			<div class='share_buttons_wrapper'>
+			<div class='shareForm pull-right span5'>
+				<span class='st_facebook_large' displayText='Facebook'></span>
+				<span class='st_twitter_large' displayText='Tweet'></span>
+				<span class='st_googleplus_large' displayText='Google +'></span>
+				<span class='st_blogger_large' displayText='Blogger'></span>
+				<span class='st_wordpress_large' displayText='WordPress'></span>
+				<span class='st_myspace_large' displayText='MySpace'></span>
+				<span class='st_reddit_large' displayText='Reddit'></span>
+				<span class='st_digg_large' displayText='Digg'></span>
+				<span class='st_tumblr_large' displayText='Tumblr'></span>
+				<span class='st_stumbleupon_large' displayText='StumbleUpon'></span>
+				<span class='st_email_large' displayText='Email'></span>
+			</div>
+			</div>
+			<div class='link_button_wrapper'>
+				<form class='' action='{% if continue_url %}{{uri_for("appRecommendRegister", continue_url=continue_url)}} {% else %} {{uri_for("appRecommendRegister")}} {% endif %}'>
+				  <button class="preReg_button marginTop15" id="btn_preReg" type="submit">i've shared.</button>
+				  <button class="preReg_button preReg_button_grey marginTop15" id="btn_preReg" type="submit">i'll share later.</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="span2">
+	<div class="white_wrapper_box wrapper_box_sidebar">
+		<header>
+			<h1>on your tab.</h1>
+		</header>
+	</div>
+</div>
+{% endblock %}

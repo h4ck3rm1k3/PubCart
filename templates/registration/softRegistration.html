@@ -1,0 +1,27 @@
+{% extends "not_loggedin_base.html" %}
+
+{% block title %}{{ app_name }} Welcome{% endblock %}
+
+{% block main_content %}
+   	<div class="span12">
+		<div class='intro_wrapper'>
+      		<div class="header1">Crowdsource your<strong> Component Buying.</strong></div>
+      		<div class="header2">PubCart will batch order your electrical components. <br>The more demand a component has, the more you save!</div>
+			<div class="preReg_wrapper_box">
+				<form id="preReg_form" class='nomargin_form' method='POST'>
+					<input type="hidden" name="exception" value="{{ exception }}">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				  <div class="field_container email">
+				    <label for="email" class="label_reg_form">Your email</label>					
+					{{ macros.field_no_label(form.email, type='email', class="field_reg_form", placeholder='Enter email to register fast...') }}
+				  </div>
+				  <button class="preReg_button" id="btn_preReg" type="submit">Submit email.</button>
+
+				  <div style="clear:both;"></div>
+				</form>
+			</div>
+		</div>
+   	</div>
+{% endblock %}
+
+

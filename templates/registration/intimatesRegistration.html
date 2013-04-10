@@ -1,0 +1,31 @@
+{% extends "not_loggedin_base.html" %}
+
+{% block main_content %}
+<div class="span12">
+	<div class='intro_wrapper'>
+		<div class="header1">Setup your <strong> Username & Password.</strong></div>
+		<div class="header2">Lets finish setting you up. <br>You cannot change your username once set ... choose carefully!</div>
+		<div class="preReg_wrapper_box wrapper_box_wide">
+			<form id="preReg_form" class='nomargin_form' method='POST'>
+				<input type="hidden" name="exception" value="{{ exception }}">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			  <div class="field_container username">
+			    <label for="username" class="label_reg_form label_small">Username</label>					
+				{{ macros.field_no_label(form.username, type='text', class="field_reg_form field_small", placeholder='Username...') }}
+			  </div>
+			  <div class="field_container password">
+			    <label for="password" class="label_reg_form label_small">Password</label>					
+				{{ macros.field_no_label(form.password, type='password', class="field_reg_form field_small", placeholder='Password...') }}
+			  </div>
+			  <div class="field_container c_password">
+			    <label for="c_password" class="label_reg_form label_small">Confirm Password</label>					
+				{{ macros.field_no_label(form.c_password, type='password', class="field_reg_form field_small", placeholder='Confirm Password...') }}
+			  </div>
+			  <button class="preReg_button" id="btn_preReg" type="submit">Set your password.</button>
+			  <div style="clear:both;"></div>
+			</form>
+		</div>
+		<a href='{{uri_for("softRegister")}}'>setup a different email</a>
+	</div>
+</div>
+{% endblock %}

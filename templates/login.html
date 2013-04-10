@@ -1,0 +1,47 @@
+{% extends "not_loggedin_base.html" %}
+
+{% block title %}{{ app_name }} - Log In{% endblock %}
+
+{% block mediaScripts %}{% endblock %}
+
+{% block main_content %}
+   	<div class="span12">
+		<div class='intro_wrapper'>
+			{% if logged_out %}
+      			<div class="header1">Your are logged out.<strong> See you again soon!</strong></div>
+			{% else %}
+				<div class="header1">Welcome.<strong> Log in below.</strong></div>
+			{% endif %}
+      		<div class="header2">New products are always being added. <br>Look at Carts to help you buy complimentary items.</div>
+			<div class="preReg_wrapper_box wrapper_box_small">
+				<form class='nomargin_form form-horizontal' method='POST'>
+			        <fieldset>
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<div class="field_container username">
+							{{ macros.field_no_label(form.username, type='text', class="field_reg_form field_medium", placeholder='Enter your Username or Email')}}
+						</div>
+						<div class="field_container password login_field_container">
+							{{ macros.field_no_label(form.password, type='password', class="field_reg_form field_medium", placeholder='Enter your Password')}}
+						</div>
+						<button type="submit" class="preReg_button marginTop15 marginBottom15">{% trans %}Login{% endtrans %}</button>
+	                    <label class="remember">
+	                        <input type="checkbox" name="remember_me" id="remember_me" value="on">
+	                        {% trans %}Remember me?{% endtrans %}
+	                    </label>
+			            <div class="control-group">
+			                <a href="{{ uri_for("password-reset") }}">{% trans %}Forgot your password?{% endtrans %}</a>
+			            </div>
+			            {{ macros.federated_login(provider_info, provider_uris, enable_federated_login) }}
+			            <div id="register" class="form-actions">
+			                <h4>{% trans %}Don't have an account?{% endtrans %}</h4>
+			               	<a href="{{ uri_for('softRegister') }}" class="btn btn-primary btn-login">{% trans %}Sign Up{% endtrans %}</a>
+			            </div>
+			        </fieldset>
+			    </form>
+			</div>
+		</div>
+   	</div>
+{% endblock %}
+
+
+
