@@ -146,7 +146,7 @@ class BournEEHandler(BaseHandler):
 	@webapp2.cached_property
 	def user_key(self):
 		if self.user:
-			user_info = models.User.get_by_id(long(self.user_id))
+			user_info = userModels.User.get_by_id(long(self.user_id))
 			return user_info.key
 		return	None
 

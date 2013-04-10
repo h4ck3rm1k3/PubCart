@@ -439,7 +439,7 @@ class Cart(ndb.Model):
 		Carts can be public
 	"""
 	uk = ndb.KeyProperty(kind=User) ##: User Model Key
-	n = ndb.StringProperty(default='My list') ##: Cart Name
+	n = ndb.StringProperty(indexed=False) ##: Cart Name
 	d = ndb.StringProperty(indexed=False) ##: Cart Description
 	cat = ndb.StringProperty() ##: Cart Category
 	img = ndb.StringProperty(indexed=False) ##: Image
@@ -499,13 +499,12 @@ class Cart(ndb.Model):
 
 
 	@staticmethod
-	def create_cart(cartKey, userKey, cartName, cartDescritpion=None, cartCategory=None, put_model=True):
+	def create_cart(cartKey, userKey, cartName, cartCategory=None, put_model=True):
 		try:
 			cart = Cart(
 						key = cartKey, \
 						uk = userKey, \
 						n = cartName, \
-						d = cartDescritpion, \
 						cat = cartCategory, \
 						)
 			if put_model:
@@ -516,7 +515,7 @@ class Cart(ndb.Model):
 			return None
 
 	@staticmethod
-	def get_or_create_cart(userKey, urlsafeCartKey , cartName, cartDescritpion=None, cartCategory=None):
+	def get_or_create_cart(userKey, urlsafeCartKey , cartName, cartCategory=None):
 		try:
 			if urlsafeCartKey:
 				return ndb.Key(urlsafe=urlsafeCartKey).get()
@@ -525,7 +524,7 @@ class Cart(ndb.Model):
 				cartKey = ndb.Key(Cart, cartKeyName, parent=userKey)
 				cart = cartKey.get()
 				if cart: return cart
-				else: return Cart.create_cart(cartKey, userKey, str(cartName).lower(), cartDescritpion, cartCategory)
+				else: return Cart.create_cart(cartKey, userKey, str(cartName), cartCategory)
 
 			return None
 		except Exception as e:

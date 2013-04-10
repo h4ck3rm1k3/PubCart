@@ -32,7 +32,6 @@ from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
 
 ##:	 Boilerplate Imports
-from boilerplate import models
 from boilerplate.lib.basehandler import BaseHandler
 
 
@@ -79,31 +78,15 @@ class MyCartsHandler(BournEEHandler):
 				self.redirect_to('home')
 
 
-class CreateCartInfoHandler(RegisterBaseHandler):
-	def get(self):
-		try:
-			if self.user:
-				return self.loggedin_get()
-			params = {}
-			self.bournee_template('createCart.html', **params)
-
-		except Exception as e:
-			logging.error('Error in function GET of handler CreateCartInfoHandler: -- {}'.format(e))
-			message = _('An error occurred while fetching the requested page. Please try again later.')
-			self.add_message(message, 'error')
-			try:
-				self.redirect(self.request.referer)
-			except:
-				self.redirect_to('home')
-
+class CreateCartInfoHandler(BournEEHandler):
 	@user_required
-	def loggedin_get(self):
+	def get(self):
 		try:
 			params = {'createCartForm': self.createCart_form,}
 			self.bournee_template('createCartForm.html', **params)
 
 		except Exception as e:
-			logging.error('Error in function loggedin_get of handler CreateCartInfoHandler: -- {}'.format(e))
+			logging.error('Error in function GET of handler CreateCartInfoHandler: -- {}'.format(e))
 			message = _('An error occurred while fetching the requested page. Please try again later.')
 			self.add_message(message, 'error')
 			try:
@@ -116,17 +99,20 @@ class CreateCartInfoHandler(RegisterBaseHandler):
 		try:
 			if not self.createCart_form.validate():
 				logging.error('createCart_form did not Validate, in function POST of AddToCartHandler')
-				return self.loggedin_get()
+				return self.get()
 				
 			logging.info("createCart_form Form Was valid")
 
 			##: Try to fetch the data from the Form response
 			cartName = str(self.createCart_form.name.data).strip()
-			cartDescription = str(self.createCart_form.description.data).strip()
 			cartCategory = str(self.createCart_form.category.data).strip()
 			
-			cartModel = shoppingModels.Cart.get_or_create_cart(self.user_key, urlsafeCartKey=None , cartName=cartName, \
-														cartDescritpion=cartDescription, cartCategory=cartCategory)
+			cartModel = shoppingModels.Cart.get_or_create_cart(
+								self.user_key, \
+								urlsafeCartKey=None , \
+								cartName=cartName, \
+								cartCategory=cartCategory, \
+								)
 			
 			if not cartModel:
 				raise Exception('Could not create cartModel from function get_or_create_cart()')
@@ -172,7 +158,7 @@ class FullPageCartHandler(RegisterBaseHandler):
 	
 	def public_cart(self, userID, cartName):
 		try:
-			cartOwnerInfo = models.User.get_by_id(long(userID))
+			cartOwnerInfo = userModels.User.get_by_id(long(userID))
 			if cartOwnerInfo:
 				cartOwnerKey = cartOwnerInfo.key
 				cartKey = ndb.Key(shoppingModels.Cart, str(cartName).upper(), \

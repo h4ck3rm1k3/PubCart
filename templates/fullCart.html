@@ -1,5 +1,5 @@
 {% extends "home.html" %}
-{% import 'macros.html' as lib with context %}
+{% import 'macros.html' as macros %}
 
 {% block title %}
     {{cart.n}} - BournEE Exchange
@@ -133,14 +133,15 @@
 						<a id='fcDetailsButton' class='btn-link subnavMenuItem'>Edit details.</a>
 					</div>
 					<div class='subnavMenuItemWrapper'>
-						<a id='fcAddProductButton' class='btn-link subnavMenuItem {% if createCart %}active{% endif %}'>Add products.</a>
+						<a id='fcAddProductButton' class='btn-link subnavMenuItem {% if createCart or not productOrders %}active{% endif %}'>Add products.</a>
 					</div>
 				{% endif %}
 			{% endif %}
 		</nav>
 		<div class='clearfix'></div>
-		{% if cartOwner %}
-			<section id='addProductFormWrapper' class="white_wrapper_box_span7" {% if not createCart %}style='display:none;'{% endif %}>
+			{% if cartOwner %}
+			<div id='addProductWrapper' class='addProductWrapper' {% if not createCart and productOrders %}style='display:none;'{% endif %}>
+				<section class='white_wrapper_box_span8'>
 					<form id="addProduct_form" class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
 						<input type="hidden" name="exception" value="{{ exception }}">
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -157,84 +158,119 @@
 
 					  <div style="clear:both;"></div>
 					</form>
-			</section>
-		{% endif %}
-			<section class='white_wrapper_box_span7'>
-								<div id='shareWrapper' class='shareWrapper' style='display:none;'>
-									<div class='shareContent span3'>
-										<h4>Share this cart.</h4>
-										<p>What is Embed? Let's explain.</p>
-									</div>
-									<div class='shareForm pull-right span5'>
-										<span class='st_facebook_large' displayText='Facebook'></span>
-										<span class='st_twitter_large' displayText='Tweet'></span>
-										<span class='st_googleplus_large' displayText='Google +'></span>
-										<span class='st_blogger_large' displayText='Blogger'></span>
-										<span class='st_wordpress_large' displayText='WordPress'></span>
-										<span class='st_myspace_large' displayText='MySpace'></span>
-										<span class='st_reddit_large' displayText='Reddit'></span>
-										<span class='st_digg_large' displayText='Digg'></span>
-										<span class='st_tumblr_large' displayText='Tumblr'></span>
-										<span class='st_stumbleupon_large' displayText='StumbleUpon'></span>
-										<span class='st_email_large' displayText='Email'></span>
-										<div class='well well-small'>
-										<p>Cart page link.</p>
-										<input type='text' class='span4' value="http://www.pubCart.com{{uri_for('fullPublicCart', userID=cart.uk.id(), cartName=cart.n)}}"/></div>
-									</div>
-								</div>
-								<div id='embedWrapper' class='embedWrapper' style='display:none;'>
-									<div class='embedContent span3'>
-										<h4>Embed on your site.</h4>
-										<p>What is embed? Let's explain.</p>
+				</section>
+			</div>
+			{% endif %}
+	
+			<!-- ########################## -->
+			<!-- Beginning OF SHARE WRAPPER -->
+			<!-- ########################## -->
+			<div id='shareWrapper' class='shareWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<div class='shareContent span3'>
+						<h4>Share this cart.</h4>
+						<p>What is Embed? Let's explain.</p>
+					</div>
+					<div class='shareForm pull-right span5'>
+						<span class='st_facebook_large' displayText='Facebook'></span>
+						<span class='st_twitter_large' displayText='Tweet'></span>
+						<span class='st_googleplus_large' displayText='Google +'></span>
+						<span class='st_blogger_large' displayText='Blogger'></span>
+						<span class='st_wordpress_large' displayText='WordPress'></span>
+						<span class='st_myspace_large' displayText='MySpace'></span>
+						<span class='st_reddit_large' displayText='Reddit'></span>
+						<span class='st_digg_large' displayText='Digg'></span>
+						<span class='st_tumblr_large' displayText='Tumblr'></span>
+						<span class='st_stumbleupon_large' displayText='StumbleUpon'></span>
+						<span class='st_email_large' displayText='Email'></span>
+						<div class='well well-small'>
+						<p>Cart page link.</p>
+						<input type='text' class='span4' value="http://www.pubCart.com{{uri_for('fullPublicCart', userID=cart.uk.id(), cartName=cart.n)}}"/></div>
+					</div>
+				</section>
+			</div>
+			<!-- #################### -->
+			<!-- END OF SHARE WRAPPER -->
+			<!-- #################### -->
+			
+			<!-- ########################## -->
+			<!-- BEGINNING OF EMBED WRAPPER -->
+			<!-- ########################## -->
+			<div id='embedWrapper' class='embedWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<div class='embedContent span3'>
+						<h4>Embed on your site.</h4>
+						<p>What is embed? Let's explain.</p>
 
-									</div>
-									<div class='embedForm well well-small span5 pull-right'>
-										<textarea rows='6' class='span5'>Replace with embed code</textarea>
-									</div>
-								</div>
-								{% if '/forkCart/' not in path %}
-								<div id='forkWrapper' class='forkWrapper' style='display:none;'>
-									<div class='forkContent span3'>
-										<h4>Fork this cart.</h4>
-										<p>What is a Fork? Let's explain.</p>
-									</div>
-									<div class='forkForm well well-small span5 pull-right form-horizontal'>
-										<form class='nomargin_form' action="{{ uri_for('forkCart', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
-											<fieldset>
-									            <input type="hidden" name="exception" value="{{ exception }}">
-									            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-									            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-												{{ lib.field(forkCartForm.name, class="span3", maxlength="50", value='', placeholder='Max 50 characters', label=_("New Cart Name")) }}
-												{{ lib.field(forkCartForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
-												{{ lib.field(forkCartForm.category, class="span3", label=_("Cart Category")) }}
-												<button class='btn btn-primary pull-right' type='submit' >Fork Cart</button>
-											</fieldset>
-										</form>
-									</div>
-								</div>
-								{% endif %}
-								{% if '/forkCart/' not in path %}
-								<div id='detailsWrapper' class='detailsWrapper' style='display:none;'>
-									<div class='detailsContent span3'>
-										<h4>Edit cart details.</h4>
-										<p>How to fill out the form.</p>
-									</div>
-									<div class='detailsForm well well-small span5 pull-right form-horizontal'>
-										<form class='nomargin_form' action="{{ uri_for('editCartDetails', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
-											<fieldset>
-									            <input type="hidden" name="exception" value="{{ exception }}">
-									            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-									            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-												{{ lib.field(cartDetailsForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
-												{{ lib.field(cartDetailsForm.category, class="span3", label=_("Cart Category")) }}
-												<button class='btn btn-primary pull-right' type='submit' >Update Details</button>
-											</fieldset>
-										</form>
-									</div>
-								</div>
-								{% endif %}
-
-
+					</div>
+					<div class='embedForm well well-small span5 pull-right'>
+						<textarea rows='6' class='span5'>Replace with embed code</textarea>
+					</div>
+				</section>
+			</div>
+			<!-- #################### -->
+			<!-- END OF EMBED WRAPPER -->
+			<!-- #################### -->
+			
+			
+			<!-- ########################## -->
+			<!-- BEGINNING OF FORK WRAPPER -->
+			<!-- ########################## -->
+			{% if '/forkCart/' not in path %}
+			<div id='forkWrapper' class='forkWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<div class='forkContent span3'>
+						<h4>Fork this cart.</h4>
+						<p>What is a Fork? Let's explain.</p>
+					</div>
+					<div class='forkForm well well-small span5 pull-right form-horizontal'>
+						<form class='nomargin_form' action="{{ uri_for('forkCart', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+					            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+								{{ macros.field(forkCartForm.name, class="span3", maxlength="50", value='', placeholder='Max 50 characters', label=_("New Cart Name")) }}
+								{{ macros.field(forkCartForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
+								{{ macros.field(forkCartForm.category, class="span3", label=_("Cart Category")) }}
+								<button class='btn btn-primary pull-right' type='submit' >Fork Cart</button>
+							</fieldset>
+						</form>
+					</div>
+				</section>
+			</div>
+			{% endif %}
+			<!-- ################### -->
+			<!-- END OF FORK WRAPPER -->
+			<!-- ################### -->
+			
+			<!-- ################################# -->
+			<!-- BEGINNING OF EDIT DETAILS WRAPPER -->
+			<!-- ################################# -->
+			<div id='detailsWrapper' class='detailsWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<div class='detailsContent span3'>
+						<h4>Edit cart details.</h4>
+						<p>How to fill out the form.</p>
+					</div>
+					<div class='detailsForm well well-small span5 pull-right form-horizontal'>
+						<form class='nomargin_form' action="{{ uri_for('editCartDetails', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
+							<fieldset>
+					            <input type="hidden" name="exception" value="{{ exception }}">
+					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+					            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+								{{ macros.field(cartDetailsForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
+								{{ macros.field(cartDetailsForm.category, class="span3", label=_("Cart Category")) }}
+								<button class='btn btn-primary pull-right' type='submit' >Update Details</button>
+							</fieldset>
+						</form>
+					</div>
+				</section>
+			</div>
+			<!-- ########################### -->
+			<!-- END OF EDIT DETAILS WRAPPER -->
+			<!-- ########################### -->
+		
+			<section class='white_wrapper_box_span8'>
 					{% block CartContent %}
 						{% if productOrders %}
 							<table class="table table-striped table-hover table-condensed cartTable nomargin_table">
@@ -347,6 +383,7 @@
 						{% endif %}
 					{% endblock %}
 			</section>
+			
 			<div class='clearfix'></div>
 			
 			{% if cartOwner %}

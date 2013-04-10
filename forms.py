@@ -146,10 +146,8 @@ class ChangeQntOfOrderForm(BaseForm):
 
 class CreateCartForm(BaseForm):
 	CATEGORIES = base_categories()
-	logging.info('Categories: {}'.format(CATEGORIES))
 	name = fields.TextField(_('Cart Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH), \
 				validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Address Reference Name invalid. Use only letters and numbers.'))])
-	description = fields.TextAreaField(_('Description'), [validators.Required()])
 	category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
 
 class ForkCartForm(BaseForm):

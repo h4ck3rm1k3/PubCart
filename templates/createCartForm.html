@@ -1,25 +1,34 @@
-{% extends "createCart.html" %}
+{% extends "home.html" %}
+{% import 'macros.html' as macros %}
 
-{% import 'macros.html' as lib with context %}
-
-{% block createCartForm %}
-	<div class='well well-small form-horizontal'>
-		<form class='nomargin_form' method='POST'>
-			<fieldset>
-	            <input type="hidden" name="exception" value="{{ exception }}">
-	            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-				{{ lib.field(createCartForm.name, class="span6", maxlength="50", placeholder='Max 50 characters', label=_("New Cart Name")) }}
-				{{ lib.field(createCartForm.description, class="span6", rows="10", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
-				{{ lib.field(createCartForm.category, class="span3", label=_("Cart Category")) }}
-				<button class='btn btn-primary pull-right' type='submit' >Create the cart.</button>
-			</fieldset>
-		</form>
-	</div>
+{% block title %}
+    Create a cart. - BournEE Exchange
 {% endblock %}
 
-{% block top_right_aside %}
-	<header><h4>Tips for your cart info.</h4></header>
-	<ul>
-		<li></li>
-	</ul>
+{% block mediaScripts %}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main_content %}
+<div class='intro_wrapper'>
+	<div class="header1">Setup a new <strong> Cart.</strong></div>
+	<div class="header2">Show the world the items you think are important.<br>Organize, list and promoted a project, idea or favourite products.</div>
+	<div class="white_wrapper_box_span10">
+		<form id="newCart_form" class='nomargin_form' method='POST'>
+			<input type="hidden" name="exception" value="{{ exception }}">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		  <div class="field_container cartName">
+		    <label for="cartName" class="form_label label_medium">Cart name</label>					
+			{{ macros.field_no_label(createCartForm.name, type='text', class="form_field field_medium", placeholder='Choose a cart name...') }}
+		  </div>
+		  <div class="field_container category">
+		    <label for="category" class="form_label label_small">Category</label>					
+			{{ macros.field_no_label(createCartForm.category, class="form_field field_medium") }}
+		  </div>
+		  <button class="pubcart_button" id="btn_newCart" type="submit">Create the cart.</button>
+		  <div style="clear:both;"></div>
+		</form>
+	</div>
+</div>
 {% endblock %}

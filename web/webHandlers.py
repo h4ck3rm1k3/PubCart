@@ -37,7 +37,6 @@ from lib import paypal_settings as settings
 from lib.livecount.counter import LivecountCounter
 
 ##:	 Boilerplate Imports
-from boilerplate import models
 from boilerplate.lib.basehandler import BaseHandler
 
 
@@ -92,14 +91,14 @@ class LoginRequestHandler(RegisterBaseHandler):
 
 		try:
 			if utils.is_email_valid(username):
-				user = models.User.get_by_email(username)
+				user = userModels.User.get_by_email(username)
 				if user:
 					auth_id = user.auth_ids[0]
 				else:
 					raise InvalidAuthIdError
 			else:
 				auth_id = "own:%s" % username
-				user = models.User.get_by_auth_id(auth_id)
+				user = userModels.User.get_by_auth_id(auth_id)
 
 			password = self.form.password.data.strip()
 			remember_me = True if str(self.request.POST.get('remember_me')) == 'on' else False
@@ -121,13 +120,13 @@ class LoginRequestHandler(RegisterBaseHandler):
 
 				# redirect to home with error message
 				resend_email_uri = self.uri_for('resend-account-activation', user_id=user.get_id(),
-												token=models.User.create_resend_token(user.get_id()))
+												token=userModels.User.create_resend_token(user.get_id()))
 				message = _('Your account has not yet been activated. Please check your email to activate it or') +\
 						  ' <a href="'+resend_email_uri+'">' + _('click here') + '</a> ' + _('to resend the email.')
 				self.add_message(message, 'error')
 				return self.redirect_to('home')
 
-			logVisit = models.LogVisit(
+			logVisit = userModels.LogVisit(
 				user=user.key,
 				uastring=self.request.user_agent,
 				ip=self.request.remote_addr,

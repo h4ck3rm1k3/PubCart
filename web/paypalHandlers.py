@@ -32,7 +32,6 @@ from lib.exceptions import FunctionException
 from lib import paypal_settings as settings
 
 ##:	 Boilerplate Imports
-from boilerplate import models
 from boilerplate.lib.basehandler import BaseHandler
 
 class PayPalPaymentHandler(BournEEHandler):
