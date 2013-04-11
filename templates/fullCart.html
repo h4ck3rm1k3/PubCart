@@ -91,7 +91,11 @@
 		</header>
 		<article class='cartDescription'>
 			<div class='muted'>Description:</div>
-			<div>This is the projects description. You can read this to understand what all the items in the cart are for.</div>
+			{% if cart.d %}
+				<div>{{cart.d}}</div>
+			{% else %}
+				<div>No cart description setup. Please click the -Edit Details- link below to setup teh cart's description.</div>
+			{% endif %}
 		</article>
 		<nav class='cartMenuWrapper'>
 			{% if not cart.public %}
@@ -139,27 +143,31 @@
 			{% endif %}
 		</nav>
 		<div class='clearfix'></div>
-			{% if cartOwner %}
-			<div id='addProductWrapper' class='addProductWrapper' {% if not createCart and productOrders %}style='display:none;'{% endif %}>
-				<section class='white_wrapper_box_span8'>
-					<form id="addProduct_form" class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
-						<input type="hidden" name="exception" value="{{ exception }}">
-						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-						<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-					  <div class="field_container product_number">
-					    <label for="product_number" class="form_label label_small">Product Number</label>					
-						{{ macros.field_no_label(addProductForm.productNumber, class="form_field field_small", placeholder='Manufacturer product number...') }}
-					  </div>
-					  <div class="field_container product_seller">
-					    <label for="product_seller" class="form_label label_small">Product Seller</label>					
-						{{ macros.field_no_label(addProductForm.urlsafeSellerKey, class="form_field field_small") }}
-					  </div>
-					  <button class="pubcart_button" id="btn_addProduct" type="submit">Add product to cart.</button>
 
-					  <div style="clear:both;"></div>
-					</form>
-				</section>
-			</div>
+			<!-- ################################ -->
+			<!-- Beginning OF APP PRODUCT WRAPPER -->
+			<!-- ################################ -->
+			{% if cartOwner %}
+				<div id='addProductWrapper' class='addProductWrapper' {% if not createCart and productOrders %}style='display:none;'{% endif %}>
+					<section class='white_wrapper_box_span8'>
+						<form id="addProduct_form" class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
+							<input type="hidden" name="exception" value="{{ exception }}">
+							<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+						  <div class="field_container product_number">
+						    <label for="product_number" class="form_label label_small">Product Number</label>					
+							{{ macros.field_no_label(addProductForm.productNumber, class="form_field field_small", placeholder='Manufacturer product number...') }}
+						  </div>
+						  <div class="field_container product_seller">
+						    <label for="product_seller" class="form_label label_small">Product Seller</label>					
+							{{ macros.field_no_label(addProductForm.urlsafeSellerKey, class="form_field field_small") }}
+						  </div>
+						  <button class="pubcart_button" id="btn_addProduct" type="submit">Add product to cart.</button>
+
+						  <div style="clear:both;"></div>
+						</form>
+					</section>
+				</div>
 			{% endif %}
 	
 			<!-- ########################## -->
@@ -219,23 +227,22 @@
 			{% if '/forkCart/' not in path %}
 			<div id='forkWrapper' class='forkWrapper' style='display:none;'>
 				<section class='white_wrapper_box_span8'>
-					<div class='forkContent span3'>
-						<h4>Fork this cart.</h4>
-						<p>What is a Fork? Let's explain.</p>
-					</div>
-					<div class='forkForm well well-small span5 pull-right form-horizontal'>
-						<form class='nomargin_form' action="{{ uri_for('forkCart', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
-							<fieldset>
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-					            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-								{{ macros.field(forkCartForm.name, class="span3", maxlength="50", value='', placeholder='Max 50 characters', label=_("New Cart Name")) }}
-								{{ macros.field(forkCartForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
-								{{ macros.field(forkCartForm.category, class="span3", label=_("Cart Category")) }}
-								<button class='btn btn-primary pull-right' type='submit' >Fork Cart</button>
-							</fieldset>
-						</form>
-					</div>
+					<header class='fullCart_popupFormsHeader'>Fork cart.</header>
+					<form class='nomargin_form' action="{{ uri_for('forkCart', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
+						<input type="hidden" name="exception" value="{{ exception }}">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+		 				<div class="field_container cartName">
+		  				 	<label for="cartName" class="form_label label_small">Cart name</label>					
+							{{ macros.field_no_label(forkCartForm.name, type='text', class="form_field field_small", placeholder='Choose a cart name...') }}
+		  				</div>
+		  				<div class="field_container category">
+		    				<label for="category" class="form_label label_small">Category</label>					
+							{{ macros.field_no_label(forkCartForm.category, class="form_field field_small") }}
+		  				</div>
+		  				<button class="pubcart_button" id="btn_newCart" type="submit">Fork cart.</button>
+		  				<div style="clear:both;"></div>
+					</form>
 				</section>
 			</div>
 			{% endif %}
@@ -248,22 +255,22 @@
 			<!-- ################################# -->
 			<div id='detailsWrapper' class='detailsWrapper' style='display:none;'>
 				<section class='white_wrapper_box_span8'>
-					<div class='detailsContent span3'>
-						<h4>Edit cart details.</h4>
-						<p>How to fill out the form.</p>
-					</div>
-					<div class='detailsForm well well-small span5 pull-right form-horizontal'>
-						<form class='nomargin_form' action="{{ uri_for('editCartDetails', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
-							<fieldset>
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-					            <input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-								{{ macros.field(cartDetailsForm.description, class="span3", rows="3", maxlength="1000", placeholder='Max 1000 characters', label=_("Cart Description")) }}
-								{{ macros.field(cartDetailsForm.category, class="span3", label=_("Cart Category")) }}
-								<button class='btn btn-primary pull-right' type='submit' >Update Details</button>
-							</fieldset>
-						</form>
-					</div>
+					<header class='fullCart_popupFormsHeader'>Edit cart details.</header>
+					<form class='nomargin_form' action="{{ uri_for('editCartDetails', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
+						<input type="hidden" name="exception" value="{{ exception }}">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+		 				<div class="field_container cartDescription">
+		  				 	<label for="cartDescription" class="form_label label_small">Cart description</label>					
+							{{ macros.field_no_label(cartDetailsForm.description, rows="3", maxlength="1000", class="form_field field_large", placeholder='Cart Description...') }}
+		  				</div>
+		  				<div class="field_container category">
+		    				<label for="category" class="form_label label_small">Category</label>					
+							{{ macros.field_no_label(cartDetailsForm.category, class="form_field field_small marginBottom10") }}
+		  				</div>
+		  				<button class="pubcart_button" id="btn_newCart" type="submit">Update details.</button>
+		  				<div style="clear:both;"></div>
+					</form>
 				</section>
 			</div>
 			<!-- ########################### -->
@@ -390,6 +397,11 @@
 			<section>
 				<div class="alert alert-info">
 					<strong>Remove Items:</strong>  To remove an item from the cart, change it's quantity to 0.
+				</div>
+			</section>
+			<section>
+				<div class="alert alert-info">
+					<strong>Edit cart description:</strong>  To edit the cart's description, click the -Edit Details- link above.
 				</div>
 			</section>
 			{% endif %}
