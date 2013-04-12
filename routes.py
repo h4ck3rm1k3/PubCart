@@ -48,7 +48,7 @@ _routes = [
     RedirectRoute(r'/exchangeOrder/<pk>', webHandlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
     RedirectRoute(r'/createLimitOrder/<pk>', webHandlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
     RedirectRoute(r'/createAlertForm/<pk>', webHandlers.CreateAlertFormHandler, name='createAlert', strict_slash=True),
-    RedirectRoute(r'/watchlist/<urlsafeWatchlistKey>', webHandlers.FullPageWatchlistHandler, name='fullPageWatchlist', methods=['GET'], strict_slash=True),
+    RedirectRoute(r'/watchlist/<watchlistName>', webHandlers.FullPageWatchlistHandler, name='fullPageWatchlist', methods=['GET'], strict_slash=True),
     RedirectRoute(r'/positions', webHandlers.FullPagePositionsHandler, name='fullPagePositions', methods=['GET'], strict_slash=True),
 
     RedirectRoute(r'/completeExchangeOrder', webHandlers.CompleteExchangeOrderHandler, name='completeExchangeOrder', methods=['POST'], strict_slash=True),
@@ -62,7 +62,7 @@ _routes = [
     RedirectRoute(r'/createCartSubmit', cartHandlers.CreateCartInfoHandler, name='createCartSubmit', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/cart/<urlsafeCartKey>', cartHandlers.FullPageCartHandler, name='fullPageCart', methods=['GET'], strict_slash=True),
     RedirectRoute(r'/cart/<userID>/<cartName>', cartHandlers.FullPageCartHandler, name='fullPublicCart', handler_method='public_cart', strict_slash=True),
-    RedirectRoute(r'/makeCartPublic/<urlsafeCartKey>', cartHandlers.MakeCartPublicHandler, name='makeCartPublic', methods=['GET', 'POST'], strict_slash=True),
+    RedirectRoute(r'/makeCartPublic/<urlsafeCartKey>', cartHandlers.MakeCartPublicHandler, name='makeCartPublic', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/forkCart/<urlsafeCartKey>', cartHandlers.ForkCartHandler, name='forkCart', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/editCartDetails/<urlsafeCartKey>', cartHandlers.EditCartDetailsFormHandler, name='editCartDetails', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/addToCart', cartHandlers.AddToCartHandler, name='addToCart', methods=['POST'], strict_slash=True),

@@ -405,7 +405,7 @@ class Tab(ndb.Model):
     @staticmethod
     def get_or_create_tab(userKey):
         try:
-            tab = Tab.query(Tab.pd==False, ancestor=userKey).get()
+            tab = Tab.query(Tab.pd == False, ancestor=userKey).get()
             if tab:
                 return tab
             else:
@@ -415,7 +415,8 @@ class Tab(ndb.Model):
                 tab.key = ndb.Key(Tab, keyName, parent=userKey)
                 tab.uk = userKey
                 tabKey = tab.put()
-                if tabKey: return tab
+                if tabKey:
+                    return tab
             return None
         except Exception as e:
             logging.error("Error in function get_or_create_cart for Model class Cart: -- {}".format(e))
@@ -432,23 +433,22 @@ class Tab(ndb.Model):
             logging.error("Error with function update_subtotal_values for Model class Cart: -- {}".format(e))
 
 
-
 class Cart(ndb.Model):
     """
         The Model for storing the different Cart's.
         Carts can be public
     """
-    uk = ndb.KeyProperty(kind=User) ##: User Model Key
-    n = ndb.StringProperty(indexed=False) ##: Cart Name
-    d = ndb.StringProperty(indexed=False) ##: Cart Description
-    cat = ndb.StringProperty() ##: Cart Category
-    img = ndb.StringProperty(indexed=False) ##: Image
+    uk = ndb.KeyProperty(kind=User)  # User Model Key
+    n = ndb.StringProperty(indexed=False)  # Cart Name
+    d = ndb.StringProperty(indexed=False)  # Cart Description
+    cat = ndb.StringProperty()  # Cart Category
+    img = ndb.StringProperty(indexed=False)  # Image
 
-    st = ndb.IntegerProperty(default=0) ##: Sub-Total (Cents)
+    st = ndb.IntegerProperty(default=0)  # Sub-Total (Cents)
 
-    public = ndb.BooleanProperty(default=False) ##: Shopping Carts are PRIVATE and BeList Carts are public.
-    
-    garbage = ndb.BooleanProperty(default=False) ##: The Creator (User) deleted cart but we still need to serve to embeded carts
+    public = ndb.BooleanProperty(default=False)  # Shopping Carts are PRIVATE and BeList Carts are public.
+
+    garbage = ndb.BooleanProperty(default=False)  # The Creator (User) deleted cart but we still need to serve to embeded carts
 
     ##: If the cart's orders have been modified (added or taken out) dirty flag is set.
     ##: When the task queue runs a check on the carts subtotal, this is set to false.
@@ -456,7 +456,7 @@ class Cart(ndb.Model):
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
-    
+
     @property
     def d_st(cls):
         ## d_st = Dollar Sub-Total
@@ -465,7 +465,7 @@ class Cart(ndb.Model):
     @property
     def num_items(cls):
         return Order.query(ancestor=cls.key).count()
-    
+
     @property
     def owner(cls):
         user = cls.uk.get()
@@ -489,14 +489,14 @@ class Cart(ndb.Model):
             now = time.time()
             cartModelKey = future.get_result()
             taskqueue.add(
-                        name=str(str(cartModelKey.urlsafe())[:16]+'cartTotals-worker'+str(int(now/30))), \
-                        queue_name='cartTotals-worker', \
-                        url='/worker/checkCartSubtotals', \
-                        params={'urlsafeCartKey':  cartModelKey.urlsafe()}) # post parameter
+                name=str(str(cartModelKey.urlsafe())[:16]+'cartTotals-worker'+str(int(now/30))),
+                queue_name='cartTotals-worker',
+                url='/worker/checkCartSubtotals',
+                params={'urlsafeCartKey':  cartModelKey.urlsafe()}  # post parameter
+            )
             logging.info('Ran a task queue to verify cart subtotals for cart: {}'.format(cartModelKey))
         except Exception as e:
             logging.error('Error checking cart subtotals with taskqueue: -- {}'.format(e))
-
 
     @staticmethod
     def create_cart(cartKey, userKey, cartName, cartCategory=None, put_model=True):
@@ -561,7 +561,7 @@ class Cart(ndb.Model):
                     cart.put()
         except Exception as e:
             logging.error("Error with function update_subtotal_values for Model class Cart: -- {}".format(e))
-    
+
     @staticmethod
     def update_cart_to_be_public(cart, cartDescription, cartCategory, put_model=True):
         try:
@@ -835,7 +835,6 @@ class Alert(ndb.Model):
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
 
-    
     @property
     def clean_pn(cls):
         return utils.clean_product_number(cls.pn)
@@ -851,7 +850,7 @@ class Alert(ndb.Model):
 
     def _pre_put_hook(cls):
         pn = utils.clean_product_number(cls.pn)
-        key = ndb.Key(Alert, "A_"+str(mpn), parent=cls.uk)
+        key = ndb.Key(Alert, str(pn), parent=cls.uk)
         cls.key = key
 
     @classmethod
@@ -873,12 +872,11 @@ class Watchlist(ndb.Model):
     """
         The Model for a Watchlist.
     """
-    uk = ndb.KeyProperty(kind=User) ##: User Model Key
-    n = ndb.StringProperty(default='ALL') ##: Watchlist Name
+    n = ndb.StringProperty(default='ALL')  # Watchlist Name
 
-    kl = ndb.KeyProperty(repeated=True) ##: Key List for models watched
+    kl = ndb.KeyProperty(repeated=True)  # Key List for models watched
 
-    default = ndb.BooleanProperty(default=True) ##: When adding products to cart, this defines which cart to add to.
+    default = ndb.BooleanProperty(default=True)  # When adding products to cart, this defines which cart to add to.
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -893,13 +891,24 @@ class Watchlist(ndb.Model):
         return []
 
     def _pre_put_hook(cls):
-        key = ndb.Key(Watchlist, str(cls.n), parent=cls.uk)
-        cls.key = key
+        pass
 
-    @classmethod
-    def get_default_for_user(cls, userKey):
+    @staticmethod
+    def get_or_create_watchlist(userKey, watchlistName):
         try:
-            return cls.query(Watchlist.default == True, ancestor=userKey).get()
-        except:
-            logging.error("Error with query in function get_for_UserKey for Model class OrderItem")
+            watchlistKey = ndb.Key(Watchlist, str(watchlistName).upper(), parent=userKey)
+            watchlist = watchlistKey.get()
+            if watchlist:
+                return watchlist
+            else:
+                watchlist = Watchlist()
+                watchlist.n = watchlistName
+                watchlist.key = watchlistKey
+                completed = watchlist.put()
+                if completed:
+                    return watchlist
+            logging.error('Error, could not create or get a watchlist from function get_or_create_watchlist in Model Watchlist')
+            return None
+        except Exception as e:
+            logging.error('Error, could not create or get a watchlist: {}'.format(e))
             return None

@@ -165,17 +165,17 @@
 								</span>
 							</button>
 							
-							<a href="{{ uri_for('mycarts') }}" id='togglePublicCartsButton{% if not allCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not allCarts %} disabled {% endif %}" >
-								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not allCarts %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
+							<a href="{{ uri_for('mycarts') }}" id='togglePublicCartsButton{% if usersCartCount|int < 1 %}_disabled{% endif %}' class="btn marginRight5 {% if usersCartCount|int < 1  %} disabled {% endif %}" >
+								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if usersCartCount|int < 1 %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
 									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
 								</span>
 							</a>
 
-							<button id='toggleWatchlistButton{% if not watchlistItems %}_disabled{% endif %}' class="btn {% if not watchlistItems %}disabled {% endif %}">
-								<span id='toggleWatchlist' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not watchlistItems %} No&nbsp; {% endif %}Watchlist">
+							<a href="{{ uri_for('fullPageWatchlist', watchlistName='ALL') }}" id='toggleWatchlistButton{% if userWatchlistCount|int < 1 %}_disabled{% endif %}' class="btn {% if userWatchlistCount|int < 1 %}disabled {% endif %}">
+								<span id='toggleWatchlist' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if userWatchlistCount|int < 1 %} No&nbsp; {% endif %}Watchlist">
 									&nbsp;<i class="icon-eye-open"></i>&nbsp;
 								</span>
-							</button>
+							</a>
 
 
 						</div>

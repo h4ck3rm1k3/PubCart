@@ -117,7 +117,7 @@ class ExchangeOrderForm(BaseForm):
 
 
 class WatchlistForm(BaseForm):
-    pk = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+    ok = fields.TextField(_('Object Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
     wln = fields.TextField(_('Watchlist Name'), [validators.Length(max=FIELD_MAXLENGTH)])
 
 
@@ -174,6 +174,10 @@ class ForkCartForm(BaseForm):
     name = fields.TextField(_('Cart Name'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH),
                             validators.regexp(utils.ALPHANUMERIC_REGEXP, message=_('Address Reference Name invalid. Use only letters and numbers.'))])
     category = fields.SelectField(_('Category'), [validators.AnyOf([cat[0] for cat in CATEGORIES[1:]], message=u'A category selection is required')], choices=CATEGORIES)
+
+
+class MakeCartPublicForm(BaseForm):
+    ck = fields.TextField(_('Cart Number'), [validators.Required()])
 
 
 class CartDetailsForm(BaseForm):

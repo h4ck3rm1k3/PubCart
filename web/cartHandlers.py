@@ -64,7 +64,21 @@ class MyCartsHandler(BournEEHandler):
     @user_required
     def get(self):
         try:
-            params = {}
+            allCarts = []
+            publicCarts = []
+            privateCarts = []
+            allCarts = shoppingModels.Cart.query(shoppingModels.Cart.garbage == False, ancestor=self.user_key).fetch(50)
+            if allCarts:
+                for cart in allCarts:
+                    if cart.public is True:
+                        publicCarts.append(cart)
+                    elif cart.public is False:
+                        privateCarts.append(cart)
+            params = {
+                'allCarts': allCarts,
+                'publicCarts': publicCarts,
+                'privateCarts': privateCarts
+            }
             self.bournee_template('mycarts.html', **params)
 
         except Exception as e:
@@ -537,13 +551,13 @@ class AddToSelectedCartFormHandler(BournEEHandler):
                 raise FunctionException('simpleChangeQNT_form did not Validate, in function POST of ChangeQuantityOfOrderHandler')
             
             logging.info("simpleChangeQNT_form Form Was valid")
-            
+
             ##: Try to fetch the data from the Form responce
             urlsafePK = str(self.simpleChangeQNT_form.pk.data).strip()
             q = self.simpleChangeQNT_form.q.data
             ##: Make Sure quantity from URL is an integer
             qnt = int(q)
-            
+
             if urlsafePK == urlsafeProductKey:
                 self.do_work(urlsafeProductKey, qnt)
             else:
@@ -561,24 +575,26 @@ class AddToSelectedCartFormHandler(BournEEHandler):
     def do_work(self, urlsafeProductKey, qnt):
         try:
             ##: Get the Product Model and Best Price
-            productModel, best_price = bestPrice.getBestPrice( urlsafeProductKey, int(qnt), returnProductModel=True)
-            if best_price == None:
+            productModel, best_price = bestPrice.getBestPrice(urlsafeProductKey, int(qnt), returnProductModel=True)
+            if best_price is None:
                 logging.error('Error, Best Price not determined. ')
                 raise Exception('Best Price not determined.')
             ndb.Key(urlsafe=urlsafeProductKey).get()
-            if productModel == None:
+            if productModel is None:
                 logging.error('Error, No Product Model Found ')
                 raise Exception('No Product Model Found using urlsafe key')
 
             ##: Run a query for existing Carts the user has. (PUBLIC Carts)
             cartList = shoppingModels.Cart.get_carts_for_user(self.user_key)
 
-            params =    {'product': productModel,
-                        'cartList': cartList,
-                        'requested_quantity': int(qnt),
-                        'best_price': utils.dollar_float(float(best_price)),
-                        'total_cost': utils.dollar_float(float(best_price)*float(qnt)),}
-        
+            params = {
+                'product': productModel,
+                'cartList': cartList,
+                'requested_quantity': int(qnt),
+                'best_price': utils.dollar_float(float(best_price)),
+                'total_cost': utils.dollar_float(float(best_price)*float(qnt)),
+            }
+
             self.bournee_template('selectCartForm.html', **params)
 
         except Exception as e:
@@ -597,126 +613,44 @@ class AddToSelectedCartFormHandler(BournEEHandler):
 
 class MakeCartPublicHandler(BournEEHandler):
     @user_required
-    def get(self, urlsafeCartKey):
-        try:
-            cart = ndb.Key(urlsafe=urlsafeCartKey).get()
-            if cart:
-                if cart.n: self.forkCart_form.name.data = cart.n
-                if cart.d: self.forkCart_form.description.data = cart.d
-                if cart.cat: self.forkCart_form.category.data = cart.cat
-                
-                params = {
-                    "cartDetailsForm" : self.cartDetails_form, \
-                    "forkCartForm" : self.forkCart_form, \
-                    "urlsafeCartKey": urlsafeCartKey, \
-                    "cart": cart, \
-                    }
-                self.bournee_template('forkCartForm.html', **params)
-            else:
-                logging.error("Could not find cart in function GET of class MakeCartPublicFormHandler")
-                message = _('There was an Error fetching the cart data. We can not complete request at this time. Please try again later')
-                self.add_message(message, 'error')
-                try:
-                    self.redirect(self.request.referer)
-                except:
-                    self.redirect_to('home')
-        except Exception as e:
-            logging.error("Error occurred running function GET of class MakeCartPublicFormHandler: -- %s" % str(e))
-            message = _('There was an Error on the servers. We can not complete request at this time. Please try again later')
-            self.add_message(message, 'error')
-            try:
-                self.redirect(self.request.referer)
-            except:
-                self.redirect_to('home')
-    
-    @user_required
     def post(self, urlsafeCartKey):
         try:
-            if not self.forkCart_form.validate():
-                self.get(urlsafeCartKey)
-            
-            logging.info("cartDetails_form Form Was valid")
-            
-            entitiesToPut = []
-            entitiesToDelete = []
-            
+            if not self.makeCartPublic_form.validate():
+                message = _('There was an Error during form submission. We can not complete request at this time. Please try again later')
+                self.add_message(message, 'error')
+
             ##: Try to fetch the data from the Form responce
-            formUrlsafeCartKey = str(self.forkCart_form.ck.data).strip()
-            cartName = str(self.forkCart_form.name.data).strip()
-            cartDescription = str(self.forkCart_form.description.data).strip()
-            cartCategory = str(self.forkCart_form.category.data).strip()
+            formUrlsafeCartKey = str(self.makeCartPublic_form.ck.data).strip()
+
             if urlsafeCartKey == formUrlsafeCartKey:
                 cart = ndb.Key(urlsafe=urlsafeCartKey).get()
                 if cart:
-
-                    forkedCart = utils.clone_entity(cart, 
-                                                    n = cartName, \
-                                                    d = cartDescription, \
-                                                    cat = cartCategory, \
-                                                    public = True, \
-                                                    default = False, \
-                                                    )
-                    keyName = str(cartName).strip().upper()
-                    forkedCart.key = ndb.Key(shoppingModels.Cart, str(keyName), parent=self.user_key)
-
-                    logging.info("entitiesToPut: {}".format(entitiesToPut))
-
-                    orderItems = shoppingModels.Order.get_for_parentKey(cart.key)
-                    if orderItems:
-                        forkedOrderKeyList = []
-                        for orderItem in orderItems:
-                            logging.info(orderItem)
-                            entitiesToDelete.append(orderItem.key)
-                            keyname = orderItem.key.id()
-                            forkedOrder = utils.clone_entity(orderItem, ck=forkedCart.key)
-                            forkedOrder.key = ndb.Key(shoppingModels.Order, keyname, parent=forkedCart.key)
-                            entitiesToPut.append(forkedOrder)
-
-                    shoppingModels.Cart.update_subtotal_values(cart, 0, cart.st, put_model=False)
-                    entitiesToPut.append(cart)
-                    entitiesToPut.append(forkedCart)
-
-                    logging.info("entitiesToPut: {}".format(entitiesToPut))
-                    if len(entitiesToPut) > 1:
-                        ndb.put_multi(entitiesToPut)
-                    elif len(entitiesToPut) == 1:
-                        entitiesToPut[0].put()
-
-                    logging.info("entitiesToDelete: {}".format(entitiesToDelete))
-                    if len(entitiesToDelete) > 1:
-                        ndb.delete_multi(entitiesToDelete)
-                    elif len(entitiesToDelete) == 1:
-                        entitiesToDelete[0].delete()
-
-                    logging.error("Cart has been updated to Public status")
-                    message = _('Cart has been updated to Public status')
-                    self.add_message(message, 'success')
+                    cart.public = True
+                    cartKey = cart.put()
+                    if cartKey:
+                        logging.error("Cart has been updated to Public status")
+                        message = _('Cart has been updated to Public status')
+                        self.add_message(message, 'success')
+                    else:
+                        raise Exception("The cart model did not return a key on put()")
                 else:
-                    logging.error("Error occurred running function POST of class MakeCartPublicFormHandler")
-                    message = _('There was an Error converting cart to public. We can not complete request at this time. Please try again later')
-                    self.add_message(message, 'error')
-
-                self.redirect_to('fullPageCart', urlsafeCartKey=forkedCart.key.urlsafe())
-
+                    raise Exception("The cart model was not found using the supplied urlsafeCartKey")
             else:
                 raise Exception("The urlsafe keys did not match from URI and form data")
 
         except Exception as e:
             logging.error("Error occurred running function POST of class MakeCartPublicFormHandler: -- %s" % str(e))
-            message = _('There was an Error during form submission. We can not complete request at this time. Please try again later')
+            message = _('There was an Error converting cart to public. We can not complete request at this time. Please try again later')
             self.add_message(message, 'error')
+        finally:
             try:
                 self.redirect(self.request.referer)
             except:
                 self.redirect_to('home')
 
     @webapp2.cached_property
-    def cartDetails_form(self):
-        return forms.CartDetailsForm(self)
-
-    @webapp2.cached_property
-    def forkCart_form(self):
-        return forms.ForkCartForm(self)
+    def makeCartPublic_form(self):
+        return forms.MakeCartPublicForm(self)
 
 
 class DeleteCartHandler(BournEEHandler):

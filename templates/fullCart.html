@@ -100,20 +100,15 @@
 		<nav class='cartMenuWrapper'>
 			{% if not cart.public %}
 				<div class='subnavMenuItemWrapper'>
-					<a href="{{ uri_for('makeCartPublic', urlsafeCartKey=urlsafeCartKey) }}" class='btn-link subnavMenuItem {% if "/makeCartPublic" in path %}active{% endif %}'>Take cart public.</a>
+					<a id='fcMakePublicButton' class='btn-link subnavMenuItem'>Make cart public.</a>
 				</div>
-				{% if '/makeCartPublic/' in path %}
-					<div class='subnavMenuItemWrapper'>
-						<a href="{{uri_for('fullPageCart',urlsafeCartKey=urlsafeCartKey)}}" class='btn-link subnavMenuItem'>Back to full cart.</a>
-					</div>
-				{% endif %}
 			{% else %}
 				<div class='subnavMenuItemWrapper'>
 					<form id='addToWatchlistForm' name='addToWatchlistForm' action="{{ uri_for('addToWatchlist')}}" method="POST">
 						<fieldset>
 				            <input type="hidden" name="exception" value="{{ exception }}">
 				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-							<input type="hidden" name="pk" value="{{urlsafeCartKey}}">
+							<input type="hidden" name="ok" value="{{urlsafeCartKey}}">
 							<input type="hidden" name="wln" value="ALL">
 							<button type='submit' class="btn-link subnavMenuItem" >Watch.</button>
 						</fieldset>
@@ -150,6 +145,7 @@
 			{% if cartOwner %}
 				<div id='addProductWrapper' class='addProductWrapper' {% if not createCart and productOrders %}style='display:none;'{% endif %}>
 					<section class='white_wrapper_box_span8'>
+						<header class='fullCart_popupFormsHeader'>Add products.</header>
 						<form id="addProduct_form" class='nomargin_form' action="{{ uri_for('getProduct')}}" method='POST'>
 							<input type="hidden" name="exception" value="{{ exception }}">
 							<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -175,11 +171,11 @@
 			<!-- ########################## -->
 			<div id='shareWrapper' class='shareWrapper' style='display:none;'>
 				<section class='white_wrapper_box_span8'>
-					<div class='shareContent span3'>
-						<h4>Share this cart.</h4>
-						<p>What is Embed? Let's explain.</p>
+					<header class='fullCart_popupFormsHeader'>Share cart.</header>
+					<div class='shareContent'>
+						<p>Why share? Let's explain.</p>
 					</div>
-					<div class='shareForm pull-right span5'>
+					<div class='shareForm'>
 						<span class='st_facebook_large' displayText='Facebook'></span>
 						<span class='st_twitter_large' displayText='Tweet'></span>
 						<span class='st_googleplus_large' displayText='Google +'></span>
@@ -191,10 +187,12 @@
 						<span class='st_tumblr_large' displayText='Tumblr'></span>
 						<span class='st_stumbleupon_large' displayText='StumbleUpon'></span>
 						<span class='st_email_large' displayText='Email'></span>
-						<div class='well well-small'>
-						<p>Cart page link.</p>
-						<input type='text' class='span4' value="http://www.pubCart.com{{uri_for('fullPublicCart', userID=cart.uk.id(), cartName=cart.n)}}"/></div>
+						<div class=''>
+							<p>Cart page link.</p>
+							<input type='text' class='span5' value="http://www.pubCart.com{{uri_for('fullPublicCart', userID=cart.uk.id(), cartName=cart.n)}}"/>
+						</div>
 					</div>
+					<div class='clearfix'></div>
 				</section>
 			</div>
 			<!-- #################### -->
@@ -206,14 +204,14 @@
 			<!-- ########################## -->
 			<div id='embedWrapper' class='embedWrapper' style='display:none;'>
 				<section class='white_wrapper_box_span8'>
-					<div class='embedContent span3'>
-						<h4>Embed on your site.</h4>
+					<header class='fullCart_popupFormsHeader'>Embed cart.</header>
+					<div class='embedContent'>
 						<p>What is embed? Let's explain.</p>
-
 					</div>
-					<div class='embedForm well well-small span5 pull-right'>
-						<textarea rows='6' class='span5'>Replace with embed code</textarea>
+					<div class='embedForm'>
+						<textarea rows='6'>Replace with embed code</textarea>
 					</div>
+					<div class='clearfix'></div>
 				</section>
 			</div>
 			<!-- #################### -->
@@ -277,6 +275,41 @@
 			<!-- END OF EDIT DETAILS WRAPPER -->
 			<!-- ########################### -->
 		
+			<!-- ################################ -->
+			<!-- BEGINNING OF TAKE PUBLIC WRAPPER -->
+			<!-- ################################ -->
+			<div id='takePublicWrapper' class='takePublicWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<header class='fullCart_popupFormsHeader'>Take cart public.</header>
+					{% if cart.d and productOrders|count > 2 %}
+						<div class='makePublicButton'>
+							<form class='nomargin_form' action="{{ uri_for('makeCartPublic', urlsafeCartKey=urlsafeCartKey)}}" method='POST'>
+								<input type="hidden" name="exception" value="{{ exception }}">
+								<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+								<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
+				  				<button class="pubcart_button" id="btn_newCart" type="submit">Make this cart public.</button>
+							</form>
+						</div>
+						<div class='makePublicNote'>
+							<div class="alert"><strong>Warning!</strong> This is final, and cannot be reversed.
+</div>
+						</div>
+						<div class='clearfix'></div>
+					{% else %}
+						{% if not cart.d %}
+							<div class="alert alert-error">You must have a cart description to take cart public.</div>
+						{% endif %}
+						{% if productOrders|count < 3 %}
+							<div class="alert alert-error">You must have 3 or more products in the cart before making it public.</div>
+						{% endif %}
+					{% endif %}
+				</section>
+			</div>
+			<!-- ########################## -->
+			<!-- END OF TAKE PUBLIC WRAPPER -->
+			<!-- ########################## -->
+
+
 			<section class='white_wrapper_box_span8'>
 					{% block CartContent %}
 						{% if productOrders %}

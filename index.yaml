@@ -47,3 +47,8 @@ indexes:
   properties:
   - name: cd
     direction: desc
+
+- kind: Watchlist
+  ancestor: yes
+  properties:
+  - name: kl
