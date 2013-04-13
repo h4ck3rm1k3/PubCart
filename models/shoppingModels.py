@@ -7,20 +7,14 @@ Created by Jason Elbourne on 2012-12-18.
 Copyright (c) 2012 Jason Elbourne. All rights reserved.
 """
 
-from google.appengine.api import memcache
 from google.appengine.ext import ndb
 from google.appengine.api.labs import taskqueue
 
-import re
 import time
-import config
 import logging
 
 from lib import utils
-from lib import searchCategories
-from lib import searchDocument
 from userModels import User, Seller
-
 
 
 def verify_cart_subtotals(urlsafeCartKey):
@@ -29,7 +23,7 @@ def verify_cart_subtotals(urlsafeCartKey):
     cart = cartKey.get()
     if cart:
         oldSubTotal = cart.st
-        
+
         cartOrders = Order.get_for_parentKey(cartKey)
 
         if cartOrders:
@@ -42,13 +36,15 @@ def verify_cart_subtotals(urlsafeCartKey):
             elif len(cartOrders) > 1:
                 cart.st = sum([order.st for order in cartOrders])
 
-        else: logging.error('Error in verify_subtotals for Cart, Cart does not have cartOrders')
-        
+        else:
+            logging.error('Error in verify_subtotals for Cart, Cart does not have cartOrders')
+
         newSubTotal = cart.st
         if oldSubTotal != newSubTotal:
             ##:  Now lets update the New Carts SubTotal
             Cart.update_subtotal_values(cart, newSubTotal, oldSubTotal, put_model=True, dirty=False)
-    else: logging.error('Error in verify_subtotals for Cart, Cart could not be found from the urlsafeCartKey ')
+    else:
+        logging.error('Error in verify_subtotals for Cart, Cart could not be found from the urlsafeCartKey ')
 
 
 class Product(ndb.Expando):
@@ -56,43 +52,44 @@ class Product(ndb.Expando):
         The Model for storing the Product General Info.
     """
 
-    sk = ndb.KeyProperty(kind=Seller) # Seller Model Key
+    sk = ndb.KeyProperty(kind=Seller)  # Seller Model Key
+    sn = ndb.StringProperty(required=True)  # Seller Name
 
     ##: Genral Info Data
-    pn = ndb.StringProperty(required=True) ##: Product Number
-    m = ndb.StringProperty(required=True) ##: Manufacturer (Brand)
-    d = ndb.StringProperty(required=True, indexed=False) ##: Description
-    mq = ndb.StringProperty(default='1', indexed=False) ##: Minimum Quantity
-    qa = ndb.IntegerProperty(default=0, indexed=False) ##: Quantity Available ex: '17,558 - Immediate'
-    
+    pn = ndb.StringProperty(required=True)  # Product Number
+    m = ndb.StringProperty(required=True)  # Manufacturer (Brand)
+    d = ndb.StringProperty(required=True, indexed=False)  # Description
+    mq = ndb.StringProperty(default='1', indexed=False)  # Minimum Quantity
+    qa = ndb.IntegerProperty(default=0, indexed=False)  # Quantity Available ex: '17,558 - Immediate'
+
     ##: Pricing Data
-    bup = ndb.IntegerProperty(default=0) ##: Best Unit Price (1 Unit)
-    pch = ndb.IntegerProperty(default=0, indexed=False) ##: Price Change
-    cp = ndb.IntegerProperty(default=0, indexed=False) ##: Last Close Price
-    cq = ndb.IntegerProperty(default=1, indexed=False) ##: Last Close Quantity Shipped
-    cpt = ndb.IntegerProperty(default=1, indexed=False) ##: Current Price Tier
-    hup = ndb.IntegerProperty(default=0, indexed=False) ##: Highest Unit Price (Tier 1)
+    bup = ndb.IntegerProperty(default=0)  # Best Unit Price (1 Unit)
+    pch = ndb.IntegerProperty(default=0, indexed=False)  # Price Change
+    cp = ndb.IntegerProperty(default=0, indexed=False)  # Last Close Price
+    cq = ndb.IntegerProperty(default=1, indexed=False)  # Last Close Quantity Shipped
+    cpt = ndb.IntegerProperty(default=1, indexed=False)  # Current Price Tier
+    hup = ndb.IntegerProperty(default=0, indexed=False)  # Highest Unit Price (Tier 1)
 
     ##: Media Info Data
-    img = ndb.StringProperty(indexed=False) ##:Image
-    isl = ndb.StringProperty(indexed=False) ##: Info Sheet Link to PDF
-    spl = ndb.StringProperty(indexed=False) ##: Seller Page Link for individual Product
-    
+    img = ndb.StringProperty(indexed=False)  # Image
+    isl = ndb.StringProperty(indexed=False)  # Info Sheet Link to PDF
+    spl = ndb.StringProperty(indexed=False)  # Seller Page Link for individual Product
+
     ##: Date / Time
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
-    
-    ##: Properties for digikey products
+
+    ##: Properties for digikey products (Expando Model Type)
     # p = ndb.StringProperty() ##: Packaging
     # ot = ndb.StringProperty() ##: Operating Temperature
     # mt = ndb.StringProperty() ##: Mounting Type
     # pc = ndb.StringProperty() ##: Package / Case
     # sdp = ndb.StringProperty() ##: Supplier Device Package
-    
+
     @property
     def clean_pn(cls):
         return utils.clean_product_number(cls.pn)
-    
+
     @property
     def d_bup(cls):
         return utils.dollar_float(float(cls.bup)/100)
@@ -101,13 +98,12 @@ class Product(ndb.Expando):
     def d_cp(cls):
         return utils.dollar_float(float(cls.cp)/100)
 
-
     @property
     def d_hup(cls):
         if cls.hup:
             return utils.dollar_float(float(cls.hup)/100)
         else:
-            pp, hup = ProductTierPrice.get_price_for_qnt(cls.pn, 1)
+            pp, hup = ProductTierPrice.get_price_for_qnt(cls.key.urlsafe(), 1)
             cls.hup = hup
             cls.put()
             return utils.dollar_float(float(hup)/100)
@@ -118,33 +114,37 @@ class Product(ndb.Expando):
 
     @staticmethod
     def _read_properties_for_api():
-        return [u'pn', u'm', u'pn', u'd', u'qa']
+        return []
 
     def _pre_put_hook(cls):
         n = utils.clean_product_number(cls.pn)
         key = ndb.Key(Product, str(n), parent=cls.sk)
         cls.key = key
-        if not cls.cp:  cls.cp  = cls.bup
-        if not cls.hup: cls.hup = cls.bup
-    
+        if not cls.cp:
+            cls.cp = cls.bup
+        if not cls.hup:
+            cls.hup = cls.bup
+
     @classmethod
     def _post_put_hook(cls, future):
         now = time.time()
         productModelKey = future.get_result()
         try:
             taskqueue.add(
-                        name=str(str(productModelKey.urlsafe())[:16]+'search-worker'+str(int(now/30))), \
-                        queue_name='search-worker', \
-                        url='/worker/searchDocUpdate', \
-                        params={'urlsafeProductKey': str(productModelKey.urlsafe())})
+                name=str(str(productModelKey.urlsafe())[:16]+'search-worker'+str(int(now/30))),
+                queue_name='search-worker',
+                url='/worker/searchDocUpdate',
+                params={'urlsafeProductKey': str(productModelKey.urlsafe())}
+            )
         except Exception as e:
             logging.error('Error Creating the Product Search Document taskqueue: -- {}'.format(e))
         try:
             taskqueue.add(
-                        name=str(str(productModelKey.urlsafe())[:16]+'parsers-worker'+str(int(now/30))), \
-                        queue_name='parsers-worker', \
-                        url='/worker/setProductTierPrices', \
-                        params={'urlsafeProductKey':  productModelKey.urlsafe()}) # post parameter
+                name=str(str(productModelKey.urlsafe())[:16]+'parsers-worker'+str(int(now/30))),
+                queue_name='parsers-worker',
+                url='/worker/setProductTierPrices',
+                params={'urlsafeProductKey':  productModelKey.urlsafe()}
+            )
         except Exception as e:
             logging.error('Error checking product price tier taskqueue: -- {}'.format(e))
 
@@ -162,11 +162,11 @@ class Product(ndb.Expando):
     @staticmethod
     def get_by_seller_and_pn(sellerID, productNumber):
         pn = utils.clean_product_number(productNumber)
-        sellerKey = ndb.Key(userModels.Seller, str(sellerID)).get(keys_only=True)
-        if sellerKey: return ndb.Key(Product, str(pn), parent=sellerKey).get()
+        sellerKey = ndb.Key(Seller, str(sellerID)).get(keys_only=True)
+        if sellerKey:
+            return ndb.Key(Product, str(pn), parent=sellerKey).get()
         return None
-            
-    
+
     @staticmethod
     def create_from_parse_data(parseData):
         try:
@@ -206,7 +206,9 @@ class ProductTierPrice(ndb.Model):
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
-    
+
+    TIER_PROPERTIES = {'1': 'o', '10': 't', '100': 'oH', '250': 'tf', '500': 'fH', '1000': 'oT', '2500': 'tHT', '5000': 'fT', '10000': 'tT'}
+
     @property
     def clean_pn(cls):
         return utils.clean_product_number(cls.pn)
@@ -229,7 +231,7 @@ class ProductTierPrice(ndb.Model):
         except Exception as e:
             logging.error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
             return None
-    
+
     @staticmethod
     def update_from_parse_data(productTierModel, **parseData):
         try:
@@ -242,41 +244,88 @@ class ProductTierPrice(ndb.Model):
         except Exception as e:
             logging.error('Exception thrown in function create_from_parse_data of model class ProductTierPrice: -- {}'.format(e))
             return None
-    
+
     @staticmethod
-    def get_price_for_qnt(urlsafeProductKey, qnt, return_PTModel=True):
-        " Use this function if you only have a product number and need the price amount @ a Tier."
+    def get_qnt_to_search(qnt):
         qnt_to_search = qnt
-        qL = [1,10,100,250,500,1000,2500,5000,10000]
-        dic = {'1':'o','10':'t','100':'oH','250':'tf','500':'fH', '1000':'oT', '2500':'tHT', '5000':'fT', '10000':'tT'}
+        qL = [1, 10, 100, 250, 500, 1000, 2500, 5000, 10000]
         ##:  Need to set the qnt to the closest tier quantity in 'dic{}' utherwise we return a None for best_price
         previous = '1'
         for i in qL:
-            logging.info('Qnt = %s,  i = %s' % (str(qnt),str(i)))
             if int(qnt) >= int(i):
-                qnt_to_search = str(previous) ##: This creates our margin always using the price of the tier right before the searched amount
-                previous = str(i) ##: We set the current tier number to the <previous> variable
+                qnt_to_search = str(previous)  # This creates our margin always using the price of the tier right before the searched amount
+                previous = str(i)  # We set the current tier number to the <previous> variable
                 continue
             else:
                 break
-        logging.info('Determined qnt_to_search is = %s' % str(qnt_to_search))
+        return qnt_to_search
+
+
+    @staticmethod
+    def get_price_for_qnt(urlsafeProductKey, qnt, return_PTModel=True):
+        " Use this function if you only have a product number and need the price amount @ a Tier."
+
+        qnt_to_search = qnt
+        qL = [1, 10, 100, 250, 500, 1000, 2500, 5000, 10000]
+        ##:  Need to set the qnt to the closest tier quantity in 'dic{}' utherwise we return a None for best_price
+        previous = '1'
+        for i in qL:
+            if int(qnt) >= int(i):
+                qnt_to_search = str(previous)  # This creates our margin always using the price of the tier right before the searched amount
+                previous = str(i)  # We set the current tier number to the <previous> variable
+                continue
+            else:
+                break
+
+        dic = {'1': 'o', '10': 't', '100': 'oH', '250': 'tf', '500': 'fH', '1000': 'oT', '2500': 'tHT', '5000': 'fT', '10000': 'tT'}
+
         productKey = ndb.Key(urlsafe=urlsafeProductKey)
         pp = ProductTierPrice.query(ancestor=productKey).get()
         if pp:
-            if dic.has_key(str(qnt_to_search)):
+            if str(qnt_to_search) in dic:
                 prop = dic[str(qnt_to_search)]
-                logging.info('prop: {}'.format(prop))
                 price = getattr(pp, prop)
-                logging.info('Price: {}'.format(price))
                 if return_PTModel:
-                    return pp, price  ##: productTierPrice, Price
+                    return pp, price  # productTierPrice, Price
                 else:
-                    logging.info('Price: {}'.format(price))
                     return price
 
-        logging.error("ProductTierPrice not found in function get_price_for_qnt of model ProductTierPrice")
-        if return_PTModel: return None, None
-        else: return None
+        if return_PTModel:
+            return None, None
+        else:
+            return None
+
+    @staticmethod
+    def get_discount_percentage(urlsafeProductKey, qnt):
+        " Use this function if you only have a product number and need the price amount @ a Tier."
+
+        qnt_to_search = qnt
+        qL = [1, 10, 100, 250, 500, 1000, 2500, 5000, 10000]
+        ##:  Need to set the qnt to the closest tier quantity in 'dic{}' utherwise we return a None for best_price
+        previous = '1'
+        for i in qL:
+            if int(qnt) >= int(i):
+                qnt_to_search = str(previous)  # This creates our margin always using the price of the tier right before the searched amount
+                previous = str(i)  # We set the current tier number to the <previous> variable
+                continue
+            else:
+                break
+
+        dic = {'1': 'o', '10': 't', '100': 'oH', '250': 'tf', '500': 'fH', '1000': 'oT', '2500': 'tHT', '5000': 'fT', '10000': 'tT'}
+
+        productKey = ndb.Key(urlsafe=urlsafeProductKey)
+        pp = ProductTierPrice.query(ancestor=productKey).get()
+        if pp:
+            if str(qnt_to_search) in dic:
+                prop = dic[str(qnt_to_search)]
+                best_price = getattr(pp, prop)
+                price_at_one = getattr(pp, 'o')
+                discounted = int(price_at_one) - int(best_price)
+                if discounted <= 0:
+                    return 0
+                savings = int((float(discounted)/float(price_at_one))*100)
+                return savings
+        return 0
 
     @classmethod
     def get_for_product(cls, productPN, productKey):
@@ -589,14 +638,17 @@ class Order(ndb.Model):
     """
         The Model for storing the Order Item information.
     """
-    pk = ndb.KeyProperty(kind=Product) ##: Product Model Key
-    
-    q = ndb.IntegerProperty() ##: Quantity
-    
-    removed = ndb.BooleanProperty(default=False) ##: Was the Order removed from the User's Tab
+    pk = ndb.KeyProperty(kind=Product)  # Product Model Key
+
+    q = ndb.IntegerProperty()  # Quantity
+
+    removed = ndb.BooleanProperty(default=False)  # Was the Order removed from the User's Tab
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
+
+    PRODUCT = None
+    BEST_PRICE = None
 
     @property
     def productName(cls):
@@ -605,63 +657,104 @@ class Order(ndb.Model):
     @property
     def clean_pn(cls):
         return utils.clean_product_number(cls.key.id())
-    
+
     @property
     def seller(cls):
-        return "TODO"
-            
+        if cls.PRODUCT:
+            return cls.PRODUCT.sn
+        else:
+            if cls.pk:
+                product = cls.pk.get()
+                if product:
+                    cls.PRODUCT = product
+                    return product.sn
+            return " "
+
     @property
     def popularity(cls):
-        return str(20)
+        pp = ProductTierPrice.query(ancestor=cls.pk).get()
+        if pp:
+            highest_qnt = pp.hq
+            current_qnt = cls.q  # TODO get the global quantity
+            percentage = int((float(current_qnt)/float(highest_qnt)*100))
+            if percentage > 5:
+                return percentage
+        return 5
 
     @property
     def description(cls):
-        if cls.pk:
-            product = cls.pk.get()
-            if product:
-                return product.d
-        return " "
+        if cls.PRODUCT:
+            return cls.PRODUCT.d
+        else:
+            if cls.pk:
+                product = cls.pk.get()
+                if product:
+                    cls.PRODUCT = product
+                    return product.d
+            return " "
 
     @property
     def fetch_bup(cls):
         if cls.pk:
             urlsafeProductKey = cls.pk.urlsafe()
             ptp = ProductTierPrice.get_price_for_qnt(urlsafeProductKey, cls.q, return_PTModel=False)
-            if ptp: return ptp
+            if ptp:
+                cls.BEST_PRICE = ptp
+                return ptp
             else:
-                product = ndb.Key(urlsafe=urlsafeProductKey).get()
-                if product:
-                    return product.bup
-        return 0
-            
+                if cls.PRODUCT:
+                    return cls.PRODUCT.bup
+                else:
+                    product = ndb.Key(urlsafe=urlsafeProductKey).get()
+                    if product:
+                        cls.PRODUCT = product
+                        return product.bup
+                    return 0
+
     @property
     def d_bup(cls):
-        if cls.fetch_bup: return ("%.2f" % (float(cls.fetch_bup)/100))
-        else: return None
+        if cls.fetch_bup:
+            return ("%.2f" % (float(cls.fetch_bup)/100))
+        return None
 
     @property
     def st(cls):
         if cls.q:
-            subTotal = None
             price = cls.fetch_bup
-            if price: return cls.q * price
+            if price:
+                return cls.q * price
         return 0
 
     @property
     def d_st(cls):
-        if cls.st: return ("%.2f" % (float(cls.st)/100))
+        if cls.st:
+            return ("%.2f" % (float(cls.st)/100))
         return None
 
-    
+    @property
+    def savings(cls):
+        if cls.pk:
+            if cls.q >= 10:
+                urlsafeProductKey = cls.pk.urlsafe()
+                savings = ProductTierPrice.get_discount_percentage(urlsafeProductKey, cls.q)
+                if savings > 0:
+                    return savings
+        return 0
+
     @property
     def fetch_img(cls):
-        if cls.pk:
-            img = None
-            product = cls.pk.get()
-            if product:
-                img = product.img
-                if img: return img
-        return None
+        if cls.PRODUCT:
+            return cls.PRODUCT.img
+        else:
+            if cls.pk:
+                img = None
+                product = cls.pk.get()
+                if product:
+                    cls.PRODUCT = product
+                    img = product.img
+                    if img:
+                        return img
+            return None
 
     @staticmethod
     def _write_properties_for_api():
@@ -669,9 +762,8 @@ class Order(ndb.Model):
 
     @staticmethod
     def _read_properties_for_api():
-        # Example : return [u'pn', u'm', u'pn', u'd', u'qa']
         return []
-    
+
     @classmethod
     def _post_put_hook(cls, future):
         try:
@@ -680,10 +772,11 @@ class Order(ndb.Model):
             orderModel = orderModelKey.get()
             if orderModel:
                 taskqueue.add(
-                            name=str(str(orderModel.pk.urlsafe())[:16]+'parsers-worker'+str(int(now/30))), \
-                            queue_name='parsers-worker', \
-                            url='/worker/setProductTierPrices', \
-                            params={'urlsafeProductKey':  orderModel.pk.urlsafe()}) # post parameter
+                    name=str(str(orderModel.pk.urlsafe())[:16]+'parsers-worker'+str(int(now/30))),
+                    queue_name='parsers-worker',
+                    url='/worker/setProductTierPrices',
+                    params={'urlsafeProductKey':  orderModel.pk.urlsafe()}
+                )
         except Exception as e:
             logging.error('Error checking product price tier taskqueue: -- {}'.format(e))
 
@@ -694,10 +787,10 @@ class Order(ndb.Model):
             if product:
                 pn = utils.clean_product_number(product.pn)
                 order = cls(
-                            key = ndb.Key(Order, str(pn), parent=parentKey),
-                            pk = productKey, ##: Product Model Key
-                            q = int(qnt), ##: Quantity for Order
-                            )
+                    key=ndb.Key(Order, str(pn), parent=parentKey),
+                    pk=productKey,  # Product Model Key
+                    q=int(qnt),  # Quantity for Order
+                )
                 if put_model:
                     orderKey = order.put()
                     if orderKey:
@@ -712,7 +805,7 @@ class Order(ndb.Model):
     @classmethod
     def update_order_add_qnt(cls, order, qnt, put_model=True):
         try:
-            order.q += qnt ##: Update Quantity
+            order.q += qnt  # Update Quantity
             if put_model:
                 orderKey = order.put()
                 if orderKey:
@@ -727,7 +820,7 @@ class Order(ndb.Model):
     @classmethod
     def update_order_new_qnt(cls, order, qnt, put_model=True):
         try:
-            order.q = qnt ##: Update Quantity
+            order.q = qnt  # Update Quantity
             if put_model:
                 orderKey = order.put()
                 if orderKey:

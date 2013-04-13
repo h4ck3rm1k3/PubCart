@@ -320,7 +320,7 @@
 							            <th class="span1">Img.</th>
 										<th class="span2">Product.</th>
 										<th class="span2">Seller.</th>
-										<th class="span1">Popularity</th>
+										<th class="span1">Popularity.</th>
 										<th class="span1 right">Unit Price.</th>
 							        </tr>
 							    </thead>
@@ -352,25 +352,33 @@
 												{% endif %}
 											</td>
 											<td class='span3'>
-												<div id='{{order.productName}}_order_widget_info_wrapper_homepage' class='order_widget_info_wrapper_homepage'>
+												<div id='{{order.productName}}_order_product_info_wrapper' class='order_product_info_wrapper'>
 													<div class='order_pn_homepage'>
-														{{order.productName|truncate(length=19, killwords=True)}}
+														<a href="{{uri_for('product', urlsafeProductKey=order.pk.urlsafe())}}">
+															{{order.productName|truncate(length=19, killwords=True)}}
+														</a>
 													</div>
 													<div class='order_name_homepage'>
-														{{order.description|truncate(length=19, killwords=True)}}
+														<a href="{{uri_for('product', urlsafeProductKey=order.pk.urlsafe())}}">
+															{{order.description|truncate(length=19, killwords=True)}}
+														</a>
 													</div>
 												</div>
 											</td>
 											<td class='span3'>
-												{{ order.seller }}
+												{% if order.seller%}
+													{{ order.seller }}
+												{% endif %}
 											</td>
 											<td class='span2'>
 												<div class="progress">
 												  <div class="bar bar-success" style="width: {{ order.popularity }}%;"></div>
 												</div>
-												<div class='cartRow_extraInfo green'>
-													$TODO popularity savings
-												</div>
+												{% if order.savings %}
+													<div class='cartRow_extraInfo green'>
+														potential discount: <strong>{{order.savings}}% off</strong>
+													</div>
+												{% endif %}
 											</td>
 											<td class='span2 right'>
 												<div class='small_buy_button_with_dropdown'>
