@@ -83,10 +83,8 @@ class ProductSearchForm(BaseForm):
 class AddProductForm(BaseForm):
     SELLERS = [('', 'Select a seller...')]
     sellerModels = userModels.Seller.get_all_for_category('ELECTRONICS')
-    logging.info('sellerModels: {}'.format(sellerModels))
     for seller in sellerModels:
         SELLERS.append((str(seller.key.urlsafe()), str(seller.n)))
-        logging.info('SELLERS: {}'.format(SELLERS))
     productNumber = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
     urlsafeSellerKey = fields.SelectField(_('Product Seller Number'), choices=SELLERS)
     urlsafeCartKey = fields.HiddenField(_('Cart Number'))

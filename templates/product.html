@@ -1,34 +1,174 @@
 {% extends "home.html" %}
+{% import 'macros.html' as macros %}
 
 {% block title %}
     {{product.d}} - BournEE Exchange
 {% endblock %}
 
+{% block mediaScripts %}
+	<script type="text/javascript">var switchTo5x=false;</script>
+	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+	<script type="text/javascript">stLight.options({publisher: "f8506e67-f112-448c-bfee-c3e10c576198", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+{% endblock %}
+
 {% block header %}{% endblock %}
 
 {% block main_content %}
-	<div id='productNameTitle_{{product.pn}}' class='productNameTitle text-info'>
-		{% if path != "/product" and path != "/product/" %}
-			<a class='no_decoration' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe() ) }}"><h3>{{product.d}}</h3></a>
-		{% else %}
-			<h3>{{product.d}}</h3>
-		{% endif %}
-	</div>
-	<section class='white_wrapper_box_span10'>
-		<div id='productWrapper' class='row productWrapper'>
-			<div id="productImageWrapper_{{product.pn}}" class="span2 productImageWrapper">
-				<img class="img-rounded" src="{{product.img}}" alt="{{product.pn}} {{product.m}}">
-			</div> <!-- End of Span2  -  productImageWrapper-->
-			<div id='productDescriptionWrapper' class='span4 productDescriptionWrapper'>
-				<div id="productInfoWrapper_{{product.pn}}" class="productInfoWrapper">
-					<div id='productNumberTitle_{{product.pn}}' class='productNumberTitle'>
-						<span class='productDescriptionTitles muted'>Product #:</span>
-						{% if path != "/product" and path != "/product/" %}
-							<a class='pn_link' href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">{{product.pn}}</a>
-						{% else %}
-							<strong class='text-success'>{{product.pn}}</strong>
-						{% endif %}
+	<div class='row'>
+		<div class='span2'>
+			{% if product.img %}
+				<img class="img-rounded" src="{{product.img}}" width='170px' alt="{{product.n}} Image">
+			{% else %}
+				<img class="img-rounded" data-src="holder.js/170x170/text:PubCart." alt="{{product.n}} Image">
+			{% endif %}
+			<div id='addProductToTabButtonWrapper' class='addProductToTabButtonWrapper'>
+				<form id='addProductToTabForm' name='addProductToTabForm' action="{{ uri_for('addToTab')}}" method="POST">
+			            <input type="hidden" name="exception" value="{{ exception }}">
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
+						<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+						<input type="hidden" name="q" value="1">
+						<div class="btn-group">
+						<button id='submitAddProductToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addProductToTabForm" >
+							${{best_price}} - <small>put on Tab.</small>
+						</button></div>
+				</form>
+			</div>
+			<div class='productInfoWrapper'>
+				<div class='productInfoTitle'>
+					Popularity:
+				</div>
+				<div class='productInfo'>
+					<div class="progress marginTop5">
+						<div class="bar bar-success" style="width: {{ product.popularity }}%;"></div>
 					</div>
+					{% if product.savings %}
+						<div class='product_potential_savings green'>
+							potential discount: <strong>{{product.savings}}% off</strong>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% if product.sn %}
+				<div class='productInfoWrapper'>
+					<div class='productInfoTitle'>
+						Seller:
+					</div>
+					<div class='productInfo'>
+						{{product.sn}}
+					</div>
+				</div>
+			{% endif %}
+			{% if product.cat %}
+				<div class='productInfoWrapper'>
+					<div class='productInfoTitle'>
+						Category:
+					</div>
+					<div class='productInfo'>
+						{{product.cat}}
+					</div>
+				</div>
+			{% endif %}
+			{% if product.ud %}
+				<div class='productInfoWrapper'>
+					<div class='productInfoTitle'>
+						Updated on:
+					</div>
+					<div class='productInfo'>
+						{{product.ud}}
+					</div>
+				</div>
+			{% endif %}
+		</div> <!-- END OF SPAN 2 -->
+
+
+		<div class='span8'>
+			<header class='fullpageTitleWrapper'>
+				<span class='muted'>Product:</span>
+				&nbsp;&nbsp;{{product.pn}}.
+			</header>
+			<article class='productDescription'>
+				<div class='muted'>Description:</div>
+				{% if product.d %}
+					<div>{{product.d}}</div>
+				{% endif %}
+			</article>
+
+			<nav class='productMenuWrapper'>
+				<div class='subnavMenuItemWrapper'>
+					<form id='addToWatchlistForm' name='addToWatchlistForm' action="{{ uri_for('addToWatchlist')}}" method="POST">
+						<fieldset>
+				            <input type="hidden" name="exception" value="{{ exception }}">
+				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+							<input type="hidden" name="ok" value="{{product.key.urlsafe()}}">
+							<input type="hidden" name="wln" value="ALL">
+							<button type='submit' class="btn-link subnavMenuItem" >Watch.</button>
+						</fieldset>
+					</form>
+				</div>
+				<div class='subnavMenuItemWrapper'>
+					<a id='fcShareButton' class='btn-link subnavMenuItem'>Share.</a>
+				</div>
+				<div class='subnavMenuItemWrapper'>
+					<a id='fcEmbedButton' class='btn-link subnavMenuItem'>Embed.</a>
+				</div>
+			</nav>
+
+			<!-- ########################## -->
+			<!-- Beginning OF SHARE WRAPPER -->
+			<!-- ########################## -->
+			<div id='shareWrapper' class='shareWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<header class='fullproduct_infoBoxHeader'>Share product.</header>
+					<div class='shareContent'>
+						<p>Why share? Let's explain.</p>
+					</div>
+					<div class='shareForm'>
+						<span class='st_facebook_large' displayText='Facebook'></span>
+						<span class='st_twitter_large' displayText='Tweet'></span>
+						<span class='st_googleplus_large' displayText='Google +'></span>
+						<span class='st_blogger_large' displayText='Blogger'></span>
+						<span class='st_wordpress_large' displayText='WordPress'></span>
+						<span class='st_myspace_large' displayText='MySpace'></span>
+						<span class='st_reddit_large' displayText='Reddit'></span>
+						<span class='st_digg_large' displayText='Digg'></span>
+						<span class='st_tumblr_large' displayText='Tumblr'></span>
+						<span class='st_stumbleupon_large' displayText='StumbleUpon'></span>
+						<span class='st_email_large' displayText='Email'></span>
+						<div class=''>
+							<p>Cart page link.</p>
+							<input type='text' class='span5' value="http://www.pubCart.com{{uri_for('sellerProduct', sellerID=product.sk.id(), productNumber=product.pn)}}"/>
+						</div>
+					</div>
+					<div class='clearfix'></div>
+				</section>
+			</div>
+			<!-- #################### -->
+			<!-- END OF SHARE WRAPPER -->
+			<!-- #################### -->
+			
+			<!-- ########################## -->
+			<!-- BEGINNING OF EMBED WRAPPER -->
+			<!-- ########################## -->
+			<div id='embedWrapper' class='embedWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<header class='fullproduct_infoBoxHeader'>Embed product.</header>
+					<div class='embedContent'>
+						<p>What is embed? Let's explain.</p>
+					</div>
+					<div class='embedForm'>
+						<textarea rows='6'>Replace with embed code</textarea>
+					</div>
+					<div class='clearfix'></div>
+				</section>
+			</div>
+			<!-- #################### -->
+			<!-- END OF EMBED WRAPPER -->
+			<!-- #################### -->
+
+			<section class='white_wrapper_box_span8'>
+				<header class='fullproduct_infoBoxHeader'>Product info.</header>
 					{% if product.m %}
 					<div id='productManufacturerTitle_{{product.pn}}' class='productManufacturerTitle'>
 						<span class='productDescriptionTitles muted'>Manufacturer:&nbsp;&nbsp;&nbsp;</span>{{product.m}}
@@ -78,63 +218,7 @@
 						<a class='btn btn-mini' href="{{product.spl}}" target="_blank" rel="nofollow">DigiKey Page</a>
 						{% endif %}
 					</div>
-				</div>
-			</div> <!-- End of Span4 -  productDescriptionWrapper -->
-			<div id='productPriceWrapper_{{product.pn}}' class='span3 productPriceWrapper'>
-				{% block order_form_area %}
-					<div id='productPriceTitle_{{product.pn}}' class='productPriceTitle text-info'>
-						<span class='unitPriceText'>$ {{best_price}}<small>{% if requested_quantity > 1 %}Potential Unit Price{% else %}Best Unit Price{% endif %}</small></span>
-						<span>
-							<form class="form-inline" method="GET">
-								<fieldset>
-						            <input type="hidden" name="exception" value="{{ exception }}">
-						            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-									<input type="hidden" name="pn" value="{{product.pn}}">
-									<div class="input-prepend">
-										<span class="add-on marginTop15">@ QUANTITY</span>
-										<input type="text" class="span1 marginTop15" id="quantity" name="q" value='{{requested_quantity}}' placeholder="Quantity">
-									</div>
-									<button type="submit" class="btn marginTop15">update</button>
-								</fieldset>
-							</form>
-						</span>
-					</div>
-					<div id='productOrderButton_{{product.pn}}' class='productOrderButton'>
-						<form id='addToTabForm' name='addToTabForm' action="{{ uri_for('addToTab')}}" method="POST">
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-								<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
-								<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
-								<input type="hidden" name="q" value="{{requested_quantity}}">
-						</form>
-						<div class="btn-group">
-							<button id='submitAddToTabForm' class="btn btn-primary btn-large" type="submit" form="addToTabForm" >Put on my Tab - ${{total_cost}}</button>
-							<button id='moreOptionsButton' rel="tooltip" title="More Options" class="btn btn-primary btn-large dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-
-							<ul class="dropdown-menu">
-					    
-								<form id='addToWatchlistForm' name='addToWatchlistForm' class="form-inline" action="{{ uri_for('addToWatchlist')}}" method="POST">
-									<fieldset>
-										<input type="hidden" name="exception" value="{{ exception }}">
-										<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-										<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
-										<input type="hidden" name="wln" value="ALL">
-										<li><button type='submit' ><i class="icon-eye-open"></i> ADD to a Watchlist</button></li>
-									</fieldset>
-								</form>
-								<li><a href="{{ uri_for('selectCartForm', urlsafeProductKey=product.key.urlsafe(), q=requested_quantity) }}"><i class="icon-folder-open"></i> ADD to a Cart</a></li>
-								<!-- <li><a href="{{ uri_for('createAlert', pk=product.key.urlsafe()) }}"><i class="icon-bell"></i> Create Alert</a></li> -->
-								<!-- <li class="divider"></li>
-								<li><a href="{{ uri_for('createLimitOrder', pk=product.key.urlsafe(), q=requested_quantity) }}"><i class="icon-screenshot"></i> Limit Order</a></li>
-								<li><a href="{{ uri_for('exchangeOrder', pk=product.key.urlsafe()) }}"><i class="icon-retweet"></i> Order for Exchange</a></li> -->
-							</ul>
-						</div>
-					</div>
-				{% endblock %}
-			</div> <!-- End of Span3  -  productOrderButton -->
+			</section>
 		</div>
-	</section>
-{% endblock %}
-
-{% block important %}
+	</div>
 {% endblock %}

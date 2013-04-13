@@ -58,16 +58,6 @@
 				</div>
 			</div>
 		{% endif %}
-		{% if cart.cd %}
-			<div class='cartInfoWrapper'>
-				<div class='cartInfoTitle'>
-					Created on:
-				</div>
-				<div class='cartInfo'>
-					{{cart.cd}}
-				</div>
-			</div>
-		{% endif %}
 		{% if cart.ud %}
 			<div class='cartInfoWrapper'>
 				<div class='cartInfoTitle'>
@@ -140,7 +130,7 @@
 		<div class='clearfix'></div>
 
 			<!-- ################################ -->
-			<!-- Beginning OF APP PRODUCT WRAPPER -->
+			<!-- Beginning OF ADD PRODUCT WRAPPER -->
 			<!-- ################################ -->
 			{% if cartOwner %}
 				<div id='addProductWrapper' class='addProductWrapper' {% if not createCart and productOrders %}style='display:none;'{% endif %}>
@@ -448,18 +438,4 @@
 			{% endif %}
 	</div> <!-- End of Span8 -->
 </div> <!-- End of Row -->
-
-
-
-	<div id='pageMessageWrapper' class='pageMessageWrapper'>
-	{% block important %}
-	{% endblock %}
-	</div>
 {% endblock %}
-
-{% block top_right_aside %}
-	<button class="btn btn-warning btn-large btn-block marginBottom15"><strong>Get this cart on your site</strong></button>
-{% endblock %}
-
-
-{% block extra_content %}{% endblock %}

@@ -55,6 +55,9 @@ class Product(ndb.Expando):
     sk = ndb.KeyProperty(kind=Seller)  # Seller Model Key
     sn = ndb.StringProperty(required=True)  # Seller Name
 
+    cat = ndb.StringProperty(required=True)  # Category
+    pCat = ndb.StringProperty(required=True)  # Parent Category
+
     ##: Genral Info Data
     pn = ndb.StringProperty(required=True)  # Product Number
     m = ndb.StringProperty(required=True)  # Manufacturer (Brand)
@@ -86,6 +89,8 @@ class Product(ndb.Expando):
     # pc = ndb.StringProperty() ##: Package / Case
     # sdp = ndb.StringProperty() ##: Supplier Device Package
 
+    PRICE_TIER_MODEL = None
+
     @property
     def clean_pn(cls):
         return utils.clean_product_number(cls.pn)
@@ -107,6 +112,33 @@ class Product(ndb.Expando):
             cls.hup = hup
             cls.put()
             return utils.dollar_float(float(hup)/100)
+
+    @property
+    def popularity(cls):
+        highest_qnt = 10000
+        if cls.PRICE_TIER_MODEL:
+            highest_qnt = cls.PRICE_TIER_MODEL.hq
+        else:
+            pp = ProductTierPrice.query(ancestor=cls.key).get()
+            if pp:
+                cls.PRICE_TIER_MODEL = pp
+                highest_qnt = pp.hq
+            else:
+                return 5
+        existing_orders = Order.get_paid_qnt(cls.key)
+        current_qnt = int(existing_orders)  # TODO get the global quantity
+        percentage = int((float(current_qnt)/float(highest_qnt)*100))
+        if percentage > 5:
+            return percentage
+        return 5
+
+    @property
+    def savings(cls):
+        existing_orders = Order.get_paid_qnt(cls.key)
+        savings = ProductTierPrice.get_discount_percentage(cls.key.urlsafe(), existing_orders)
+        if savings > 0:
+            return savings
+        return 0
 
     @staticmethod
     def _write_properties_for_api():
@@ -161,11 +193,14 @@ class Product(ndb.Expando):
 
     @staticmethod
     def get_by_seller_and_pn(sellerID, productNumber):
-        pn = utils.clean_product_number(productNumber)
-        sellerKey = ndb.Key(Seller, str(sellerID)).get(keys_only=True)
-        if sellerKey:
-            return ndb.Key(Product, str(pn), parent=sellerKey).get()
-        return None
+        try:
+            pn = utils.clean_product_number(productNumber)
+            sellerKey = ndb.Key(Seller, int(sellerID))
+            product = ndb.Key(Product, str(pn), parent=sellerKey).get()
+            return product
+        except Exception as e:
+            logging.error('Error, could not get product with method get_by_seller_and_pn(sellerID, productNumber): {}'.format(e))
+            return None
 
     @staticmethod
     def create_from_parse_data(parseData):
@@ -186,23 +221,23 @@ class ProductTierPrice(ndb.Model):
     """
         The Model for storing the Products individual price tier.
     """
-    pk = ndb.KeyProperty(kind=Product) # Product Model Key
-    pn = ndb.StringProperty() # Product Number
+    pk = ndb.KeyProperty(kind=Product)  # Product Model Key
+    pn = ndb.StringProperty()  # Product Number
 
-    o = ndb.IntegerProperty() # 1
-    t = ndb.IntegerProperty() # 10
-    oH = ndb.IntegerProperty() # 100
-    tf = ndb.IntegerProperty() # 250
-    fH = ndb.IntegerProperty() # 500
-    oT = ndb.IntegerProperty() # 1,000
-    tHT = ndb.IntegerProperty() # 2,500
-    fT = ndb.IntegerProperty() # 5,000
-    tT = ndb.IntegerProperty() # 10,000
-    
-    meq = ndb.IntegerProperty() # Minimum Exchange Quantity
-    mep = ndb.IntegerProperty() # Maximum Exchange Buy Price
-    hq = ndb.IntegerProperty() # High Quantity (this is the quantity where the price stops dropping)
-    lp = ndb.IntegerProperty() # Lowest Price
+    o = ndb.IntegerProperty()  # 1
+    t = ndb.IntegerProperty()  # 10
+    oH = ndb.IntegerProperty()  # 100
+    tf = ndb.IntegerProperty()  # 250
+    fH = ndb.IntegerProperty()  # 500
+    oT = ndb.IntegerProperty()  # 1,000
+    tHT = ndb.IntegerProperty()  # 2,500
+    fT = ndb.IntegerProperty()  # 5,000
+    tT = ndb.IntegerProperty()  # 10,000
+
+    meq = ndb.IntegerProperty()  # Minimum Exchange Quantity
+    mep = ndb.IntegerProperty()  # Maximum Exchange Buy Price
+    hq = ndb.IntegerProperty()  # High Quantity (this is the quantity where the price stops dropping)
+    lp = ndb.IntegerProperty()  # Lowest Price
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -259,7 +294,6 @@ class ProductTierPrice(ndb.Model):
             else:
                 break
         return qnt_to_search
-
 
     @staticmethod
     def get_price_for_qnt(urlsafeProductKey, qnt, return_PTModel=True):
@@ -337,21 +371,21 @@ class MarketMaker(ndb.Model):
     """
         The Model for storing the Market Maker Limit Order Info.
     """
-    uk = ndb.KeyProperty(kind=User) ##: User Model Key
-    pk = ndb.KeyProperty(kind=Product) ##: Product Model Key
-    pn = ndb.StringProperty() ##: Product Number
-    d = ndb.StringProperty() ##: Description
-    bup = ndb.IntegerProperty() ##: Purchased Price (cents)
-    sup = ndb.IntegerProperty() ##: Limit Price / Selling  Price (cents)
-    rq = ndb.IntegerProperty() ##: Remaining Quantity
-    qoh = ndb.IntegerProperty(default=0) ##: Quantity on Hold
-    c = ndb.IntegerProperty() ##: Full Order Cost (cents)
-    roi = ndb.IntegerProperty() ##: Estimated Return on Investment at time of purchase (cents)
-    f = ndb.IntegerProperty() ##: Fee charged by BournEE Exchange at time of full order purchase (cents)
-    p = ndb.IntegerProperty() ##: Percentage of markup on Buy Price
-    img = ndb.StringProperty() ##: Image URL
+    uk = ndb.KeyProperty(kind=User)  # User Model Key
+    pk = ndb.KeyProperty(kind=Product)  # Product Model Key
+    pn = ndb.StringProperty()  # Product Number
+    d = ndb.StringProperty()  # Description
+    bup = ndb.IntegerProperty()  # Purchased Price (cents)
+    sup = ndb.IntegerProperty()  # Limit Price / Selling  Price (cents)
+    rq = ndb.IntegerProperty()  # Remaining Quantity
+    qoh = ndb.IntegerProperty(default=0)  # Quantity on Hold
+    c = ndb.IntegerProperty()  # Full Order Cost (cents)
+    roi = ndb.IntegerProperty()  # Estimated Return on Investment at time of purchase (cents)
+    f = ndb.IntegerProperty()  # Fee charged by BournEE Exchange at time of full order purchase (cents)
+    p = ndb.IntegerProperty()  # Percentage of markup on Buy Price
+    img = ndb.StringProperty()  # Image URL
 
-    pd = ndb.BooleanProperty(default=False) # Has the order been paid for
+    pd = ndb.BooleanProperty(default=False)  # Has the order been paid for
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -360,11 +394,11 @@ class MarketMaker(ndb.Model):
     def d_sup(cls):
         ## dlp = Dollar Limit Price
         return utils.dollar_float(float(cls.sup)/100)
-    
+
     @property
     def price_change(cls):
         return 0.00
-        
+
     @property
     def is_best_sell_price(cls):
         product = cls.pk.get()
@@ -413,7 +447,7 @@ class MarketMaker(ndb.Model):
     def get_for_UserKey(cls, uk, pn=None, sup=None, quantity=999):
         ##: uk = User Key
         try:
-            if pn != None or sup != None:
+            if pn is not None or sup is not None:
                 p = utils.clean_product_number(pn)
                 logging.info('Going to run ndb.Key - get()')
                 return ndb.Key(MarketMaker, str(p)+str(sup), parent=cls.uk).get()
@@ -423,17 +457,18 @@ class MarketMaker(ndb.Model):
             logging.error("Error with query in function get_for_UserKey for Model class OrderItem")
             return None
 
-class Tab(ndb.Model):
-    uk = ndb.KeyProperty(kind=User) ##: User Model Key
 
-    st = ndb.IntegerProperty(default=0) ##: Sub-Total (Cents)
-    
+class Tab(ndb.Model):
+    uk = ndb.KeyProperty(kind=User)  # User Model Key
+
+    st = ndb.IntegerProperty(default=0)  # Sub-Total (Cents)
+
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
-    
-    pdd = ndb.DateTimeProperty(verbose_name='paid_datetime') ##: Paid Date time
-    pd = ndb.BooleanProperty(default=False) ##: Paid Boolean
-    sh = ndb.BooleanProperty(default=False) ##: Shipped Boolean
+
+    pdd = ndb.DateTimeProperty(verbose_name='paid_datetime')  # Paid Date time
+    pd = ndb.BooleanProperty(default=False)  # Paid Boolean
+    sh = ndb.BooleanProperty(default=False)  # Shipped Boolean
     ##: If the tabs's orders have been modified (added or taken out) dirty flag is set.
     ##: When the task queue runs a check on the tabs's subtotal, this is set to false.
     dirty = ndb.BooleanProperty(default=False)
@@ -551,11 +586,11 @@ class Cart(ndb.Model):
     def create_cart(cartKey, userKey, cartName, cartCategory=None, put_model=True):
         try:
             cart = Cart(
-                        key = cartKey, \
-                        uk = userKey, \
-                        n = cartName, \
-                        cat = cartCategory, \
-                        )
+                key=cartKey,
+                uk=userKey,
+                n=cartName,
+                cat=cartCategory,
+            )
             if put_model:
                 cart.put()
             return cart
@@ -564,7 +599,7 @@ class Cart(ndb.Model):
             return None
 
     @staticmethod
-    def get_or_create_cart(userKey, urlsafeCartKey , cartName, cartCategory=None):
+    def get_or_create_cart(userKey, urlsafeCartKey, cartName, cartCategory=None):
         try:
             if urlsafeCartKey:
                 return ndb.Key(urlsafe=urlsafeCartKey).get()
@@ -572,20 +607,23 @@ class Cart(ndb.Model):
                 cartKeyName = "{}".format(str(cartName).upper())
                 cartKey = ndb.Key(Cart, cartKeyName, parent=userKey)
                 cart = cartKey.get()
-                if cart: return cart
-                else: return Cart.create_cart(cartKey, userKey, str(cartName), cartCategory)
+                if cart:
+                    return cart
+                else:
+                    return Cart.create_cart(cartKey, userKey, str(cartName), cartCategory)
 
             return None
         except Exception as e:
             logging.error("Error in function get_or_create_cart for Model class Cart: -- {}".format(e))
             return None
 
-
     @staticmethod
     def get_public_carts(userKey=None, quantity=999):
         try:
-            if userKey: qry = Cart.query(ndb.AND(Cart.public == True, Cart.garbage == False), ancestor=userKey)
-            else: qry = Cart.query(ndb.AND(Cart.public == True, Cart.garbage == False))
+            if userKey:
+                qry = Cart.query(ndb.AND(Cart.public == True, Cart.garbage == False), ancestor=userKey)
+            else:
+                qry = Cart.query(ndb.AND(Cart.public == True, Cart.garbage == False))
             return qry.order(Cart.ud).fetch(quantity)
         except Exception as e:
             logging.error("Error with query in function get_public_carts for Model class Cart: -- {}".format(e))
@@ -594,7 +632,7 @@ class Cart(ndb.Model):
     @staticmethod
     def get_carts_for_user(userKey, quantity=999):
         try:
-            qry =  Cart.query(Cart.garbage == False, ancestor=userKey)
+            qry = Cart.query(Cart.garbage == False, ancestor=userKey)
             return qry.order(Cart.ud).fetch(quantity)
         except Exception as e:
             logging.error("Error with query in function get_carts_for_user for Model class Cart: -- {}".format(e))
@@ -643,6 +681,7 @@ class Order(ndb.Model):
     q = ndb.IntegerProperty()  # Quantity
 
     removed = ndb.BooleanProperty(default=False)  # Was the Order removed from the User's Tab
+    paid = ndb.BooleanProperty(default=False)  # Was the Order purchased/paid from the User's Tab
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -673,9 +712,10 @@ class Order(ndb.Model):
     @property
     def popularity(cls):
         pp = ProductTierPrice.query(ancestor=cls.pk).get()
+        existing_orders = cls.get_paid_qnt(cls.pk)
         if pp:
             highest_qnt = pp.hq
-            current_qnt = cls.q  # TODO get the global quantity
+            current_qnt = int(cls.q) + int(existing_orders)  # TODO get the global quantity
             percentage = int((float(current_qnt)/float(highest_qnt)*100))
             if percentage > 5:
                 return percentage
@@ -736,7 +776,9 @@ class Order(ndb.Model):
         if cls.pk:
             if cls.q >= 10:
                 urlsafeProductKey = cls.pk.urlsafe()
-                savings = ProductTierPrice.get_discount_percentage(urlsafeProductKey, cls.q)
+                existing_qnt = cls.get_paid_qnt(cls.pk)
+                quantity = int(existing_qnt) + int(cls.q)
+                savings = ProductTierPrice.get_discount_percentage(urlsafeProductKey, quantity)
                 if savings > 0:
                     return savings
         return 0
@@ -867,63 +909,47 @@ class Order(ndb.Model):
             logging.error("Error with query in function get_for_UserKey for Model class Order ")
             return None
 
+    @staticmethod
+    def get_paid_qnt(productKey):
+        paid_qnt = 0
+        paid_orders = Order.query(Order.paid == True, ancestor=productKey).fetch(1000)
+        for order in paid_orders:
+            paid_qnt += order.q
+        return paid_qnt
+
 
 class PurchaseRecord(ndb.Model):
     '''a completed transaction'''
-    ck = ndb.KeyProperty(kind=Cart) ##: Cart Key
-    cuk = ndb.KeyProperty(kind=User) ##: Cart Owner User Key
-    puk = ndb.KeyProperty(kind=User) ##: Purchaser User Key
-    st = ndb.StringProperty( choices=( 'NEW', 'CREATED', 'ERROR', 'CANCELLED', 'RETURNED', 'COMPLETED', 'SHIPPED' ) ) ##: Status
-    std = ndb.StringProperty(indexed=False) ##: Status_detail
-    s = ndb.StringProperty(indexed=False) ##: Secret # to verify return_url
-    dreq = ndb.TextProperty(indexed=False) ##: debug_request
-    dres = ndb.TextProperty(indexed=False) ##: debug_responce
-    pk = ndb.StringProperty(indexed=False) ##: payKey
-    sh = ndb.StringProperty(indexed=False) ##: Shipping
-    cd = ndb.DateTimeProperty(auto_now_add=True) ##: Created Date
-    ud = ndb.DateTimeProperty(auto_now=True) ##: Updated Date
-    
+    ck = ndb.KeyProperty(kind=Cart)  # Cart Key
+    cuk = ndb.KeyProperty(kind=User)  # Cart Owner User Key
+    puk = ndb.KeyProperty(kind=User)  # Purchaser User Key
+    st = ndb.StringProperty(choices=('NEW', 'CREATED', 'ERROR', 'CANCELLED', 'RETURNED', 'COMPLETED', 'SHIPPED'))  # Status
+    std = ndb.StringProperty(indexed=False)  # Status_detail
+    s = ndb.StringProperty(indexed=False)  # Secret # to verify return_url
+    dreq = ndb.TextProperty(indexed=False)  # debug_request
+    dres = ndb.TextProperty(indexed=False)  # debug_responce
+    pk = ndb.StringProperty(indexed=False)  # payKey
+    sh = ndb.StringProperty(indexed=False)  # Shipping
+    cd = ndb.DateTimeProperty(auto_now_add=True)  # Created Date
+    ud = ndb.DateTimeProperty(auto_now=True)  # Updated Date
+
     @classmethod
     def get_by_cartKey(cls, cartKey):
-        return cls.query(PurchaseRecord.ck==cartKey).get()
-    
+        return cls.query(PurchaseRecord.ck == cartKey).get()
 
-
-class OrderPurchaseRecord(ndb.Model):
-    prk = ndb.KeyProperty(kind=PurchaseRecord) ##: PurchaseRecord Key
-    pk = ndb.KeyProperty(kind=Product) ##: Product Key
-    q = ndb.IntegerProperty() ##: Qunatity for Ordered Product
-
-    cd = ndb.DateTimeProperty(auto_now_add=True) ##: Created Date
-    ud = ndb.DateTimeProperty(auto_now=True) ##: Updated Date
-
-    @staticmethod
-    def get_purchased_qnt_for_product_number(urlsafeProductKey, quantity=999):
-        productKey = ndb.Key(urlsafe=urlsafeProductKey)
-        if productKey:
-            qnt = 0
-            purchasedOrders = OrderPurchaseRecord.query(OrderPurchaseRecord.pk == productKey).fetch(quantity)
-            for order in  purchasedOrders:
-                pr = order.prk.get()
-                if pr.st == 'COMPLETED':
-                    qnt += order.q
-            return qnt
-        else:
-            return 0
-        
 
 class Alert(ndb.Model):
     """
         The Model for an Alert.
     """
-    uk = ndb.KeyProperty(kind=User) ##: User Model Key
-    pk = ndb.KeyProperty(kind=Product) ##: Product Key (urlsafe)
-    d = ndb.StringProperty() ##: Product Description
-    pn = ndb.StringProperty() ##: Product Number
-    img = ndb.StringProperty() ##: Product Image URL
-    
-    ap = ndb.IntegerProperty(repeated=True) ##: Alert Price
-    aq = ndb.IntegerProperty(repeated=True) ##: Alert Quantity
+    uk = ndb.KeyProperty(kind=User)  # User Model Key
+    pk = ndb.KeyProperty(kind=Product)  # Product Key (urlsafe)
+    d = ndb.StringProperty()  # Product Description
+    pn = ndb.StringProperty()  # Product Number
+    img = ndb.StringProperty()  # Product Image URL
+
+    ap = ndb.IntegerProperty(repeated=True)  # Alert Price
+    aq = ndb.IntegerProperty(repeated=True)  # Alert Quantity
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')

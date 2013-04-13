@@ -9,9 +9,7 @@
     Routes are setup in routes.py and added in main.py
 """
 ##:  Python Imports
-import re
 import logging
-import httpagentparser
 from datetime import datetime
 
 ##:  Webapp2 Imports
@@ -22,7 +20,6 @@ from webapp2_extras.auth import InvalidAuthIdError, InvalidPasswordError
 
 ##:  Google Imports
 from google.appengine.ext import ndb
-from google.appengine.api import memcache
 from google.appengine.datastore.datastore_query import Cursor
 
 ##:  BournEE Imports
@@ -33,11 +30,7 @@ from lib import utils
 from lib.utils import dollar_float
 from lib.bourneehandler import RegisterBaseHandler, BournEEHandler, user_required
 from lib.exceptions import FunctionException
-from lib import paypal_settings as settings
 from lib.livecount.counter import LivecountCounter
-
-##:  Boilerplate Imports
-from boilerplate.lib.basehandler import BaseHandler
 
 
 class HomeRequestHandler(BournEEHandler):
