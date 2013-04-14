@@ -372,29 +372,29 @@
 											</td>
 											<td class='span2 right'>
 												<div class='small_buy_button_with_dropdown'>
-												<div class='form_with_dropdown_wrapper'>
-													<form id='addToTabForm' name='addToTabForm' action="{{ uri_for('addToTab')}}" method="POST" class='nomargin_form'>
-												            <input type="hidden" name="exception" value="{{ exception }}">
-												            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-															<input type="hidden" name="pk" value="{{order.pk.urlsafe()}}">
-															<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
-															<input type="hidden" name="q" value="1">
-															<div class="btn-group">
-																<button class="btn btn-mini">${{order.d_bup}} Buy</button>
-															</div>
-													</form>
-												</div>
-												<div class='dropDown_in_form'>
-													<div class="btn-group">
-														<button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-															<span class="caret"></span>
-														</button>
-														<ul class="dropdown-menu pull-right">
-															<li><a href="{{ uri_for('product', urlsafeProductKey=order.pk.urlsafe() ) }}">View Product</a></li>
-														</ul>
+													<div class='form_with_dropdown_wrapper'>
+														<form id='addToTabForm' name='addToTabForm' action="{{ uri_for('addToTab')}}" method="POST" class='nomargin_form'>
+													            <input type="hidden" name="exception" value="{{ exception }}">
+													            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+																<input type="hidden" name="pk" value="{{order.pk.urlsafe()}}">
+																<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+																<input type="hidden" name="q" value="1">
+																<div class="btn-group">
+																	<button class="btn btn-mini">${{order.d_bup}} Buy</button>
+																</div>
+														</form>
 													</div>
-												</div>
-												<div class='clearfix'></div>
+													<div class='dropDown_in_form'>
+														<div class="btn-group">
+															<button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+																<span class="caret"></span>
+															</button>
+															<ul class="dropdown-menu pull-right">
+																<li><a href="{{ uri_for('product', urlsafeProductKey=order.pk.urlsafe() ) }}">View Product</a></li>
+															</ul>
+														</div>
+													</div>
+													<div class='clearfix'></div>
 												</div>
 												<div class='clearfix'></div>
 												

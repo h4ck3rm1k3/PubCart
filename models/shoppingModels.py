@@ -53,7 +53,7 @@ class Product(ndb.Expando):
     """
 
     sk = ndb.KeyProperty(kind=Seller)  # Seller Model Key
-    sn = ndb.StringProperty(required=True)  # Seller Name
+    sn = ndb.StringProperty(indexed=False)  # Seller Name
 
     cat = ndb.StringProperty(required=True)  # Category
     pCat = ndb.StringProperty(required=True)  # Parent Category

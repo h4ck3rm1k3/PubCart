@@ -219,6 +219,51 @@
 						{% endif %}
 					</div>
 			</section>
+
+			<div class='clearfix'></div>
+			
+			{% if cartsWithProduct %}
+			<section>
+				<header class='fullproduct_infoBoxHeader'>Found in these carts.</header>
+				{% for cart in cartsWithProduct %}
+					<div class='mini_Wrapper'>
+						<div class='mini_ImageWrapper'>
+							{% if cart.img %}
+								<img class="img-rounded" src="{{cart.img}}" width='40px' alt="{{cart.n}}">
+							{% else %}
+								<img class="img-rounded" data-src="holder.js/40x40/text:PubCart." alt="{{cart.n}}">
+							{% endif %}
+						</div>
+						<div class='mini_NameWrapper'>
+							<div class='mini_NameWrapper_Name'>
+								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
+									{{cart.n|truncate(length=16, killwords=True)}}
+								</a>
+								<small>&nbsp;&nbsp;by {{cart.owner|truncate(length=10, killwords=True)}}</small>
+							</div>
+							<div class='mini_NameWrapper_Desc'>
+								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
+									{{cart.d|truncate(length=30, killwords=True)}}
+								</a>
+							</div>
+						</div>
+						<div class='mini_ButtonWarpper right'>
+							<div class='small_buy_button_with_dropdown'>
+								<form id='addCartToTabForm' name='addCartToTabForm' action="{{ uri_for('addCartToTab')}}" method="POST">
+							            <input type="hidden" name="exception" value="{{ exception }}">
+							            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+										<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
+										<div class="btn-group">
+											<button class="btn btn-mini">${{cart.d_st}} Buy</button>
+										</div>
+								</form>
+							</div>
+						</div>
+						<div class='clearfix'></div>
+					</div>
+				{% endfor %}
+			</section>
+			{% endif %}
 		</div>
 	</div>
 {% endblock %}
