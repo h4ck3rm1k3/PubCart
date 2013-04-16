@@ -107,15 +107,15 @@ class LoginRequestHandler(RegisterBaseHandler):
                 auth_id, password, remember=remember_me)
 
             # if user account is not activated, logout and redirect to home
-            if (user.activated == False):
+            if user.activated is False:
                 # logout
                 self.auth.unset_session()
 
                 # redirect to home with error message
                 resend_email_uri = self.uri_for('resend-account-activation', user_id=user.get_id(),
                                                 token=userModels.User.create_resend_token(user.get_id()))
-                message = _('Your account has not yet been activated. Please check your email to activate it or') +\
-                          ' <a href="'+resend_email_uri+'">' + _('click here') + '</a> ' + _('to resend the email.')
+                message = _('Your account has not yet been activated. Please check your email to activate it or') + \
+                    '<a href="'+resend_email_uri+'">' + _('click here') + '</a> ' + _('to resend the email.')
                 self.add_message(message, 'error')
                 return self.redirect_to('home')
 
@@ -133,6 +133,7 @@ class LoginRequestHandler(RegisterBaseHandler):
         except (InvalidAuthIdError, InvalidPasswordError), e:
             # Returns error message to self.response.write in
             # the BaseHandler.dispatcher
+            logging.error('Error, {}'.format(e))
             message = _("Your username or password is incorrect. "
                         "Please try again (make sure your caps lock is off)")
             self.add_message(message, 'error')

@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% import 'macros.html' as macros %}
+{% import "/snipets/addToTabButtons.html" as addToTab %}
 
 {% block title %}
     {{cart.n}} - BournEE Exchange
@@ -25,17 +26,7 @@
 		{% endif %}
 		{% if cart.st > 0.01 %}
 		<div id='addCartToTabButtonWrapper' class='addCartToTabButtonWrapper'>
-			<form id='addCartToTabForm' name='addCartToTabForm' action="{{ uri_for('addCartToTab')}}" method="POST">
-		            <input type="hidden" name="exception" value="{{ exception }}">
-		            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-					<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
-					<div class="btn-group">
-					<button id='submitAddCartToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addCartToTabForm" >
-						{% if not cart.dirty %} ${{cart.d_st}} - <small>put on Tab.</small>
-						{% else %} put on Tab.
-						{% endif %}
-					</button></div>
-			</form>
+			{{addToTab.addCartToTab(cart.n, cart.key.urlsafe(), cart.d_st, urlsafeUserKey, buttonClass='pubcart_button marginTop15 marginBottom15 width_span2', buttonText='- put on Tab', requirePassword=True)}}
 		</div>
 		{% endif %}
 		{% if cart.owner %}
@@ -373,16 +364,7 @@
 											<td class='span2 right'>
 												<div class='small_buy_button_with_dropdown'>
 													<div class='form_with_dropdown_wrapper'>
-														<form id='addToTabForm' name='addToTabForm' action="{{ uri_for('addToTab')}}" method="POST" class='nomargin_form'>
-													            <input type="hidden" name="exception" value="{{ exception }}">
-													            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-																<input type="hidden" name="pk" value="{{order.pk.urlsafe()}}">
-																<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
-																<input type="hidden" name="q" value="1">
-																<div class="btn-group">
-																	<button class="btn btn-mini">${{order.d_bup}} Buy</button>
-																</div>
-														</form>
+														{{addToTab.addProductToTab(order.productName, order.pk.urlsafe(), order.d_bup, urlsafeUserKey, buttonClass="btn btn-mini", buttonText='Buy', requirePassword=True)}}
 													</div>
 													<div class='dropDown_in_form'>
 														<div class="btn-group">

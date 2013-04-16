@@ -134,6 +134,13 @@ class BournEEHandler(BaseHandler):
         return None
 
     @webapp2.cached_property
+    def user_info(self):
+        if self.user:
+            user_info = userModels.User.get_by_id(long(self.user_id))
+            return user_info
+        return None
+
+    @webapp2.cached_property
     def urlsafeUserKey(self):
         if self.user:
             key = self.user_key
@@ -218,6 +225,7 @@ class BournEEHandler(BaseHandler):
         return (ok, pay)
 
     def bournee_template(self, filename, **params):
+        logging.info('user: {}'.format(self.user_info))
         params.update({
             'urlsafeUserKey': self.urlsafeUserKey,
             'usersCartCount': self.usersCartCount,

@@ -13,6 +13,7 @@ import logging
 ##:  Webapp2 Imports
 import webapp2
 from webapp2_extras.i18n import gettext as _
+from webapp2_extras.security import check_password_hash
 
 ##:  Google Imports
 from google.appengine.ext import ndb
@@ -40,7 +41,10 @@ class AddToTabHandler(BournEEHandler):
     @user_required
     def post(self):
         try:
+            message = None
+
             if not self.addToTab_form.validate():
+                message = _('The submitted form was not valid.')
                 raise Exception('addToTab_form did not Validate, in function \
                                 POST of AddToTabHandler')
 
@@ -52,7 +56,19 @@ class AddToTabHandler(BournEEHandler):
             ##: Try to fetch the data from the Form responce
             urlsafeProductKey = str(self.addToTab_form.pk.data).strip()
             urlsafeUserKey = str(self.addToTab_form.uk.data).strip()
-            qnt = self.addToTab_form.q.data  # Quantity
+            raw_password = str(self.addToTab_form.p.data).strip()
+            turn_password_check_off = self.addToTab_form.p_off.data
+            qnt = 1  # This is a placeholder for future quntity input on request
+
+            password = utils.hashing(raw_password, self.app.config.get('salt'))
+            valid_pass = check_password_hash(password, self.user_info.password)
+            if not valid_pass:
+                message = _('The password you supplied was not valid.')
+                raise Exception('Password Supplied did not match session users password')
+
+            ##: Set the flag on the user model to not require password security
+            if turn_password_check_off:
+                pass
 
             ##: Must have both urlsafeUserKey and urlsafeProductKey
             if not urlsafeUserKey or not urlsafeProductKey:
@@ -102,7 +118,8 @@ class AddToTabHandler(BournEEHandler):
 
         except Exception as e:
             logging.error('Error in function POST of AddToTabHandler : --   %s' % e)
-            message = _('We are having difficulties with finalizing the Tab Submission. Please try again later.')
+            if not message:
+                message = _('We are having difficulties with finalizing the Tab Submission. Please try again later.')
             self.add_message(message, 'error')
 
         finally:
@@ -134,6 +151,18 @@ class AddCartToTabHandler(BournEEHandler):
 
             ##: Try to fetch the data from the Form responce
             urlsafeCartKey = str(self.addCartToTab_form.ck.data).strip()
+            raw_password = str(self.addToTab_form.p.data).strip()
+            turn_password_check_off = self.addToTab_form.p_off.data
+
+            password = utils.hashing(raw_password, self.app.config.get('salt'))
+
+            if self.user_info.password != password:
+                message = _('The password you supplied was not valid.')
+                raise Exception('Password Supplied did not match session users password')
+
+            ##: Set the flag on the user model to not require password security
+            if turn_password_check_off:
+                pass
 
             ##: Must have both urlsafeUserKey and urlsafeProductKey
             if not urlsafeCartKey:
@@ -191,7 +220,8 @@ class AddCartToTabHandler(BournEEHandler):
 
         except Exception as e:
             logging.error('Error in function POST of AddCartToTabHandler : --   %s' % e)
-            message = _('We are having difficulties adding this Cart to the Tab. Please try again later.')
+            if not message:
+                message = _('We are having difficulties adding this Cart to the Tab. Please try again later.')
             self.add_message(message, 'error')
 
         finally:

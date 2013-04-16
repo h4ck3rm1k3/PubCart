@@ -127,7 +127,6 @@ class WatchlistDeleteForm(BaseForm):
 class AddToCartForm(BaseForm):
     pk = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
     ck = fields.TextField(_('Cart Number'), [validators.Length(max=FIELD_MAXLENGTH_KEY)])
-    q = fields.IntegerField(_('QNT'), [validators.Required()])
     lo = fields.TextField(_('Limit Order'), [validators.Length(max=FIELD_MAXLENGTH)])
     lop = fields.FloatField(_('Limit Order Price'))
     cn = fields.TextField(_('Cart Name'), [validators.Length(max=FIELD_MAXLENGTH)])
@@ -137,10 +136,14 @@ class AddToTabForm(BaseForm):
     pk = fields.TextField(_('Product Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
     uk = fields.TextField(_('User Number'), [validators.Length(max=FIELD_MAXLENGTH_KEY)])
     q = fields.IntegerField(_('QNT'), [validators.Required()])
+    p = fields.TextField(_('Password'))
+    p_off = fields.BooleanField(_('Password'))
 
 
 class AddCartToTabForm(BaseForm):
     ck = fields.TextField(_('Cart Number'), [validators.Required(), validators.Length(max=FIELD_MAXLENGTH_KEY)])
+    p = fields.TextField(_('Password'))
+    p_off = fields.BooleanField(_('Password'))
 
 
 class DeleteFromCartForm(BaseForm):

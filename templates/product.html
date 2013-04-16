@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% import 'macros.html' as macros %}
+{% import "/snipets/addToTabButtons.html" as addToTab %}
 
 {% block title %}
     {{product.d}} - BournEE Exchange
@@ -22,17 +23,7 @@
 				<img class="img-rounded" data-src="holder.js/170x170/text:PubCart." alt="{{product.n}} Image">
 			{% endif %}
 			<div id='addProductToTabButtonWrapper' class='addProductToTabButtonWrapper'>
-				<form id='addProductToTabForm' name='addProductToTabForm' action="{{ uri_for('addToTab')}}" method="POST">
-			            <input type="hidden" name="exception" value="{{ exception }}">
-			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-						<input type="hidden" name="pk" value="{{product.key.urlsafe()}}">
-						<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
-						<input type="hidden" name="q" value="1">
-						<div class="btn-group">
-						<button id='submitAddProductToTabForm' class="pubcart_button marginTop15 width_span2" type="submit" form="addProductToTabForm" >
-							${{best_price}} - <small>put on Tab.</small>
-						</button></div>
-				</form>
+				{{addToTab.addProductToTab(product.pn, product.key.urlsafe(), best_price, urlsafeUserKey, buttonClass="pubcart_button marginTop15 marginBottom15 width_span2", buttonText='- put on Tab', requirePassword=True)}}
 			</div>
 			<div class='productInfoWrapper'>
 				<div class='productInfoTitle'>
@@ -248,15 +239,8 @@
 							</div>
 						</div>
 						<div class='mini_ButtonWarpper right'>
-							<div class='small_buy_button_with_dropdown'>
-								<form id='addCartToTabForm' name='addCartToTabForm' action="{{ uri_for('addCartToTab')}}" method="POST">
-							            <input type="hidden" name="exception" value="{{ exception }}">
-							            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-										<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
-										<div class="btn-group">
-											<button class="btn btn-mini">${{cart.d_st}} Buy</button>
-										</div>
-								</form>
+							<div id='addProductToTabButtonWrapper' class='addProductToTabButtonWrapper'>
+								{{addToTab.addCartToTab(cart.n, cart.key.urlsafe(), cart.d_st, urlsafeUserKey, buttonClass='btn btn-mini', buttonText='Buy', requirePassword=True)}}
 							</div>
 						</div>
 						<div class='clearfix'></div>
