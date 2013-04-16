@@ -162,12 +162,13 @@ class FullPageCartHandler(RegisterBaseHandler):
             self.do_work(cart)
 
         except Exception as e:
-            logging.error('Error in handler <get> of class - \
-                        FullPageCartHandler : -- {}'.format(e))
-            message = _('We are having difficulties displaying the Full Cart \
-                        Page. Please try again later.')
+            logging.error('Error in handler <get> of class - FullPageCartHandler : -- {}'.format(e))
+            message = _('We are having difficulties displaying the Full Cart Page. Please try again later.')
             self.add_message(message, 'error')
-            self.redirect_to('home')
+            try:
+                self.redirect(self.request.referer)
+            except:
+                self.redirect_to('home')
 
     def public_cart(self, userID, cartName):
         try:
@@ -184,12 +185,13 @@ class FullPageCartHandler(RegisterBaseHandler):
             else:
                 raise Exception('No Cart Owner (User Model) Found')
         except Exception as e:
-            logging.error('Error in handler <public_cart> of class - \
-                        FullPageCartHandler : -- {}'.format(e))
-            message = _('We are having difficulties displaying the Full \
-                        Cart Page. Please try again later.')
+            logging.error('Error in handler <public_cart> of class - FullPageCartHandler : -- {}'.format(e))
+            message = _('We are having difficulties displaying the Full Cart Page. Please try again later.')
             self.add_message(message, 'error')
-            self.redirect_to('home')
+            try:
+                self.redirect(self.request.referer)
+            except:
+                self.redirect_to('home')
 
     def do_work(self, cart):
         try:

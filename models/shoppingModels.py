@@ -461,7 +461,10 @@ class MarketMaker(ndb.Model):
 class Tab(ndb.Model):
     uk = ndb.KeyProperty(kind=User)  # User Model Key
 
-    st = ndb.IntegerProperty(default=0)  # Sub-Total (Cents)
+    st = ndb.IntegerProperty(default=0, indexed=False)  # Sub-Total (Cents)
+    shc = ndb.IntegerProperty(default=0, indexed=False)  # Shipping Costs (Cents)
+    tx = ndb.IntegerProperty(default=0, indexed=False)  # Taxes (Cents)
+    gt = ndb.IntegerProperty(default=0, indexed=False)  # Grand-Total (Cents)
 
     cd = ndb.DateTimeProperty(auto_now_add=True, verbose_name='created_datetime')
     ud = ndb.DateTimeProperty(auto_now=True, verbose_name='updated_datetime')
@@ -469,9 +472,23 @@ class Tab(ndb.Model):
     pdd = ndb.DateTimeProperty(verbose_name='paid_datetime')  # Paid Date time
     pd = ndb.BooleanProperty(default=False)  # Paid Boolean
     sh = ndb.BooleanProperty(default=False)  # Shipped Boolean
+    shd = ndb.DateTimeProperty(verbose_name='shipped_datetime')  # Shipped Date Time
+
     ##: If the tabs's orders have been modified (added or taken out) dirty flag is set.
     ##: When the task queue runs a check on the tabs's subtotal, this is set to false.
     dirty = ndb.BooleanProperty(default=False)
+
+    @property
+    def d_st(cls):
+        ## d_st = Dollar Sub-Total
+        return utils.dollar_float(float(cls.st)/100)
+
+    @property
+    def owner(cls):
+        user = cls.uk.get()
+        if user:
+            return user.username
+        return None
 
     @property
     def num_items(cls):

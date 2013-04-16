@@ -20,7 +20,7 @@ from google.appengine.ext import ndb
 
 ##:  BournEE Imports
 import forms as forms
-from models import shoppingModels
+from models import shoppingModels, userModels
 from lib import bestPrice, utils
 from lib.bourneehandler import BournEEHandler, user_required
 
@@ -34,7 +34,67 @@ class PaidTabsRequestHandler(BournEEHandler):
 class ViewTabRequestHandler(BournEEHandler):
     @user_required
     def get(self, urlsafeTabKey):
-        pass
+        message = None
+        try:
+            ##: Make Sure if the cart is Private the owner (userKey) is viewing it.
+            tabKey = ndb.Key(urlsafe=urlsafeTabKey)
+            tab = tabKey.get()
+            if not tab:
+                raise Exception('No Tab Found')
+            if self.user_key:
+                if tab.uk != self.user_key:
+                    message = _('You do not apear to be the owner of the Tab your are trying to view.')
+                    raise Exception('Not the owner of the Tab! user: {}'.format(self.user_key))
+            else:
+                raise Exception('Error getting user info.')
+
+            self.do_work(tab)
+
+        except Exception as e:
+            logging.error('Error in handler <get> of class - ViewTabRequestHandler : -- {}'.format(e))
+            if not message:
+                message = _('We are having difficulties displaying the Full Tab Page. Please try again later.')
+            self.add_message(message, 'error')
+            try:
+                self.redirect(self.request.referer)
+            except:
+                self.redirect_to('home')
+
+    def do_work(self, tab):
+        try:
+            tabOrders = shoppingModels.Order.get_for_parentKey(tab.key)
+
+            defaultAddress = userModels.Address.query(
+                userModels.Address.is_default == True,
+                ancestor=self.user_key
+            ).get()
+
+            ########################################################################
+            ##: This is the analytics counter for an idividual carts
+            ########################################################################
+
+            try:
+                counter.load_and_increment_counter(name=tab.key.urlsafe(), namespace="unPaidTabView")
+            except Exception as e:
+                logging.error('Error setting LiveCount for tab view in class ViewTabRequestHandler : %s' % e)
+
+            params = {
+                "tabOrders": tabOrders,
+                "urlsafeTabKey": tab.key.urlsafe(),
+                "tab": tab,
+                "address": defaultAddress,
+            }
+
+            self.bournee_template('fullTab.html', **params)
+
+        except Exception as e:
+            logging.error('Error in handler <do_work> in class - ViewTabRequestHandler : -- {}'.format(e))
+            message = _('We are having difficulties displaying the Full Tab Page. Please try again later.')
+            self.add_message(message, 'error')
+            try:
+                self.redirect(self.request.referer)
+            except:
+                self.redirect_to('home')
 
 
 class AddToTabHandler(BournEEHandler):
