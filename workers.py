@@ -11,9 +11,11 @@ import webapp2
 from worker import searchWorkers
 from worker import parserWorkers
 from worker import cartWorkers
+from worker import tabWorkers
 
 app = webapp2.WSGIApplication([
-	('/worker/searchDocUpdate', searchWorkers.ProductSearchUpdateHandler),
-	('/worker/setProductTierPrices', parserWorkers.CreateProductTierPriceModel),
-	('/worker/checkCartSubtotals', cartWorkers.CheckCartSubtotalsWorker),
+    ('/worker/searchDocUpdate', searchWorkers.ProductSearchUpdateHandler),
+    ('/worker/setProductTierPrices', parserWorkers.CreateProductTierPriceModel),
+    ('/worker/checkCartSubtotals', cartWorkers.CheckCartSubtotalsWorker),
+    ('/worker/checkTabSubtotals', tabWorkers.CheckTabSubtotalsWorker),
 ], debug=True)

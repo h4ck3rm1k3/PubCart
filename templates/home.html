@@ -65,7 +65,9 @@
 			</div> <!-- END of span10 -->
 
 			<div class='span2'>
-				{{macros.tab_sidebar_widget(tab_items)}}
+				{% block tab %}
+					{{macros.tab_sidebar_widget(tab_items)}}
+				{% endblock %}
 			</div> <!-- END of span2 -->
 	  </div>
 	</div>

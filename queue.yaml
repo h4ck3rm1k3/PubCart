@@ -14,4 +14,7 @@ queue:
 - name: cartTotals-worker
   rate: 100/s
   bucket_size: 100
+- name: tabTotals-worker
+  rate: 100/s
+  bucket_size: 100
   

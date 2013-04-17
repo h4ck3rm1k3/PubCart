@@ -8,7 +8,8 @@ Copyright (c) 2012 Jason Elbourne. All rights reserved.
 """
 
 from google.appengine.ext import ndb
-from google.appengine.api.labs import taskqueue
+from google.appengine.api import taskqueue
+from google.appengine.api.taskqueue import Error as taskError
 
 import time
 import logging
@@ -45,6 +46,35 @@ def verify_cart_subtotals(urlsafeCartKey):
             Cart.update_subtotal_values(cart, newSubTotal, oldSubTotal, put_model=True, dirty=False)
     else:
         logging.error('Error in verify_subtotals for Cart, Cart could not be found from the urlsafeCartKey ')
+
+def verify_tab_subtotals(urlsafeTabKey):
+    """ This function should be ran in a Deferred method after a cart has been updated"""
+    tabKey = ndb.Key(urlsafe=urlsafeTabKey)
+    tab = tabKey.get()
+    if tab:
+        oldSubTotal = tab.st
+
+        tabOrders = Order.get_for_parentKey(tabKey)
+
+        if tabOrders:
+            if len(tabOrders) == 1:
+                if tabOrders[0]:
+                    tab.st = tabOrders[0].st
+                else:
+                    logging.error('Error in verify_subtotals for Cart, Could not get orders from keys')
+                    tab.st = 0
+            elif len(tabOrders) > 1:
+                tab.st = sum([order.st for order in tabOrders])
+
+        else:
+            logging.error('Error in verify_subtotals for Cart, Cart does not have cartOrders')
+
+        newSubTotal = tab.st
+        if oldSubTotal != newSubTotal:
+            ##:  Now lets update the New Carts SubTotal
+            Tab.update_subtotal_values(tab, newSubTotal, oldSubTotal, put_model=True, dirty=False)
+    else:
+        logging.error('Error in verify_subtotals for Tab, Tab could not be found from the urlsafeTabKey ')
 
 
 class Product(ndb.Expando):
@@ -484,6 +514,21 @@ class Tab(ndb.Model):
         return utils.dollar_float(float(cls.st)/100)
 
     @property
+    def d_shc(cls):
+        ## d_st = Dollar Sub-Total
+        return utils.dollar_float(float(cls.shc)/100)
+
+    @property
+    def d_tx(cls):
+        ## d_st = Dollar Sub-Total
+        return utils.dollar_float(float(cls.tx)/100)
+
+    @property
+    def d_gt(cls):
+        ## d_st = Dollar Sub-Total
+        return utils.dollar_float(float(cls.gt)/100)
+
+    @property
     def owner(cls):
         user = cls.uk.get()
         if user:
@@ -502,6 +547,20 @@ class Tab(ndb.Model):
     def _read_properties_for_api():
         # Example : return [u'd', u'pp', u'lp', u'q']
         return []
+
+    @classmethod
+    def _post_put_hook(cls, future):
+        try:
+            now = time.time()
+            tabModelKey = future.get_result()
+            taskqueue.add(
+                #name=str('tabTotals_worker'+str(int(now/30))),
+                queue_name='tabTotals-worker',
+                url='/worker/checkTabSubtotals',
+                params={'urlsafeTabKey':  str(tabModelKey.urlsafe())}  # post parameter
+            )
+        except taskError as e:
+            logging.error('Error checking Tab subtotals with taskqueue: -- {}'.format(e))
 
     @staticmethod
     def get_or_create_tab(userKey):
@@ -524,10 +583,14 @@ class Tab(ndb.Model):
             return None
 
     @staticmethod
-    def update_subtotal_values(tab, newSubTotal, old_subtotal=0, put_model=True):
+    def update_subtotal_values(tab, newSubTotal, old_subtotal=0, put_model=True, dirty=True):
         try:
+            ##: Shipping costs should be calculated elsewhere when an order is added to Tab, then it is added in here
+            ##: Tax rate should be set in Tab at creation from the User info
             tab.st = int(newSubTotal)
-            if int(old_subtotal) != int(tab.st):
+            tab.gt = int(tab.st) + int(tab.tx) + int(tab.shc)  # Grand Total
+            if int(old_subtotal) != int(tab.st) or dirty == False:
+                tab.dirty = dirty
                 if put_model:
                     tab.put()
         except Exception as e:

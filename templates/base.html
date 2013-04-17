@@ -75,13 +75,11 @@
 					<ul class="nav pull-right">
 						{% if user_id %}
 						<li class="divider-vertical"></li>
+						{% if tab %}
 						<li>
-							<a href="{{ uri_for('mycarts') }}" class="">Paid tabs.</a>
+							<a href="{{ uri_for('viewTab', urlsafeTabKey=tab.key.urlsafe()) }}" class="">My Tab.</a>
 						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{ uri_for('mycarts') }}" class="">My carts.</a>
-						</li>
+						{% endif %}
 						<li class="divider-vertical"></li>
 						<li>
 							<a href="{{ uri_for('mycarts') }}" class="">My history.</a>

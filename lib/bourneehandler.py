@@ -60,12 +60,24 @@ class BournEEHandler(BaseHandler):
         BaseHandler for all requests created by BournEE Exchange Code (not boilerplate code)
     """
     @webapp2.cached_property
+    def usersTab(self):
+        try:
+            if self.user:
+                ##: Get or create the Cart
+                tab = shoppingModels.Tab.get_or_create_tab(self.user_key)
+                if not tab:
+                    raise Exception('No Tab returned, error creating Tab, in function POST of AddToTabHandler')
+                return tab
+            return None
+        except Exception as e:
+            logging.error("Error in function <cartInfo> within BournEEHandler : -- {}".format(e))
+            return None
+
+    @webapp2.cached_property
     def usersCartCount(self):
         try:
-            logging.info('Called cart function')
             if self.user:
                 allCartsCount = shoppingModels.Cart.query(shoppingModels.Cart.garbage==False, ancestor=self.user_key).count()
-                logging.info('allCartsCount: {}'.format(allCartsCount))
                 return allCartsCount
             return 0
         except Exception as e:
@@ -75,7 +87,6 @@ class BournEEHandler(BaseHandler):
     @webapp2.cached_property
     def userWatchlistCount(self):
         try:
-            logging.info('Called watchlistProducts function')
             if self.user:
                 watchlistCount = shoppingModels.Watchlist.query(shoppingModels.Watchlist.kl != None, ancestor=self.user_key).count()
                 return watchlistCount
@@ -227,6 +238,7 @@ class BournEEHandler(BaseHandler):
     def bournee_template(self, filename, **params):
         logging.info('user: {}'.format(self.user_info))
         params.update({
+            'tab': self.usersTab,
             'urlsafeUserKey': self.urlsafeUserKey,
             'usersCartCount': self.usersCartCount,
             'userWatchlistCount': self.userWatchlistCount,

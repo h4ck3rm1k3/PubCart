@@ -22,6 +22,7 @@ from google.appengine.ext import ndb
 import forms as forms
 from models import shoppingModels, userModels
 from lib import bestPrice, utils
+from lib.livecount import counter
 from lib.bourneehandler import BournEEHandler, user_required
 
 
@@ -64,10 +65,7 @@ class ViewTabRequestHandler(BournEEHandler):
         try:
             tabOrders = shoppingModels.Order.get_for_parentKey(tab.key)
 
-            defaultAddress = userModels.Address.query(
-                userModels.Address.is_default == True,
-                ancestor=self.user_key
-            ).get()
+            defaultAddress = userModels.Address.query(userModels.Address.is_default == True, ancestor=self.user_key).get()
 
             ########################################################################
             ##: This is the analytics counter for an idividual carts
@@ -82,7 +80,9 @@ class ViewTabRequestHandler(BournEEHandler):
                 "tabOrders": tabOrders,
                 "urlsafeTabKey": tab.key.urlsafe(),
                 "tab": tab,
+                "tabPrice": tab.d_gt,
                 "address": defaultAddress,
+                "addProductForm": self.addProduct_form
             }
 
             self.bournee_template('fullTab.html', **params)
@@ -95,6 +95,10 @@ class ViewTabRequestHandler(BournEEHandler):
                 self.redirect(self.request.referer)
             except:
                 self.redirect_to('home')
+
+    @webapp2.cached_property
+    def addProduct_form(self):
+        return forms.AddProductForm(self)
 
 
 class AddToTabHandler(BournEEHandler):
@@ -145,9 +149,15 @@ class AddToTabHandler(BournEEHandler):
                     orderPrice = int(orderPrice*100)
 
                 ##: Get or create the Cart
-                tab = shoppingModels.Tab.get_or_create_tab(self.user_key)
+                tab = self.usersTab
                 if not tab:
                     raise Exception('No Tab returned, error creating Tab, in function POST of AddToTabHandler')
+
+                ##: Make sure the tab belongs to the Current User
+                if tab.uk != ndb.Key(urlsafe=urlsafeUserKey) or tab.uk != self.user_key:
+                    tab = shoppingModels.Tab.get_or_create_tab(self.user_key)
+                    if not tab:
+                        raise Exception('No Tab returned, error creating Tab, in function POST of AddToTabHandler')
 
                 ##: Check to see if user already created this Order within this Cart
                 currentOrder = shoppingModels.Order.get_for_product_and_parent(tab.key, str(productModel.pn))

@@ -6,6 +6,7 @@ RedirectRoute: http://webapp-improved.appspot.com/api/webapp2_extras/routes.html
 from webapp2_extras.routes import RedirectRoute
 from web import webHandlers
 from web import cartHandlers
+from web import orderHandlers
 from web import oauth_handlers
 from web import productHandlers
 from web import paypalHandlers
@@ -44,6 +45,7 @@ _routes = [
     RedirectRoute(r'/addToTab', tabHandlers.AddToTabHandler, name='addToTab', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/addCartToTab', tabHandlers.AddCartToTabHandler, name='addCartToTab', methods=['POST'], strict_slash=True),
 
+    RedirectRoute(r'/changeQntOfOrder', orderHandlers.ChangeQuantityOfOrderHandler, name='changeQntOfOrder', methods=['POST'], strict_slash=True),
 
     RedirectRoute(r'/exchangeOrder/<pk>', webHandlers.ExchangeOrderHandler, name='exchangeOrder', strict_slash=True),
     RedirectRoute(r'/createLimitOrder/<pk>', webHandlers.CreateLimitOrderFormHandler, name='createLimitOrder', strict_slash=True),
@@ -68,7 +70,6 @@ _routes = [
     RedirectRoute(r'/addToCart', cartHandlers.AddToCartHandler, name='addToCart', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/selectCartForm/<urlsafeProductKey>', cartHandlers.AddToSelectedCartFormHandler, name='selectCartForm', methods=['GET', 'POST'], strict_slash=True),
     #RedirectRoute(r'/removeFromCart', cartHandlers.DeleteOrderFromCartHandler, name='removeFromCart', methods=['POST'], strict_slash=True),
-    RedirectRoute(r'/changeQntOfOrder', cartHandlers.ChangeQuantityOfOrderHandler, name='changeQntOfOrder', methods=['POST'], strict_slash=True),
     #RedirectRoute(r'/copyOrderToCart', cartHandlers.CopyOrderBetweenCartsHandler, name='copyOrderToCart', methods=['POST'], strict_slash=True),
     RedirectRoute(r'/deleteCart', cartHandlers.DeleteCartHandler, name='deleteCart', methods=['POST'], strict_slash=True),
 
