@@ -16,9 +16,12 @@ button .btn-large>i {height:17px}
 span.label-block {
 	}
 .innerContent {
-	margin-top:60px;
+	margin-top:105px;
 }
 .mediaPanelSmall {
+	position:fixed;
+	top:40px;
+	width:100%;
 	background-color: #006dcc;
 	height:50px;
 	border-bottom: 1px Solid #002a80;
@@ -367,11 +370,32 @@ span.label-block {
 	cursor: pointer;
 	-webkit-appearance: none;
 }
+.pubcart_button_small {
+	width:170px;
+}
+.pubcart_button_medium{
+	width:220px;
+}
+.pubcart_button_large {
+	width:270px;
+}
 .pubcart_button_grey {
 	width:100px;
 	background: #999;
 	border: 1px solid #000;
 	margin-right:10px;
+}
+.white_wrapper_box {
+	width: 100%;
+	margin-bottom: 30px !important;
+	background: #fff;
+	border-radius: 1px;
+	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
+}
+.inner_wrapper {
+	padding:15px;
 }
 .white_wrapper_box_span10 {
 	margin: 0 auto;
@@ -383,9 +407,6 @@ span.label-block {
 	-webkit-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
 	-moz-box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
 	box-shadow: 0px 0px 10px rgba(0,0,0,0.4),0px 0px 0px rgba(0,0,0,0);
-	.pubcart_button {
-		width:270px;
-	}
 }
 .white_wrapper_box_span8 {
 	margin: 0 auto;
@@ -522,6 +543,19 @@ span.label-block {
 	}
 }
 
+.userCredWrapper {
+	position:absolute;
+	overflow: visible;
+	width:90%;
+	.left {color: white;width:40%;text-align:left;float:left;padding-left:5px;}
+	.right {color: black;width:40%;text-align:right;float:right;padding-right:5px;}
+}
+.rowItemInfoWrapper {
+	a {color:inherit;}
+}
+.pageMainImage {
+	margin-bottom:20px;
+}
 /*/////////////////////////////////////////////////*/
 /*///////////  HOME PAGE NOT-LOGGED IN ////////////*/
 /*/////////////////////////////////////////////////*/
@@ -546,7 +580,7 @@ span.label-block {
 	border: 0;
 	.header1 {
 		margin-bottom: 30px;
-		margin-top: 80px;
+		margin-top: 0px;
 		font-size: 48px;
 		color: #000;
 		line-height: 50px;
@@ -771,7 +805,6 @@ span.label-block {
 	z-index:0;
 	margin: 0px auto;
 	width: 160px;
-	height:110px;
 	padding: 5px;
 	margin-bottom: 30px !important;
 	background: #fff;
@@ -818,7 +851,8 @@ span.label-block {
 	z-index:0;
 	margin: 15px auto;
 	width: 160px;
-	height:500px;
+	min-height:300px;
+	max-height:500px;
 	padding: 5px;
 	margin-bottom: 30px !important;
 	background: #fff;
@@ -1569,6 +1603,9 @@ ul.yourtab_content {
 .marginBottom10 {
 	margin-bottom:10px;
 }
+.marginBottom20 {
+	margin-bottom: 20px;
+}
 .marginRight25 {
 	margin-right:25px;
 }
@@ -1592,6 +1629,9 @@ ul.yourtab_content {
 }
 .textRight {
 	text-align:right;
+}
+.textCenter {
+	text-align:center;
 }
 .halfsizeText {
 	font-size: 75%;

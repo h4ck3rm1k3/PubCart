@@ -12,6 +12,7 @@ from web import productHandlers
 from web import paypalHandlers
 from web import searchHandlers
 from web import registrationHandlers
+from web import widgetHandlers
 from web import tabHandlers
 from api import rest_api
 
@@ -27,8 +28,6 @@ _routes = [
     RedirectRoute('/adr/<uk>', registrationHandlers.AddressRegisterRequestHandler, name='addressRegister', methods=['GET', 'POST'], strict_slash=True),
     RedirectRoute('/sh', registrationHandlers.ShareRegisterRequestHandler, name='shareRegister', methods=['GET'], strict_slash=True),
     RedirectRoute('/ap', registrationHandlers.AppsRegisterRequestHandler, name='appRecommendRegister', methods=['GET'], strict_slash=True),
-
-
 
     RedirectRoute('/addaddress', webHandlers.AddAddressHandler, name='addAddress', methods=['POST'], strict_slash=True),
 
@@ -81,6 +80,8 @@ _routes = [
     RedirectRoute(r'/oauth/register/portal', webHandlers.RegisterOAuthClientHandler, name='reg_oauth_client', strict_slash=True),
     RedirectRoute(r'/oauth/authorize', oauth_handlers.AuthorizationHandler, name='oauth_authorize', strict_slash=True),
     RedirectRoute(r'/oauth/token', oauth_handlers.AccessTokenHandler, name='oauth_token', strict_slash=True),
+
+    RedirectRoute(r'/cartWidget', widgetHandlers.CartWidgetHandler, name='cartWidget', strict_slash=True),
 
     ## Simple Cathcall API Route
     ('/api/v1.*', rest_api.Rest),

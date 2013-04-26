@@ -1,141 +1,127 @@
-{% extends "bourneeBase.html" %}
-{% macro cart_widget(cart, public, iter, pre) %}
-<tr>
-    <td class='span1'>
-		{% if cart.img %}<img src='{{cart.img}}' width='60px'/>
-		{% else %}<img data-src="holder.js/44x44/text:PubCart." alt="">
-		{% endif %}
-    </td>
-	<td onclick='linkTo("{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}")' class='pointer' >
-		<span class="muted">{{pre}}</span>{% if cart.n %}{{cart.n}}{% else %}Cart has no name{% endif %}{% if cart.default %}&nbsp;&nbsp;&nbsp;<span class="label label-success">Default</span>{% endif %}<br/>
-		{% if cart.d %}{{cart.d|truncate(length=50, killwords=True)}}{% else %}Cart has no name description{% endif %}
-	</td>
-	<td class='span2'>{{cart.num_items}}</td>
-	<td class='span2'>
-		${{cart.d_gt}}
-	</td>
-	<td class='span2'>{{cart.published}}</td>
-	<td class='span1'>
-		<div id='{{cart.n}}_widget_button' class='product_widget_button'>
-			<div class="btn-group">
-			    <button id='cartMoreOptionsButton{{iter}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
-			      <span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu pull-right">
-			        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">View Cart</a></li>
-			        <li><a href="{{ uri_for('editCartDetails', urlsafeCartKey=cart.key.urlsafe()) }}">Edit Cart Details</a></li>
-			        <li><a href="{{ uri_for('forkCart', urlsafeCartKey=cart.key.urlsafe()) }}">Fork Cart</a></li>
-					{% if public %}
-						<li class="divider"></li>
-						<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Embed Cart</a></li>
-			        	<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Share Cart</a></li>
-						<form id='addToWatchlistForm' name='addToWatchlistForm' class="form-inline" action="{{ uri_for('addToWatchlist')}}" method="POST">
-							<fieldset>
-					            <input type="hidden" name="exception" value="{{ exception }}">
-					            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-								<input type="hidden" name="pk" value="{{cart.key.urlsafe()}}">
-								<input type="hidden" name="wln" value="ALL">
-								<li><button type='submit'><i class='icon-eye-open'></i>&nbsp;Watch</button></li>
-							</fieldset>
-						</form>
-					{% endif %}
-					{% if not cart.default %}
-				    <li class="divider"></li>
-					<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteCart') }}" method="POST">
-						<fieldset>
-				            <input type="hidden" name="exception" value="{{ exception }}">
-				            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-							<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
-							<li><button type='submit' ><i class="icon-trash"></i>&nbsp;Remove</button></li>
-						</fieldset>
-					</form>
-					{% endif %}
-			    </ul>
-		  	</div>
-		</div>
-	</td>
-</tr>
-{% endmacro %}
+{% extends "home.html" %}
+{% import 'macros.html' as macros %}
+{% import "/snipets/listRow.html" as listRow %}
 
 {% block title %}
-    My Carts - BournEE Exchange
+    My carts list - PubCart
 {% endblock %}
+
+{% block mediaScripts %}{% endblock %}
 
 {% block header %}{% endblock %}
 
 {% block main_content %}
-	<table class="table table-striped table-hover table-condensed">
-	    <thead>
-			<tr>
-				<td colspan='6'>
-					<header>
-						<div class='fullpageTitleWrapper'>
-							My Carts.
-						</div>
-					</header>
-				</td>
-			</tr>
-	        <tr>
-	            <th class="span1">&nbsp;</th>
-				<th class="">Cart</th>
-				<th class="span2"># of Order Items</th>
-				<th class="span2">Grand Total</th>
-				<th class="span2">Published #</th>
-				<th class="span1"></th>
-	        </tr>
-	    </thead>
-		<tbody>
-		{% set iter = 0 %}
-			{% if not publicCarts and not privateCarts %}
-				<tr>
-					<td colspan='6'>
-						<div class="alert alert-info">
-							<strong>Oh snap!</strong>You don't seem to have any carts setup.
-						</div>
-					</td>
-				</tr>
-			{% endif %}
-		</tbody>
-	</table>
-	{% if privateCarts %}
-	<table class="table table-striped table-hover table-condensed">
-		<thead>
-			<tr class='info'>
-				<th colspan='6' class='header'>Private Carts</th>
-			</tr>
-		</thead>
-		<tbody>
-			    {% for cart in privateCarts %}
-					{% set iter = iter + 1 %}
-					{% set pre = '(Private)' %}
-					{{cart_widget(cart, False, iter, pre)}}
-			    {% endfor %}
-		</tbody>
-	</table>
-	{% endif %}
-	{% if publicCarts %}
-	<table class="table table-striped table-hover table-condensed">
-		<thead>
-			<tr class='success'>
-				<th colspan='6' class='header'>Public Carts</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for cart in publicCarts %}
-				{% set iter = iter + 1 %}
-				{% set pre = '' %}
-				{{cart_widget(cart, True, iter, pre)}}
-		    {% endfor %}
-		</tbody>
-	</table>
-	{% endif %}
-	<div id='pageMessageWrapper' class='pageMessageWrapper'>
-	{% block important %}
-	{% endblock %}
+	<div class='row'>
+
+		<div class='span2'>
+<!-- 		<img class="img-rounded pageMainImage" src="" width='170px' alt="">-->
+			<img class="img-rounded pageMainImage" data-src="holder.js/170x170/text:PubCart." alt="">
+			<div id='createCartButtonWrapper' class='createCartButtonWrapper'>
+				<button id='toggleCreateCartForm' class="pubcart_button pubcart_button_small marginBottom20">
+					Create a new cart.
+				</button>
+			</div>
+		</div>
+
+		<div class='span8'>
+			<header class='fullpageTitleWrapper'>
+				<span class='muted'>list:</span>
+				My carts
+			</header>
+			<article class='cartDescription'>
+				<div class='muted'>Description:</div>
+				<p>A cart is a very useful item for organizing and publicizing a list of products. Some examples might be products you are interested in, a top ten list, and more commonly a group of products which comprise a kit or bill of materials.</p><p>You can create private or public carts and embed them on different websites.</p><p>If you see a cart you like and want to make slight changes you can copy/Fork the cart onto your PubCart account for editing.</p>
+			</article>
+
+
+			<!-- ######################## -->
+			<!-- Beginning OF CREATE CART -->
+			<!-- ######################## -->
+			<div id='createCartFormWrapper' class='createCartFormWrapper' style='display:none;'>
+				<section class='white_wrapper_box_span8'>
+					<header class='fullCart_popupFormsHeader'>Create a cart.</header>
+					<form id="newCart_form" class='nomargin_form' method='POST'>
+						<input type="hidden" name="exception" value="{{ exception }}">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+					  <div class="field_container cartName">
+					    <label for="cartName" class="form_label label_small">Cart name</label>					
+						{{ macros.field_no_label(createCartForm.name, type='text', class="form_field field_small", placeholder='Choose a cart name...') }}
+					  </div>
+					  <div class="field_container category">
+					    <label for="category" class="form_label label_small">Category</label>					
+						{{ macros.field_no_label(createCartForm.category, class="form_field field_small") }}
+					  </div>
+					  <button class="pubcart_button pubcart_button_medium" id="btn_newCart" type="submit">Create the cart.</button>
+					  <div style="clear:both;"></div>
+					</form>
+				</section>
+			</div>
+			<!-- ################## -->
+			<!-- END OF CREATE CART -->
+			<!-- ################## -->
+		</div>
 	</div>
+
+	<div class='row'>
+		<div class='span5'>
+			<section class='white_wrapper_box'>
+				<div class='inner_wrapper'>
+					<header class='fullCart_popupFormsHeader'>Private carts.</header>
+					{% if privateCarts %}
+						<table class="table table-striped table-hover table-condensed cartTable nomargin_table">
+							<thead>
+						        <tr>
+						            <th class="span1">Img.</th>
+									<th style="width:250px">Cart.</th>
+									<th class="">$ Total.</th>
+									<th style="width:30px"></th>
+						        </tr>
+						    </thead>
+							<tbody>
+								{% set iter = 0 %}
+							    {% for cart in privateCarts %}
+									{% set iter = iter + 1 %}
+									{% set pre = '(Private) ' %}
+									{{listRow.cartRowSmall(cart, False, iter, pre)}}
+							    {% endfor %}
+						   	</tbody>
+						</table>
+				    {% else %}
+				    	<p>No private carts at this time.</p>
+				    {% endif %}
+				</div>
+			</section>
+		</div>
+		<div class='span5'>
+			<section class='white_wrapper_box'>
+				<div class='inner_wrapper'>
+					<header class='fullCart_popupFormsHeader'>Public carts.</header>
+					{% if publicCarts %}
+						<table class="table table-striped table-hover table-condensed cartTable nomargin_table">
+							<thead>
+						        <tr>
+						            <th class="span1">Img.</th>
+									<th style="width:250px">Cart.</th>
+									<th class="">$ Total.</th>
+									<th style="width:30px"></th>
+						        </tr>
+						    </thead>
+							<tbody>
+								{% set iter = 0 %}
+								{% for cart in publicCarts %}
+									{% set iter = iter + 1 %}
+									{% set pre = '' %}
+									{{listRow.cartRowSmall(cart, True, iter, pre)}}
+							    {% endfor %}
+							</tbody>
+						</table>
+				    {% else %}
+				    	<p>No public carts at this time.</p>
+				    {% endif %}
+				</div>
+			</section>
+		</div>
+	</div>
+
 {% endblock %}
-
-
-
-{% block extra_content %}{% endblock %}
 

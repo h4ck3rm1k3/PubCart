@@ -85,6 +85,24 @@ class User(User):
         return result
 
 
+class LogVisit(ndb.Model):
+    user = ndb.KeyProperty(kind=User)
+    uastring = ndb.StringProperty()
+    ip = ndb.StringProperty()
+    timestamp = ndb.StringProperty()
+
+
+class LogEmail(ndb.Model):
+    sender = ndb.StringProperty(
+        required=True)
+    to = ndb.StringProperty(
+        required=True)
+    subject = ndb.StringProperty(
+        required=True)
+    body = ndb.TextProperty()
+    when = ndb.DateTimeProperty()
+
+
 class EmailLeads(ndb.Model):
     email = ndb.StringProperty(required=True)
     notified = ndb.BooleanProperty(default=False)

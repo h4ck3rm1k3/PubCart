@@ -20,7 +20,9 @@ function showCopyOrderToCartForm (e) {
     $('#copyToCartFormDescription').hide();
     $('#copyToCartForm').show();
 }
-
+function toggleCreateCartForm (e) {
+    $('#createCartFormWrapper').toggle();
+}
 function toggleNewAddressForm (e) {
     $('#showAddressWrapper').toggle();
     $('#addAddressFormWrapper').toggle();
@@ -124,6 +126,7 @@ $(document).ready(function() {
     $('.toggleChangeQntButton').click(toggleSidebarQntForm);
     $('.toggleChangeQntButtonX').click(toggleSidebarQntForm);
     $('.rowcheckident').click(showCopyOrderToCartForm);
+    $('#toggleCreateCartForm').click(toggleCreateCartForm);
     $('#toggleNewAddressFormButton').click(toggleNewAddressForm);
     $('#toggleNewAddressFormCancel').click(toggleNewAddressForm);
     $('#toggleNewAddressFormX').click(toggleNewAddressForm);
@@ -136,10 +139,9 @@ $(document).ready(function() {
 
 
     // Initiaize the tooltips
-    $('#toggleWatchlist').tooltip();
-    $('#togglePublicCarts').tooltip();
-    $('#togglePaidTabs').tooltip();
-    $('#toggleAlerts').tooltip();
+    $('#myWatchlist').tooltip();
+    $('#myCarts').tooltip();
+    $('#viewHistory').tooltip();
     $('#moreOptionsButton').tooltip();
     for (var i=0; i<3; i++)
     {

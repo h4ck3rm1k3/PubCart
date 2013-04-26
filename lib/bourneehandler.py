@@ -74,6 +74,18 @@ class BournEEHandler(BaseHandler):
             return None
 
     @webapp2.cached_property
+    def tabItems(self):
+        try:
+            if self.usersTab:
+                ##: Get or create the Cart
+                tabItems = shoppingModels.Order.get_for_parentKey(self.usersTab.key)
+                return tabItems
+            return None
+        except Exception as e:
+            logging.error("Error in function <cartInfo> within BournEEHandler : -- {}".format(e))
+            return None
+
+    @webapp2.cached_property
     def usersCartCount(self):
         try:
             if self.user:
@@ -239,6 +251,7 @@ class BournEEHandler(BaseHandler):
         logging.info('user: {}'.format(self.user_info))
         params.update({
             'tab': self.usersTab,
+            'tab_items': self.tabItems,
             'urlsafeUserKey': self.urlsafeUserKey,
             'usersCartCount': self.usersCartCount,
             'userWatchlistCount': self.userWatchlistCount,

@@ -26,7 +26,7 @@
 		{% endif %}
 		{% if cart.st > 0.01 %}
 		<div id='addCartToTabButtonWrapper' class='addCartToTabButtonWrapper'>
-			{{addToTab.addCartToTab(cart.n, cart.key.urlsafe(), cart.d_st, urlsafeUserKey, buttonClass='pubcart_button marginTop15 marginBottom15 width_span2', buttonText='- put on Tab', requirePassword=True)}}
+			{{addToTab.addCartToTab(cart.n, cart.key.urlsafe(), cart.d_st, urlsafeUserKey, buttonClass='pubcart_button pubcart_button_small marginTop15 marginBottom15', buttonText='- put on Tab', requirePassword=True)}}
 		</div>
 		{% endif %}
 		{% if cart.owner %}
@@ -52,7 +52,7 @@
 		{% if cart.ud %}
 			<div class='cartInfoWrapper'>
 				<div class='cartInfoTitle'>
-					Updated on:
+					Last updated:
 				</div>
 				<div class='cartInfo'>
 					{{cart.ud}}
@@ -139,7 +139,7 @@
 						    <label for="product_seller" class="form_label label_small">Product Seller</label>					
 							{{ macros.field_no_label(addProductForm.urlsafeSellerKey, class="form_field field_small") }}
 						  </div>
-						  <button class="pubcart_button" id="btn_addProduct" type="submit">Add product to cart.</button>
+						  <button class="pubcart_button pubcart_button_medium" id="btn_addProduct" type="submit">Add product to cart.</button>
 
 						  <div style="clear:both;"></div>
 						</form>
@@ -219,7 +219,7 @@
 		    				<label for="category" class="form_label label_small">Category</label>					
 							{{ macros.field_no_label(forkCartForm.category, class="form_field field_small") }}
 		  				</div>
-		  				<button class="pubcart_button" id="btn_newCart" type="submit">Fork cart.</button>
+		  				<button class="pubcart_button pubcart_button_medium" id="btn_newCart" type="submit">Fork cart.</button>
 		  				<div style="clear:both;"></div>
 					</form>
 				</section>
@@ -247,7 +247,7 @@
 		    				<label for="category" class="form_label label_small">Category</label>					
 							{{ macros.field_no_label(cartDetailsForm.category, class="form_field field_small marginBottom10") }}
 		  				</div>
-		  				<button class="pubcart_button" id="btn_newCart" type="submit">Update details.</button>
+		  				<button class="pubcart_button pubcart_button_medium" id="btn_newCart" type="submit">Update details.</button>
 		  				<div style="clear:both;"></div>
 					</form>
 				</section>
@@ -268,7 +268,7 @@
 								<input type="hidden" name="exception" value="{{ exception }}">
 								<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 								<input type="hidden" name="ck" value="{{ urlsafeCartKey }}">
-				  				<button class="pubcart_button" id="btn_newCart" type="submit">Make this cart public.</button>
+				  				<button class="pubcart_button pubcart_button_medium" id="btn_newCart" type="submit">Make this cart public.</button>
 							</form>
 						</div>
 						<div class='makePublicNote'>

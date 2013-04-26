@@ -36,6 +36,10 @@ handlers:
   script: livecounter.app
   login: admin
 
+- url: /widget
+  mime_type: text/javascript
+  static_dir: widgets_public
+
 - url: /worker/.*
   script: workers.app
   login: admin

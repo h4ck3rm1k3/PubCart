@@ -38,8 +38,14 @@ class ViewTabRequestHandler(BournEEHandler):
         message = None
         try:
             ##: Make Sure if the cart is Private the owner (userKey) is viewing it.
-            tabKey = ndb.Key(urlsafe=urlsafeTabKey)
-            tab = tabKey.get()
+            urlsafeTabKey = self.request.get('tid', None)
+            if urlsafeTabKey:
+                tabKey = ndb.Key(urlsafe=urlsafeTabKey)
+                tab = tabKey.get()
+                tabItems = shoppingModels.Order.get_for_parentKey(tab.key)
+            else:
+                tab = self.usersTab
+                tabItems = self.tabItems
             if not tab:
                 raise Exception('No Tab Found')
             if self.user_key:
@@ -49,7 +55,7 @@ class ViewTabRequestHandler(BournEEHandler):
             else:
                 raise Exception('Error getting user info.')
 
-            self.do_work(tab)
+            self.do_work(tab, tabItems)
 
         except Exception as e:
             logging.error('Error in handler <get> of class - ViewTabRequestHandler : -- {}'.format(e))
@@ -61,10 +67,8 @@ class ViewTabRequestHandler(BournEEHandler):
             except:
                 self.redirect_to('home')
 
-    def do_work(self, tab):
+    def do_work(self, tab, tabItems):
         try:
-            tabOrders = shoppingModels.Order.get_for_parentKey(tab.key)
-
             defaultAddress = userModels.Address.query(userModels.Address.is_default == True, ancestor=self.user_key).get()
 
             ########################################################################
@@ -77,7 +81,7 @@ class ViewTabRequestHandler(BournEEHandler):
                 logging.error('Error setting LiveCount for tab view in class ViewTabRequestHandler : %s' % e)
 
             params = {
-                "tabOrders": tabOrders,
+                "tabOrders": tabItems,
                 "urlsafeTabKey": tab.key.urlsafe(),
                 "tab": tab,
                 "tabPrice": tab.d_gt,

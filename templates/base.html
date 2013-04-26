@@ -46,53 +46,46 @@
 					</div></a>
 					<ul class="nav pull-left">
 						{% if not user_id %}
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="#" class="">For You.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="#" class="">For Websites.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="#" class="">About Us.</a>
-						</li>
+							<li class="divider-vertical"></li>
+							<li>
+								<a href="#" class="">For You.</a>
+							</li>
+							<li class="divider-vertical"></li>
+							<li>
+								<a href="#" class="">For Websites.</a>
+							</li>
+							<li class="divider-vertical"></li>
+							<li>
+								<a href="#" class="">About Us.</a>
+							</li>
 						{% else %}
-						<li>
-							<a href="{{uri_for('discoverProducts')}}" class="">Discover Products.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{uri_for('discoverCarts')}}" class="">Discover Carts.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{uri_for('createCart')}}" class="">Create Cart.</a>
-						</li>
+							<li>
+								<a href="{{uri_for('discoverProducts')}}" class="">Discover Products.</a>
+							</li>
+							<li class="divider-vertical"></li>
+							<li>
+								<a href="{{uri_for('discoverCarts')}}" class="">Discover Carts.</a>
+							</li>
+							<li class="divider-vertical"></li>
+							<li>
+								<a href="{{uri_for('createCart')}}" class="">Create Cart.</a>
+							</li>
+							<li class="divider-vertical"></li>
 						{% endif %}
 					</ul>					
 					<ul class="nav pull-right">
-						{% if user_id %}
-						<li class="divider-vertical"></li>
-						{% if tab %}
-						<li>
-							<a href="{{ uri_for('viewTab', urlsafeTabKey=tab.key.urlsafe()) }}" class="">My Tab.</a>
-						</li>
-						{% endif %}
-						<li class="divider-vertical"></li>
-						<li>
-							<a href="{{ uri_for('mycarts') }}" class="">My history.</a>
-						</li>
-						<li class="divider-vertical"></li>
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">@{{ username }}. <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								<li><a href="{{ uri_for('edit-profile') }}">{% trans %}Edit Profile.{% endtrans %}</a></li>
-								<li class="divider"></li>
-								<li><a href="{{ logout_url }}">{% trans %}Logout.{% endtrans %}</a></li>
-							</ul>
-						</li>
+							{% if user_id %}
+							<li>
+								<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
+									<fieldset>
+											<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+											<div class='input-append marginTop5'>
+												<input type="text" id="query" name="query" class="span2"  value="{{base_pquery}}" placeholder="Search"/>
+												<button id='productSearchFormButton' type="submit" class="btn">&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;</button>
+											</div>
+									</fieldset>
+								</form>
+							</li>
 						{% elif path != "/login/" %}
 						<li>
 							<form class="form-inline nomargin_form" action="{{ uri_for('login') }}" method="POST">
@@ -126,30 +119,7 @@
 					<a href="/"><div class="logo_small marginTop10">{{ app_name }}</div></a>
 				</div>
 				<div class='span7'>
-					{% if user_id %}
-					<form id='productSearchForm' class="form-inline nomargin_form" action="{{uri_for('mainSearch')}}" method='POST'>
-						<fieldset>
-							<div>
-								<input type="hidden" name="exception" value="{{ exception }}">
-								<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-								<select id="category" name="category" class='span2 marginTop10'>
-									<option value="">Any Category</option>
-									{% for cat in cat_info %}
-										{% if cat.0 == pcategory %}
-											<option value="{{cat.0}}" selected="selected">{{cat.1}}</option>
-										{% else %}
-											<option value="{{cat.0}}">{{cat.1}}</option>
-										{% endif %}
-									{% endfor %}
-								</select>
-								<div class='input-append'>
-									<input type="text" id="query" name="query" class="span4 marginTop10"  value="{{base_pquery}}" placeholder="Search"/>
-									<button id='productSearchFormButton' type="submit" class="btn marginTop10">&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon-search"></i>&nbsp;&nbsp;&nbsp;&nbsp;</button>
-								</div>
-							</div>
-						</fieldset>
-					</form>
-					{% endif %}
+
 				</div>
 			{% endblock %}
 			
@@ -157,20 +127,21 @@
 				{% if user_id %}
 					<div class='marginTop10'>
 						<div id='sidebarToggleButtons'>
-							<button id='togglePaidTabsButton{% if not publicCarts %}_disabled{% endif %}' class="btn marginRight5 {% if not publicCarts %} disabled {% endif %}" >
-								<span id='togglePaidTabs' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if not publicCarts %} No&nbsp;{% endif %}Paid Tabs">
+
+							<a href="" id='viewHistoryButton' class="btn marginRight5" >
+								<span id='viewHistory' class='fillButton' data-placement='bottom' rel="tooltip"  title="My view history">
 									&nbsp;<i class="icon-list-alt"></i>&nbsp;
 								</span>
-							</button>
+							</a>
 							
-							<a href="{{ uri_for('mycarts') }}" id='togglePublicCartsButton{% if usersCartCount|int < 1 %}_disabled{% endif %}' class="btn marginRight5 {% if usersCartCount|int < 1  %} disabled {% endif %}" >
-								<span id='togglePublicCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if usersCartCount|int < 1 %} No&nbsp;{% else %}My&nbsp;{% endif %}Carts">
+							<a href="{{ uri_for('mycarts') }}" id='myCartsButton' class="btn marginRight5" >
+								<span id='myCarts' class='fillButton' data-placement='bottom' rel="tooltip"  title="My carts">
 									&nbsp;<i class="icon-shopping-cart"></i>&nbsp;
 								</span>
 							</a>
 
-							<a href="{{ uri_for('fullPageWatchlist', watchlistName='ALL') }}" id='toggleWatchlistButton{% if userWatchlistCount|int < 1 %}_disabled{% endif %}' class="btn {% if userWatchlistCount|int < 1 %}disabled {% endif %}">
-								<span id='toggleWatchlist' class='fillButton' data-placement='bottom' rel="tooltip"  title="{% if userWatchlistCount|int < 1 %} No&nbsp; {% endif %}Watchlist">
+							<a href="{{ uri_for('fullPageWatchlist', watchlistName='ALL') }}" id='myWatchlistButton' class="btn">
+								<span id='myWatchlist' class='fillButton' data-placement='bottom' rel="tooltip"  title="My watchlist">
 									&nbsp;<i class="icon-eye-open"></i>&nbsp;
 								</span>
 							</a>
