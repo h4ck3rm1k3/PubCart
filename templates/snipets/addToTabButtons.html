@@ -1,0 +1,94 @@
+{% macro addProductToTab(productName, urlsafeProductKey, best_price, urlsafeUserKey, buttonClass, buttonText, requirePassword=True) -%}
+			{% if requirePassword %}
+				<div class="btn-group">
+					<button id='submitAddProductToTabForm' class="{{buttonClass}}" type="button" data-toggle="modal" data-target="#{{productName}}securityPasswordForm">
+						${{best_price}} {{buttonText}}
+					</button>
+				</div>
+				<div id="{{productName}}securityPasswordForm" class="modal hide fade passwordModal" tabindex="-1" role="dialog" aria-labelledby="securityPasswordCheck" aria-hidden="true">
+					<div class="modal-header">
+						<header>
+							Pubcart Password
+						</header>
+						<div class='modalMessage'>Confirm password to purchase now. <strong>( ${{best_price}} will be charged )</strong></div>
+					</div>
+					<form id='addProductToTabForm' class='nomargin_form' name='addProductToTabForm' action="{{ uri_for('addToTab')}}" method="POST">
+			            <input type="hidden" name="exception" value="{{ exception }}">
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="pk" value="{{urlsafeProductKey}}">
+						<input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+						<input type="hidden" name="q" value="1">
+						<div class="modal-body">
+							<div class="field_container cartName">
+								<input type='password' name='p' class="form_field field_medium" placeholder='your password.'>
+							</div>
+							<div class='checkbox_wrapper'>
+								<label class="checkbox">
+									<input type="checkbox" name="p_off" id="password_check_off" value="False"> {% trans %}Turn this security feature off.{% endtrans %}
+								</label>
+							</div>
+							<div class='forgot_password'>
+								<a href="{{ uri_for('password-reset') }}" class='halfsizeText'>{% trans %}Forgot password?{% endtrans %}</a>
+							</div>
+							<div class='clearfix'></div>
+						</div>
+						<div class="modal-footer">
+							<div class='modalButtonsWrapper'>
+								<button class="pubcart_button pubcart_button_grey" data-dismiss="modal" aria-hidden="true">Cancel</button>
+								<button id='submitAddProductToTabForm' class="pubcart_button" type="submit" form="addProductToTabForm">
+									Confirm order. ${{best_price}}
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			{% endif %}
+{%- endmacro %}
+
+
+{% macro addCartToTab(cartName, urlsafeCartKey, cartPrice, urlsafeUserKey, buttonClass, buttonText, requirePassword=True) -%}
+			{% if requirePassword %}
+				<div class="btn-group">
+					<button id='submitAddProductToTabForm' class="{{buttonClass}}" type="button" data-toggle="modal" data-target="#{{cartName}}securityPasswordForm">
+						${{cartPrice}} {{buttonText}}
+					</button>
+				</div>
+				<div id="{{cartName}}securityPasswordForm" class="modal hide fade passwordModal" tabindex="-1" role="dialog" aria-labelledby="securityPasswordCheck" aria-hidden="true">
+					<div class="modal-header">
+						<header>
+							Pubcart Password
+						</header>
+						<div class='modalMessage'>Confirm password to purchase now. <strong>( ${{cartPrice}} will be charged )</strong></div>
+					</div>
+					<form id='addCartToTabForm' class='nomargin_form' name='addCartToTabForm' action="{{ uri_for('addCartToTab')}}" method="POST">
+			            <input type="hidden" name="exception" value="{{ exception }}">
+			            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			            <input type="hidden" name="ck" value="{{urlsafeCartKey}}">
+			            <input type="hidden" name="uk" value="{{urlsafeUserKey}}">
+			            <input type="hidden" name="q" value="1">
+						<div class="modal-body">
+							<div class="field_container cartName">
+								<input type='password' name='p' class="form_field field_medium" placeholder='your password.'>
+							</div>
+							<div class='checkbox_wrapper'>
+								<label class="checkbox">
+									<input type="checkbox" name="p_off" id="password_check_off" value="False"> {% trans %}Turn this security feature off.{% endtrans %}
+								</label>
+							</div>
+							<div class='forgot_password'>
+								<a href="{{ uri_for('password-reset') }}" class='halfsizeText'>{% trans %}Forgot password?{% endtrans %}</a>
+							</div>
+							<div class='clearfix'></div>
+						</div>
+						<div class="modal-footer">
+							<div class='modalButtonsWrapper'>
+								<button class="pubcart_button pubcart_button_grey" data-dismiss="modal" aria-hidden="true">Cancel</button>
+								<button id='submitAddProductToTabForm' class="pubcart_button" type="submit" form="addProductToTabForm">
+									Confirm order. ${{cartPrice}} 
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			{% endif %}
+{%- endmacro %}

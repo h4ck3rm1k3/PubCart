@@ -1,0 +1,111 @@
+{% macro cartRowSmall(cart, isPublic, iterator, preText) -%}
+				<tr>
+				    <td class='span1'>
+						{% if cart.img %}<img src='{{cart.img}}' width='35px'/>
+						{% else %}<img data-src="holder.js/35x35/text:PubCart." alt="">
+						{% endif %}
+				    </td>
+
+					<td>
+						<div id='{{cart.n}}_rowItemInfoWrapper' class='rowItemInfoWrapper'>
+							<div class='rowItemNameWrapper'>
+								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
+									<strong>{{cart.n|truncate(length=30, killwords=True)}}</strong>
+									<span class="muted">{{preText}}</span>
+								</a>
+							</div>
+							<div class='rowItemDescriptionWrapper'>
+								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
+									{{cart.d|truncate(length=40, killwords=True)}}
+								</a>
+							</div>
+						</div>
+					</td>
+
+					<td>
+						${{cart.d_st}}
+					</td>
+
+					<td>
+						<div id='{{cart.n}}_widget_button' class='product_widget_button'>
+							<div class="btn-group">
+							    <button id='cartMoreOptionsButton{{iterator}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+							      <span class="caret"></span>
+							    </button>
+							    <ul class="dropdown-menu pull-right">
+							        <li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">View Cart</a></li>
+							        <li><a href="{{ uri_for('editCartDetails', urlsafeCartKey=cart.key.urlsafe()) }}">Edit Cart Details</a></li>
+							        <li><a href="{{ uri_for('forkCart', urlsafeCartKey=cart.key.urlsafe()) }}">Fork Cart</a></li>
+									{% if isPublic %}
+										<li class="divider"></li>
+										<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Embed Cart</a></li>
+							        	<li><a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">Share Cart</a></li>
+										<form id='addToWatchlistForm' name='addToWatchlistForm' class="form-inline" action="{{ uri_for('addToWatchlist')}}" method="POST">
+											<fieldset>
+									            <input type="hidden" name="exception" value="{{ exception }}">
+									            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+												<input type="hidden" name="pk" value="{{cart.key.urlsafe()}}">
+												<input type="hidden" name="wln" value="ALL">
+												<li><button type='submit'><i class='icon-eye-open'></i>&nbsp;Watch</button></li>
+											</fieldset>
+										</form>
+									{% endif %}
+									{% if not cart.default %}
+								    <li class="divider"></li>
+									<form id='deleteFromWatchlist' name='deleteFromWatchlistForm' class="form-inline" action="{{ uri_for('deleteCart') }}" method="POST">
+										<fieldset>
+								            <input type="hidden" name="exception" value="{{ exception }}">
+								            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+											<input type="hidden" name="ck" value="{{cart.key.urlsafe()}}">
+											<li><button type='submit' ><i class="icon-trash"></i>&nbsp;Remove</button></li>
+										</fieldset>
+									</form>
+									{% endif %}
+							    </ul>
+						  	</div>
+						</div>
+					</td>
+				</tr>
+{%- endmacro %}
+
+{% macro productRowSmall(product, iterator) -%}
+				<tr>
+				    <td class='span1'>
+						{% if product.img %}<img src='{{product.img}}' width='35px'/>
+						{% else %}<img data-src="holder.js/35x35/text:PubCart." alt="">
+						{% endif %}
+				    </td>
+
+					<td>
+						<div id='{{product.pn}}_rowItemInfoWrapper' class='rowItemInfoWrapper'>
+							<div class='rowItemNameWrapper'>
+								<a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">
+									<strong>{{product.pn|truncate(length=30, killwords=True)}}</strong>
+								</a>
+							</div>
+							<div class='rowItemDescriptionWrapper'>
+								<a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">
+									{{product.d|truncate(length=40, killwords=True)}}
+								</a>
+							</div>
+						</div>
+					</td>
+
+					<td>
+						${{product.d_bup}}
+					</td>
+
+					<td>
+						<div id='{{product.n}}_widget_button' class='product_widget_button'>
+							<div class="btn-group">
+							    <button id='cartMoreOptionsButton{{iterator}}' class="btn btn-mini dropdown-toggle" data-toggle="dropdown" rel="tooltip" title="More Options">
+							      <span class="caret"></span>
+							    </button>
+							    <ul class="dropdown-menu pull-right">
+							        <li><a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">View Product</a></li>
+							    </ul>
+						  	</div>
+						</div>
+					</td>
+				</tr>
+{%- endmacro %}
