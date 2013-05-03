@@ -22,6 +22,7 @@ _routes = [
     RedirectRoute('/', webHandlers.HomeRequestHandler, name='home', strict_slash=True),
     RedirectRoute('/login/', webHandlers.LoginRequestHandler, name='login', methods=['GET', 'POST'], strict_slash=True),
     RedirectRoute('/logout/', webHandlers.LogoutRequestHandler, name='logout', methods=['GET'], strict_slash=True),
+    RedirectRoute('/history/', webHandlers.HistoryListHandler, name='history', methods=['GET'], strict_slash=True),
 
     RedirectRoute('/r', registrationHandlers.SoftRegisterRequestHandler, name='softRegister', methods=['GET', 'POST'], strict_slash=True),
     RedirectRoute('/id/<ek>', registrationHandlers.IntimateRegisterRequestHandler, name='intimateRegister', methods=['GET', 'POST'], strict_slash=True),

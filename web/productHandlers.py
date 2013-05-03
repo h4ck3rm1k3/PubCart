@@ -9,6 +9,7 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 
 ##:  Python Imports
 import logging
+import time
 
 ##:  Webapp2 Imports
 import webapp2
@@ -18,6 +19,7 @@ from webapp2_extras.i18n import gettext as _
 from google.appengine.ext import ndb
 # from google.appengine.ext import deferred
 from google.appengine.api import memcache
+from google.appengine.api import taskqueue
 
 ##:  BournEE Imports
 import forms as forms
@@ -148,26 +150,26 @@ class ProductRequestHandler(BournEEHandler):
                         cartsWithProduct = ndb.get_multi(cartsToGet)
 
             ########################################################################
-            ##: Add this product to the last products viewed memcache
+            ##: Add this product to the last products viewed History
             ########################################################################
-
             try:
-                lpv = memcache.get('%s:lastProductsViewed' % str(self.request.remote_addr))
-                if lpv is None:
-                    lpv = []
-                if productModel in lpv:
-                    lpv.remove(productModel)
-                if len(lpv) > 10:
-                    lastItem = lpv.pop()  # This will simple remove the last item in the list to keep the length at 10
-                lpv.insert(0, productModel)
-                memcache.set('%s:lastProductsViewed' % str(self.request.remote_addr), lpv)
+                now = time.time()
+                taskqueue.add(
+                    name=str(str(productModel.key.urlsafe())[:16]+'history-worker'+str(int(now/30))),
+                    queue_name='history-worker',
+                    url='/worker/createProductHistory',
+                    params={'pk':  productModel.key.urlsafe(),  # product urlsafe key
+                            'uk':  self.user_key.urlsafe(),  # user urlsafe key
+                            'ra': self.request.remote_addr,  # remote_addr
+                            'ua': self.request.user_agent}  # post parameter
+                )
+                logging.info('Ran a task queue to reating history for product: {}'.format(productModel.key))
             except Exception as e:
-                logging.error('Error setting Memcache for lastProductsViewed in class ProductRequestHandler : %s' % e)
+                logging.error('Error creating history for product with taskqueue: -- {}'.format(e))
 
             ########################################################################
             ##: This is the analytics counter for an idividual product
             ########################################################################
-
             try:
                 counter.load_and_increment_counter(name=productModel.key.urlsafe(), period_types=[counter.PeriodType.ALL, counter.PeriodType.YEAR], namespace="products")
             except Exception as e:
@@ -344,6 +346,8 @@ class ClearLastProductsViewedHandler(BournEEHandler):
     def post(self):
         try:
             deleteResult = memcache.delete('%s:lastProductsViewed' % str(self.request.remote_addr))
+            if not deleteResult:
+                raise Exception('Error, memcache.delete did not return anything.')
             message = _('Your last viewed products list has been cleared.')
             self.add_message(message, 'success')
         except Exception as e:

@@ -17,4 +17,7 @@ queue:
 - name: tabTotals-worker
   rate: 100/s
   bucket_size: 100
+- name: history-worker
+  rate: 100/s
+  bucket_size: 100
   

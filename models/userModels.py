@@ -8,8 +8,10 @@ Copyright (c) 2013 Jason Elbourne. All rights reserved.
 """
 import logging
 
+from lib import utils
 from google.appengine.ext import ndb
 from webapp2_extras.appengine.auth.models import User
+
 
 class User(User):
     """
@@ -39,9 +41,9 @@ class User(User):
     country = ndb.StringProperty()
     #: Account activation verifies email
     activated = ndb.BooleanProperty(default=False)
-    
+
     @classmethod
-    def get_by_email(cls, email):
+    def get_by_email(self, email):
         """Returns a user object based on an email.
 
         :param email:
@@ -50,39 +52,100 @@ class User(User):
         :returns:
             A user object.
         """
-        return cls.query(cls.email == email).get()
+        return self.query(self.email == email).get()
 
-    @classmethod
-    def create_resend_token(cls, user_id):
-        entity = cls.token_model.create(user_id, 'resend-activation-mail')
+    def create_resend_token(self, user_id):
+        entity = self.token_model.create(user_id, 'resend-activation-mail')
         return entity.token
 
-    @classmethod
-    def validate_resend_token(cls, user_id, token):
-        return cls.validate_token(user_id, 'resend-activation-mail', token)
+    def validate_resend_token(self, user_id, token):
+        return self.validate_token(user_id, 'resend-activation-mail', token)
+
+    def delete_resend_token(self, user_id, token):
+        self.token_model.get_key(user_id, 'resend-activation-mail', token).delete()
+
+
+class History(ndb.Model):
+    ob = ndb.KeyProperty()  # Object viewed (ie: Product, Cart) (key)
+    uag = ndb.StringProperty(repeated=True)  # User Agent
+    ip = ndb.StringProperty(repeated=True)  # User's IP
+    ts = ndb.DateTimeProperty(auto_now=True, verbose_name='timestamp')  # Timestamp
 
     @classmethod
-    def delete_resend_token(cls, user_id, token):
-        cls.token_model.get_key(user_id, 'resend-activation-mail', token).delete()
+    def get_events_for_user(self, userKey, quantity=25):
+        try:
+            return self.query(ancestor=userKey).order(-History.ts).fetch(quantity)
+        except Exception as e:
+            logging.error('Error while getting History event: {}'.format(e))
+            return None
 
-    def get_social_providers_names(self):
-        social_user_objects = SocialUser.get_by_user(self.key)
-        result = []
-#        import logging
-        for social_user_object in social_user_objects:
-#            logging.error(social_user_object.extra_data['screen_name'])
-            result.append(social_user_object.provider)
-        return result
+    @staticmethod
+    def get_event(userKey, objectKey):
+        try:
+            eventKey = ndb.Key(History, objectKey.urlsafe(), parent=userKey)
+            return eventKey.get()
+        except Exception as e:
+            logging.error('Error while getting History event: {}'.format(e))
+            return None
 
-    def get_social_providers_info(self):
-        providers = self.get_social_providers_names()
-        result = {'used': [], 'unused': []}
-        for k,v in SocialUser.PROVIDERS_INFO.items():
-            if k in providers:
-                result['used'].append(v)
+    @classmethod
+    def get_sorted_history(self, userKey, quantity=25):
+        try:
+            events = self.get_events_for_user(userKey, quantity)
+            if events:
+                productHistory = []
+                cartHistory = []
+                productKeys = []
+                cartKeys = []
+                for event in events:
+                    if event.ob.kind() == 'Product':
+                        productKeys.append(event.ob)
+                    else:
+                        cartKeys.append(event.ob)
+
+                if len(productKeys) > 1:
+                    productHistory = ndb.get_multi(productKeys)
+                elif len(productKeys) == 1:
+                    productHistory.append(productKeys[0].get())
+
+                if len(cartKeys) > 1:
+                    cartHistory = ndb.get_multi(cartKeys)
+                elif len(cartKeys) == 1:
+                    cartHistory.append(cartKeys[0].get())
+
+                return productHistory, cartHistory
+            return None, None
+        except Exception as e:
+            logging.error('Error while getting History: {}'.format(e))
+            return None, None
+
+    @classmethod
+    def create_event(self, userKey, objectKey, ip, userAgent, put_model=True):
+        try:
+            event = self.get_event(userKey, objectKey)
+            if event:
+                if userAgent not in event.uag:
+                    uagl = event.uag
+                    uagl.append(userAgent)
+                    event.uag = uagl  # User Agent
+                if ip not in event.ip:
+                    ipl = event.uag
+                    ipl.append(ip)
+                    event.ip = ipl  # User Agent
             else:
-                result['unused'].append(v)
-        return result
+                event = self()
+                event.key = ndb.Key(History, objectKey.urlsafe(), parent=userKey)
+                event.ob = objectKey  # Object viewed (ie: Product, Cart) (key)
+                event.uag = [userAgent]  # User Agent
+                event.ip = [ip]  # User's IP
+            if put_model:
+                eventKey = event.put()
+                if not eventKey:
+                    raise Exception('Error when atempting to put event model.')
+            return event
+        except Exception as e:
+            logging.error('Error while creating History event: {}'.format(e))
+            return None
 
 
 class LogVisit(ndb.Model):

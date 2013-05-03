@@ -248,7 +248,6 @@ class BournEEHandler(BaseHandler):
         return (ok, pay)
 
     def bournee_template(self, filename, **params):
-        logging.info('user: {}'.format(self.user_info))
         params.update({
             'tab': self.usersTab,
             'tab_items': self.tabItems,
@@ -274,7 +273,6 @@ class BournEEHandler(BaseHandler):
             #         paykey = 'paykey_{}'.format(cart.n)
             #         parms[repr(paykey)] = pay.paykey()
 
-        logging.info('Done Updating Params')
         self.render_template(filename, **params)
 
 

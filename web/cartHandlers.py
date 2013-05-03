@@ -67,12 +67,21 @@ class MyCartsHandler(BournEEHandler):
             allCarts = []
             publicCarts = []
             privateCarts = []
+            logging.info('here')
             allCarts = shoppingModels.Cart.query(shoppingModels.Cart.garbage == False, ancestor=self.user_key).fetch(50)
+            logging.info('here')
+
             if allCarts:
+                logging.info('here')
+
                 for cart in allCarts:
                     if cart.public is True:
+                        logging.info('here')
+
                         publicCarts.append(cart)
                     elif cart.public is False:
+                        logging.info('here')
+
                         privateCarts.append(cart)
             params = {
                 'allCarts': allCarts,
@@ -80,6 +89,8 @@ class MyCartsHandler(BournEEHandler):
                 'privateCarts': privateCarts,
                 'createCartForm': self.createCart_form
             }
+            logging.info('here')
+
             self.bournee_template('mycarts.html', **params)
 
         except Exception as e:
@@ -213,11 +224,10 @@ class FullPageCartHandler(RegisterBaseHandler):
                     raise Exception('User doing request does not match the \
                         owner of the cart, this is a must for Private Carts')
 
-
             productOrders = shoppingModels.Order.get_for_parentKey(cart.key)
-            
-            createCart = self.request.get('create', None) ##: The create flag for showing the add Product Form at the top of the page
-            a = self.request.get('a', None) ##: Address urlsafe Key
+
+            createCart = self.request.get('create', None)  # The create flag for showing the add Product Form at the top of the page
+            a = self.request.get('a', None)  # Address urlsafe Key
 
             defaultAddress = None
             if a and self.user:
@@ -230,7 +240,7 @@ class FullPageCartHandler(RegisterBaseHandler):
                 defaultAddress = ndb.Key(urlsafe=a).get()
             elif self.user:
                 defaultAddress = userModels.Address.query(
-                    userModels.Address.is_default==True,
+                    userModels.Address.is_default == True,
                     ancestor=self.user_key
                 ).get()
             else:
@@ -408,7 +418,7 @@ class AddToSelectedCartFormHandler(BournEEHandler):
             q = self.request.GET.get('q', 1)
             ##: Make Sure quantity from URL is an integer
             qnt = int(q)
-            
+
             self.do_work(urlsafeProductKey, qnt)
 
         except Exception as e:
@@ -428,7 +438,7 @@ class AddToSelectedCartFormHandler(BournEEHandler):
         try:
             if not self.simpleChangeQNT_form.validate():
                 raise FunctionException('simpleChangeQNT_form did not Validate, in function POST of ChangeQuantityOfOrderHandler')
-            
+
             logging.info("simpleChangeQNT_form Form Was valid")
 
             ##: Try to fetch the data from the Form responce

@@ -10,13 +10,23 @@
 						<div id='{{cart.n}}_rowItemInfoWrapper' class='rowItemInfoWrapper'>
 							<div class='rowItemNameWrapper'>
 								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
-									<strong>{{cart.n|truncate(length=30, killwords=True)}}</strong>
+									<strong>
+										{% if cart.n %}
+											{{cart.n|truncate(length=30, killwords=True)}}
+										{% else %}
+											No name.
+										{% endif %}
+									</strong>
 									<span class="muted">{{preText}}</span>
 								</a>
 							</div>
 							<div class='rowItemDescriptionWrapper'>
 								<a href="{{ uri_for('fullPageCart', urlsafeCartKey=cart.key.urlsafe()) }}">
-									{{cart.d|truncate(length=40, killwords=True)}}
+									{% if cart.d %}
+										{{cart.d|truncate(length=40, killwords=True)}}
+									{% else %}
+										No Description
+									{% endif %}
 								</a>
 							</div>
 						</div>
@@ -80,12 +90,22 @@
 						<div id='{{product.pn}}_rowItemInfoWrapper' class='rowItemInfoWrapper'>
 							<div class='rowItemNameWrapper'>
 								<a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">
-									<strong>{{product.pn|truncate(length=30, killwords=True)}}</strong>
+									<strong>
+										{% if product.pn %}
+											{{product.pn|truncate(length=30, killwords=True)}}
+										{% else %}
+											No Description
+										{% endif %}
+									</strong>
 								</a>
 							</div>
 							<div class='rowItemDescriptionWrapper'>
 								<a href="{{ uri_for('product', urlsafeProductKey=product.key.urlsafe()) }}">
-									{{product.d|truncate(length=40, killwords=True)}}
+									{% if product.d %}
+										{{product.d|truncate(length=40, killwords=True)}}
+									{% else %}
+										No Description
+									{% endif %}
 								</a>
 							</div>
 						</div>

@@ -42,15 +42,12 @@ class HomeRequestHandler(BournEEHandler):
         """ Returns a simple HTML form for home """
         try:
             ##: We will look at the entire year...once more trafic hits go to a week or day
-            counterPeriod = str(datetime.now())[0:4] # 2013
+            counterPeriod = str(datetime.now())[0:4]  # 2013
             trendingProducts = LivecountCounter.get_top_objects(namespace="products", period=counterPeriod, quantity=4)
             trendingCarts = LivecountCounter.get_top_objects(namespace="publicCarts", period=counterPeriod, quantity=4)
-            params = {
-                    'trendingProducts':trendingProducts,
-                    'trendingCarts':trendingCarts,
-                    }
+            params = {'trendingProducts': trendingProducts, 'trendingCarts': trendingCarts}
         except:
-            params = {'trendingProducts':None,'trendingCarts':None}
+            params = {'trendingProducts': None, 'trendingCarts': None}
             logging.error('Error getting trendingProducts from LiveCounter during HomeRequestHandler')
         finally:
             self.bournee_template('home.html', **params)
@@ -63,12 +60,12 @@ class LoginRequestHandler(RegisterBaseHandler):
 
     def get(self):
         """ Returns a simple HTML form for login """
-        
+
         if self.user:
             self.redirect_to('home')
-        
+
         logged_out = self.request.get('logged_out', None)
-        params = {'form':self.form,'logged_out':logged_out,}
+        params = {'form': self.form, 'logged_out': logged_out}
         return self.render_template('login.html', **params)
 
     def post(self):
@@ -167,6 +164,29 @@ class LogoutRequestHandler(RegisterBaseHandler):
             return self.redirect_to('softRegister')
 
 
+class HistoryListHandler(BournEEHandler):
+    @user_required
+    def get(self):
+        message = None
+        try:
+            productHistory, cartHistory = userModels.History.get_sorted_history(self.user_key)
+            params = {
+                "productHistory": productHistory,
+                "cartHistory": cartHistory,
+            }
+            logging.info('here')
+            self.bournee_template('history.html', **params)
+        except Exception as e:
+            logging.error('Error in handler - HistoryListHandler : -- {}'.format(e))
+            if not message:
+                message = _('We are having difficulties displaying the History Page. Please try again later.')
+            self.add_message(message, 'error')
+            try:
+                self.redirect(self.request.referer)
+            except:
+                self.redirect_to('home')
+
+
 class FullPageWatchlistHandler(BournEEHandler):
     """
     Handler to view full page of Watchlist items.
@@ -178,30 +198,29 @@ class FullPageWatchlistHandler(BournEEHandler):
             ##: Make Sure if the cart is Private the owner (userKey) is viewing it.
             watchlistKey = ndb.Key(shoppingModels.Watchlist, str(watchlistName).upper(), parent=self.user_key)
             watchlist = watchlistKey.get()
-
-            if not watchlist:
-                raise Exception('No Watchlist Found')
-
             modelObjects = []
-            if watchlist.kl:
-                if len(watchlist.kl) > 1:
-                    modelObjects = ndb.get_multi(watchlist.kl)
-                elif len(watchlist.kl) == 1:
-                    modelObjects.append(watchlist.kl[0].get())
-
             watchedCarts = []
             watchedProducts = []
-            for modelObject in modelObjects:
-                if 'Product' in str(modelObject.key.kind()):
-                    watchedProducts.append(modelObject)
-                elif 'Cart' in str(modelObject.key.kind()):
-                    watchedCarts.append(modelObject)
+            urlsafeWatchlistKey = None
+            if watchlist:
+                urlsafeWatchlistKey = watchlist.key.urlsafe()
+                if watchlist.kl:
+                    if len(watchlist.kl) > 1:
+                        modelObjects = ndb.get_multi(watchlist.kl)
+                    elif len(watchlist.kl) == 1:
+                        modelObjects.append(watchlist.kl[0].get())
+
+                    for modelObject in modelObjects:
+                        if 'Product' in str(modelObject.key.kind()):
+                            watchedProducts.append(modelObject)
+                        elif 'Cart' in str(modelObject.key.kind()):
+                            watchedCarts.append(modelObject)
 
             params = {
                 "modelObjects": modelObjects,
                 "watchedCarts": watchedCarts,
                 "watchedProducts": watchedProducts,
-                "urlsafeWatchlistKey": watchlist.key.urlsafe(),
+                "urlsafeWatchlistKey": urlsafeWatchlistKey,
                 "watchlistName": watchlistName,
             }
             logging.info('Here')

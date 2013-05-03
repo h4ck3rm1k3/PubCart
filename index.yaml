@@ -29,6 +29,12 @@ indexes:
   - name: garbage
   - name: ud
 
+- kind: History
+  ancestor: yes
+  properties:
+  - name: ts
+    direction: desc
+
 - kind: MarketMaker
   properties:
   - name: putModels
